@@ -70,7 +70,8 @@ public class AudioFileServiceImpl implements SearchService<AudioDto, DtoFilter> 
 //            }
 //		}
 
-		Page<AudioFile> entityPage = repo.findAll(spec, pageable);
+//		Page<AudioFile> entityPage = repo.findAll(spec, pageable);
+		Page<AudioFile> entityPage = repo.findAll(pageable);
 		if (entityPage.isEmpty()) { // caso Not Found
 			return new PageImpl<>(Collections.emptyList(), pageable, 0); 
 		}

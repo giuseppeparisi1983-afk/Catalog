@@ -30,7 +30,7 @@ public class SpecificationFactory<T> {
     public Specification<T> build(String tipoOggetto,DtoFilter filter) {
         return (root, query, cb) -> {
         	 
-        	query.distinct(true);
+//        	query.distinct(true);
         	
         	List<Predicate> predicates = new ArrayList<>();
 //        	Join<T, OggettoTag> join = root.join("tags", JoinType.LEFT); 
