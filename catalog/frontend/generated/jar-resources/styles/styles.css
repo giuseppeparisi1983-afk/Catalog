@@ -1,0 +1,37 @@
+/* Stile per righe cancellate nella Grid */
+.riga-cancellata {
+    color: var(--lumo-secondary-text-color);
+    opacity: 0.6;
+    font-style: italic;
+}
+
+/* Esempio: stile per TextField disabilitato */
+.textfield-disabled {
+    background-color: var(--lumo-contrast-5pct);
+    color: var(--lumo-secondary-text-color);
+}
+
+/* Camuffa lo stile dei Button così da farli apparire come un link ipertestuale*/
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--lumo-primary-text-color);
+    text-decoration: underline;
+    cursor: pointer;
+    font: inherit;
+}
+
+.png-icon {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(100%) hue-rotate(180deg);
+}
+
+.multiline-button {
+  white-space: normal;   /* consente il wrapping */
+  text-align:center;	/* allinea testo */
+  line-height: 1.2;      /* regola l’altezza delle righe */
+  max-width: 120px;      /* opzionale: forza il wrapping */
+  width: 120px;
+  height: 120px;
+}
