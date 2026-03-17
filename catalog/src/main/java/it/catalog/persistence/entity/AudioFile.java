@@ -4,15 +4,21 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.SQLJoinTableRestriction;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -46,14 +52,21 @@ public class AudioFile {
 	private Instant createdAt = Instant.now(); 
 	private Instant updatedAt; 
 	
-	  // Mappatura "Virtuale" per permettere la Specification
-	 // relazione con OggettoTag
-	@OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_oggetto", // Colonna su oggetto_tag
-    referencedColumnName = "id", // Colonna su audio_file
-    		insertable = false, 
-            updatable = false)
-    private Set<OggettoTag> tags = new HashSet<>(); 
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}) 
+	    @JoinTable(
+	        name = "oggetto_tag",
+	        joinColumns = @JoinColumn(name = "id_oggetto",
+	        foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)
+	        ),
+	        inverseJoinColumns = @JoinColumn(name = "id_tag")
+	    )
+	  // 1. Applica il filtro 'Audio' automaticamente ogni volta che Hibernate carica questa collezione
+	  @SQLJoinTableRestriction("id_tag IN (SELECT t.id_tag FROM tag t WHERE t.tipo_oggetto = 'Audio')")
+	  // 2. Evita il problema N+1 durante la paginazione caricando i tag a blocchi
+	  @BatchSize(size = 25) // "passo" di caricamento dei tag, da regolare in base alla dimensione media delle pagine
+    private Set<Tag> tags = new HashSet<>();
+	
+
 
 @PreUpdate 
 public void preUpdate(){ 
