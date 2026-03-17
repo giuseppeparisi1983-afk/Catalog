@@ -4,8 +4,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Sort;
-
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -16,7 +14,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.PageTitle;
@@ -361,7 +358,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
 
          
          grid.addItemClickListener(e -> getUI().ifPresent(ui -> ui.navigate("audio-form?id=" + e.getItem().getId()+"&view=true")));
-         grid.setHeight("60vh");
+//         grid.setHeight("60vh");
 
              
 //             grid.addSortListener(e -> {
