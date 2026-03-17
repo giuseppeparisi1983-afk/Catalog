@@ -1,104 +1,78 @@
 package it.catalog.utility;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import it.catalog.persistence.entity.Tag;
+import it.catalog.service.dto.TagDto;
+import it.catalog.service.dto.search.DateRangeCriterion;
+import it.catalog.service.dto.search.DtoFilter;
+import it.catalog.service.dto.search.SearchCriterion;
+import it.catalog.service.dto.search.StringCriterion;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 
 
-/** Gestione dei tipi per la query trovaConFiltro dentro PersonaSerice*/
+/** Gestione della findAll() sui Tipi di file*/
 @Component
 public class SpecificationFactory<T> {
 
 
-//    public Specification<T> build(String tipoOggetto,DtoFilter filter) {
-//        return (root, query, cb) -> {
-//        	 
-////        	query.distinct(true);
-//        	
-//        	List<Predicate> predicates = new ArrayList<>();
-////        	Join<T, OggettoTag> join = root.join("tags", JoinType.LEFT); 
-////        	
-////        	predicates.add(cb.equal(join.get("tag").get("tipoOggetto"), tipoOggetto));
-//        	
-//            // JOIN 1: oggetto_tag
-////            Join<T, OggettoTag> joinOggettoTag = (Join<T, OggettoTag>)
-////                    root.getJoins().stream()
-////                        .filter(j -> j.getAttribute().getName().equals("tags"))
-////                        .findFirst()
-////                        .orElseGet(() -> root.join("tags", JoinType.LEFT));
-//        	Join<T, OggettoTag> joinOggettoTag = root.join("tags", JoinType.LEFT);
-//        			
-//            // JOIN 2: tag
-////            Join<OggettoTag, Tag> joinTag = (Join<OggettoTag, Tag>)
-////                    joinOggettoTag.getJoins().stream()
-////                        .filter(j -> j.getAttribute().getName().equals("tag"))
-////                        .findFirst()
-////                        .orElseGet(() -> joinOggettoTag.join("tag", JoinType.LEFT));
-//
-//        	Join<OggettoTag, Tag> joinTag = joinOggettoTag.join("tag", JoinType.LEFT);
-//        	
-//            // Condizione nella ON-clause
-////            joinTag.on(cb.equal(joinTag.get("tipoOggetto"), tipoOggetto));
-//        	predicates.add(cb.equal(joinTag.get("tipoOggetto"), tipoOggetto));
-//        	
-//            // --- criteri dinamici ---
-//        	SearchCriterion c = filter.getCriterion();
-//        	
-//        	if (c instanceof StringCriterion sc) {
-//                Path<String> path = root.get(sc.getField());
-//                predicates.add(cb.like(cb.lower(path), "%" + sc.getValue().toLowerCase() + "%"));
-//            }
-//        	
-//        	 if (c instanceof DateRangeCriterion dc) {
-//                 Path<LocalDate> path = root.get(dc.getField());
-//
-//                 if (dc.getFrom() != null && dc.getTo() != null) {
-//                     predicates.add(cb.between(path, dc.getFrom(), dc.getTo()));
-//                 } else if (dc.getFrom() != null) {
-//                     predicates.add(cb.greaterThanOrEqualTo(path, dc.getFrom()));
-//                 } else if (dc.getTo() != null) {
-//                     predicates.add(cb.lessThanOrEqualTo(path, dc.getTo()));
-//                 }
-//             }
-//        	 
-//        	 // filtro tag aggiuntivi
-//        	 if (filter.getTags() != null && !filter.getTags().isEmpty()) {
-////                 predicates.add(root.join("tags").in(filter.getTags()));
-//        		 
-////        	predicates.add(withTag_(filter.getTags()).toPredicate(root, query, cb));
-//        		 
-//        		 List<String> tagNames = filter.getTags().stream()
-//                         .map(TagDto::getNomeTag)
-//                         .toList();
-//        		
-//        		 predicates.add(joinTag.get("nomeTag").in(tagNames));
-//
-////                 joinTag.on(joinTag.get("nomeTag").in(tagNames));
-//                 
-//                 /*
-//                  *   predicate = cb.and(
-//                    predicate,
-//                    cb.like(cb.lower(joinTag.get("nomeTag")),
-//                            "%" + tag.toLowerCase() + "%")
-//            );
-//
-//                  * */
-//        		 
-//             }
-//
-//        	 // Ritorna un predicato vuoto (WHERE 1=1) per mantenere tutti i file
-//             // ma con i tag filtrati nella JOIN
-////        	 return cb.conjunction();
-//        	 
-//        	 // IMPORTANTISSIMO: evitare duplicati
-//             query.distinct(true);
-//        	 
-//            return cb.and(predicates.toArray(new Predicate[0]));
-//        };
-//    }
+    public Specification<T> build(String tipoOggetto,DtoFilter filter) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 2. Gestione dei criteri di ricerca dinamici
+            SearchCriterion criterion = filter.getCriterion();
+            if (criterion != null) {
+                
+                // Caso: Ricerca testuale (StringCriterion)
+                if (criterion instanceof StringCriterion sc && sc.getValue() != null && !sc.getValue().isBlank()) {
+                    // Accediamo a sc.getField() e sc.getValue() perché il compilatore ora sa che è uno StringCriterion
+                    predicates.add(cb.like(
+                        cb.lower(root.get(sc.getField())), 
+                        "%" + sc.getValue().toLowerCase() + "%"
+                    ));
+                } 
+                
+                // Caso: Ricerca per data (DateRangeCriterion)
+                else if (criterion instanceof DateRangeCriterion dc) {
+                    // Accediamo a dc.getField(), dc.getFrom(), dc.getTo()
+                    if (dc.getFrom() != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(root.get(dc.getField()), dc.getFrom()));
+                    }
+                    if (dc.getTo() != null) {
+                        predicates.add(cb.lessThanOrEqualTo(root.get(dc.getField()), dc.getTo()));
+                    }
+                }
+            }
+
+            // 3. Filtro per Tags (Relazione Many-to-Many)
+            if (filter.getTags() != null && !filter.getTags().isEmpty()) {
+                // Facciamo una join con la tabella dei tag
+                Join<T, Tag> tagJoin = root.join("tags");
+                
+                // Estraiamo gli ID dei tag selezionati nel filtro
+                List<Long> tagIds = filter.getTags().stream()
+                                          .map(TagDto::getIdTag)
+                                          .toList();
+                
+                // Aggiungiamo il predicato IN
+                predicates.add(tagJoin.get("idTag").in(tagIds));
+                
+                // Nota: Se l'utente seleziona più tag, questa query restituirà i file che hanno ALMENO UNO dei tag.
+                // Se vuoi file che abbiano TUTTI i tag, la logica sarebbe diversa.
+                query.distinct(true); // Evita duplicati dovuti alla join
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
     
     public Specification<T> buildOld(String fieldName, String rawValue, Class<?> type) {
         return (root, query, cb) -> {
