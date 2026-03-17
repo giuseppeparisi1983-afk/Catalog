@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import com.vaadin.flow.component.button.Button;
@@ -20,10 +20,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.CallbackDataProvider;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DateRangeCriterion;
@@ -51,7 +48,7 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
     protected final Button prev = new Button("«");
     protected final Button next = new Button("»");
     
-    protected final int pageSize = 30;
+    protected final int pageSize = 25;
     protected int pageNumber = 0;
     protected int totalPages = 1;
     protected Sort currentSort = Sort.unsorted();
@@ -64,24 +61,41 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         this.grid = new Grid<>(dtoClass, false);
         //grid.setPageSize(30); 
         
+   	 	// Se vuoi che la Grid non superi mai una certa altezza // o mostri
+   	 	// esattamente 25 righe visibili (opzionale) grid.setAllRowsVisible(true); 
+        // Niente barre di scorrimento interne, niente lazy loading "fastidioso".
+        //this.grid.setAllRowsVisible(true);
+        
         setSizeFull();
         add(new H2(title));
 
-        setupEventBus();
         configureCommonComponents();
         configureGrid(grid); // Astratto: implementato dai figli
         
         initLayout();
-        setupDataProvider();
+//        setupDataProvider();
+        setupEventBus();
         
-        initialLoadDone = true;
+        // 1. Dichiariamo che l'inizializzazione è finita
+        this.initialLoadDone = true;
+
+        // 2. Eseguiamo il PRIMO caricamento esplicito
+        refresh();
     }
 
     private void setupEventBus() {
         eventBus.subscribe(() -> {
             if (!initialLoadDone) return;
             debouncer.debounce(() -> {
-                getUI().ifPresent(ui -> ui.access(this::refresh));
+            	getUI().ifPresent(ui -> {
+                    // Verifichiamo se la UI è ancora attiva
+                    if (ui.isClosing()) return;
+                    
+                    ui.access(() -> {
+                        refresh();
+                        // Con @Push abilitato nell'AppShell, questo ora funzionerà
+                    });
+                });
             }, 400);
         });
     }
@@ -115,34 +129,41 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         tagFilter.setPlaceholder("Tags");
         tagFilter.setItemLabelGenerator(TagDto::getNomeTag);
         tagFilter.setItems(service.getAllTags());
-        tagFilter.addValueChangeListener(e -> eventBus.fire());
+//        tagFilter.addValueChangeListener(e -> eventBus.fire());
 
+        tagFilter.addValueChangeListener(e -> {
+            this.pageNumber = 0; // TORNA SEMPRE A PAGINA 1
+            eventBus.fire();
+        });
+        
         // --- SELECTOR (CRITERI) ---
         searchFieldSelector.setPlaceholder("Cerca per...");
         searchFieldSelector.setItemLabelGenerator(SearchFieldOption::getLabel);
         searchFieldSelector.setClearButtonVisible(true);
-        searchFieldSelector.addValueChangeListener(e -> {
-            SearchFieldOption opt = e.getValue();
-            if (opt == null) {
-                searchField.clear();
-                dateFrom.clear();
-                dateTo.clear();
-                searchField.setVisible(true);
-                dateFrom.setVisible(false);
-                dateTo.setVisible(false);
-            } else {
-                boolean isDate = opt.isDateField();
-                searchField.setVisible(!isDate);
-                dateFrom.setVisible(isDate);
-                dateTo.setVisible(isDate);
-                // Puliamo i valori quando si cambia criterio per evitare mix incoerenti
-                searchField.clear();
-                dateFrom.clear();
-                dateTo.clear();
-            }
-            validateAndFire();
-        });
-    }
+		searchFieldSelector.addValueChangeListener(e -> {
+			if (e.isFromClient()) { // Solo se l'azione arriva dall'utente
+				SearchFieldOption opt = e.getValue();
+				if (opt == null) {
+					searchField.clear();
+		            dateFrom.clear();
+		            dateTo.clear();
+		            tagFilter.clear();
+				} 
+				else {
+					boolean isDate = opt.isDateField();
+					
+					searchField.setVisible(!isDate);
+					dateFrom.setVisible(isDate);
+					dateTo.setVisible(isDate);
+					// Puliamo i valori quando si cambia criterio per evitare mix incoerenti
+					searchField.clear();
+					dateFrom.clear();
+					dateTo.clear();
+			}
+				validateAndFire();
+			}
+		});
+	}
 
     protected void validateAndFire() {
         SearchFieldOption opt = searchFieldSelector.getValue();
@@ -167,6 +188,9 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
             }
         }
 
+     // RESETTA SEMPRE LA PAGINA quando cambiano i criteri di ricerca
+        this.pageNumber = 0; 
+        
         eventBus.fire();
     }
 
@@ -187,65 +211,70 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         top.setFlexGrow(1.0, filters);	// Espandiamo i filtri per spingere il bottone "Nuovo" tutto a destra
         top.setAlignItems(Alignment.BASELINE);
 
-        prev.addClickListener(e -> { if (pageNumber > 0) { pageNumber--; eventBus.fire(); }});
-        next.addClickListener(e -> { if (pageNumber < totalPages - 1) { pageNumber++; eventBus.fire(); }});
+        prev.addClickListener(e -> { if (pageNumber > 0) { pageNumber--;  refresh(); }});
+        next.addClickListener(e -> { if (pageNumber < totalPages - 1) { pageNumber++;  refresh(); }});
         HorizontalLayout pager = new HorizontalLayout(prev, pageInfo, next);
         pager.setAlignItems(Alignment.CENTER);
 
         add(top, grid, pager);
     }
 
-    private void setupDataProvider() {
-       
-//    	grid.setPageSize(pageSize); // Assicurati che sia PRIMA del setDataProvider
-    	
-    	CallbackDataProvider<T, F> dataProvider =DataProvider.fromFilteringCallbacks(
-            query -> {
-                Pageable pageable = VaadinSpringDataHelpers.toSpringPageRequest(query);
-                //Pageable pageable = PageRequest.of(pageNumber, pageSize, currentSort);
-                
-//                int offset = query.getOffset();
-//                int limit = query.getLimit() > 0 ? query.getLimit() : pageSize;
-//
-//                int pageSize = offset / limit;
-////
-//                Sort sort = VaadinSpringDataHelpers.toSpringPageRequest(query).getSort();
-////                //Sort sort = VaadinSpringDataHelpers.toSpringSort(query);
-////
-//                Pageable pageable = PageRequest.of(pageSize, limit, sort);
-
-                
-                Page<T> page = service.findPage(buildFilter(), pageable);
-                query.getPageSize(); // utile per ottimizzazioni                
-                grid.setVisible(true);
-    			pageInfo.setVisible(true);
-    			next.setVisible(true);
-    			prev.setVisible(true);
-                totalPages = page.getTotalPages();
-                pageNumber = pageSize;
-                return page.getContent().stream();
-            },
-            query -> {
-	        	
-	        	long total = service.count(buildFilter());
-	        	     	
-	        	 if (total == 0) {
-	        			grid.setVisible(false);
-    	    			pageInfo.setVisible(false);
-    	    			next.setVisible(false);
-    	    			prev.setVisible(false);
-    	    			Notification.show("Nessun dato trovato", 3000, Notification.Position.MIDDLE);
-	             }
-	        	 query.getPageSize(); // utile per ottimizzazioni
-	            
-	        	 return (int) total;
-	        }
-        );
-    	
-    	// Forza il refresh per applicare la page size
-//        grid.getDataProvider().refreshAll();
-    	grid.setDataProvider(dataProvider);
-    }
+	/*
+	 * private void setupDataProvider() {
+	 * 
+	 * grid.setPageSize(pageSize); // Assicurati che sia PRIMA del setDataProvider
+	 * 
+	 * // Se vuoi che la Grid non superi mai una certa altezza // o mostri
+	 * esattamente 25 righe visibili (opzionale) grid.setAllRowsVisible(true); //
+	 * Niente barre di scorrimento interne, niente lazy loading "fastidioso".
+	 * 
+	 * CallbackDataProvider<T, F> dataProvider =DataProvider.fromFilteringCallbacks(
+	 * query -> { // Pageable pageable =
+	 * VaadinSpringDataHelpers.toSpringPageRequest(query); //Pageable pageable =
+	 * PageRequest.of(pageNumber, pageSize, currentSort);
+	 * 
+	 * // int offset = query.getOffset(); // int limit = query.getLimit() > 0 ?
+	 * query.getLimit() : pageSize; // // int pageSize = offset / limit; //// //
+	 * Sort sort = VaadinSpringDataHelpers.toSpringPageRequest(query).getSort();
+	 * //// //Sort sort = VaadinSpringDataHelpers.toSpringSort(query); //// //
+	 * Pageable pageable = PageRequest.of(pageSize, limit, sort);
+	 * 
+	 * // Pageable pageable = PageRequest.of( // query.getPage(), // pagina
+	 * richiesta // 10, // numero di elementi per pagina // Sort.by("title") //
+	 * opzionale // );
+	 * 
+	 * // 1. Calcola la pagina corretta basandoti sull'offset e il limit di Vaadin
+	 * int numpage = query.getOffset() / query.getLimit(); int limit =
+	 * query.getLimit();
+	 * 
+	 * // 2. Crea il PageRequest con la dimensione ESATTA chiesta da Vaadin //
+	 * Pageable pageable = PageRequest.of(numpage, limit, //
+	 * VaadinSpringDataHelpers.toSpringDataSort(query));
+	 * 
+	 * // query.getLimit() ora sarà 25 perché l'abbiamo impostato sulla Grid //
+	 * Pageable pageable = PageRequest.of(query.getPage(), query.getPageSize(), //
+	 * VaadinSpringDataHelpers.toSpringDataSort(query)); // Chiedi al backend
+	 * esattamente i 25 record della pagina X PageRequest pageable =
+	 * PageRequest.of(pageNumber, pageSize, Sort.by("title"));
+	 * 
+	 * Page<T> page = service.findPage(pageable); query.getPageSize(); // utile per
+	 * ottimizzazioni grid.setVisible(true); pageInfo.setVisible(true);
+	 * next.setVisible(true); prev.setVisible(true); totalPages =
+	 * page.getTotalPages(); pageNumber = pageSize; return
+	 * page.getContent().stream(); }, query -> {
+	 * 
+	 * long total = service.count();
+	 * 
+	 * if (total == 0) { grid.setVisible(false); pageInfo.setVisible(false);
+	 * next.setVisible(false); prev.setVisible(false);
+	 * Notification.show("Nessun dato trovato", 3000, Notification.Position.MIDDLE);
+	 * } query.getPageSize(); // utile per ottimizzazioni
+	 * 
+	 * return (int) total; } );
+	 * 
+	 * // Forza il refresh per applicare la page size //
+	 * grid.getDataProvider().refreshAll(); grid.setDataProvider(dataProvider); }
+	 */
 
     protected F buildFilter() {
         F filter = filterSupplier.get();
@@ -270,8 +299,35 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
     }
 
     public void refresh() {
-        grid.getDataProvider().refreshAll();
+    	 // 1. Costruiamo il filtro aggiornato con quello che c'è scritto nella UI
+        F filter = buildFilter();
+        
+        // 2. Prepariamo la richiesta paginata
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by("title"));
+        
+        // 3. Chiamiamo il service passando SIA la paginazione SIA il filtro
+        // NOTA: il tuo service.findPage deve accettare (Pageable, Filter)
+        Page<T> page = service.findPage(pageable, filter); 
+        
+        // 4. Aggiorniamo la Grid (Sostituzione totale dei dati)
+        grid.setItems(page.getContent());
+        
+        // 5. Aggiorniamo i controlli della UI
+        this.totalPages = page.getTotalPages();
+        boolean hasData = totalPages > 0;
+        
+        grid.setVisible(hasData);
+        pageInfo.setVisible(hasData);
+        next.setVisible(hasData);
+        prev.setVisible(hasData);
+    	
+    	  if (!hasData) {
+            Notification.show("Nessun dato trovato", 3000, Notification.Position.MIDDLE);
+        }
+        
         pageInfo.setText("Pagina " + (pageNumber + 1) + " di " + (totalPages == 0 ? 1 : totalPages));
+        prev.setEnabled(pageNumber > 0);
+        next.setEnabled(pageNumber < totalPages - 1);;
     }
 
     protected void initSearchOptionsByGrid() {
