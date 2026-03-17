@@ -9,9 +9,14 @@ import it.catalog.service.dto.TagDto;
 
 //Interfaccia generica per i Service
 public interface SearchService<T, F> {
-	Page<T> findPage(F filter, Pageable pageable);
 
-	long count(F filter);
+//	long count(F filter);
+	
+	long count();
+
+	Page<T> findPage(Pageable pageable,F filter);
+
+//	long count(Pageable pageable);
 
 	List<TagDto> getAllTags();
 
