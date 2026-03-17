@@ -5,14 +5,16 @@
 
 - **0.0.1-SNAPSHOT**  implementazione del metodo di ricerca valido solo per i file audio
 - **1.0.0-SNAPSHOT**  centralizzazione del sistema di ricerca da riutilizzare sulle altre index
+- **1.0.1-SNAPSHOT**  bugFix su ricerca dentro ui.audio.index e salvataggio dentro ui.audio.form
 ===================================================================================================================================
 
 ##TODO
 
 - Bug Audio.Index: 
-			1. paginazione da sistemare non funziona per come dovrebbe
-			2. non funziona la ricerca per tags
-			3. la sequenza della prima colonna non si aggiorna con la paginazione
+			1. paginazione da sistemare non funziona per come dovrebbe ✅
+			2. non funziona la ricerca per tags ✅
+			3. la sequenza della prima colonna non si aggiorna con la paginazione ✅
+			4. refresh dei risultati da verrificare
 - Bug Audio.Form:
 			1. non funziona l'aggiornamento dei tag
 			2. grafica da sistemare
@@ -47,7 +49,7 @@
 - [Ambiente]: Installazione di AS locale in modo da poter accedere in lettura alle risorse in locale
 - [Ambiente]: Se la fase di lettura và bene, introdurre su ogni form uno spazio che tramite Drag&Drop permetta l'upload del file fisico da salvare nel path specificato. Note Salva il file anche sull'HD di backup
 - [Ambiente]: Sulla classe main CatalogApplication estrarre dall'hd tutti i metadati già presenti e aggiornare il db
-- [Ambiente]: vedi procedura per creare il repository su GitLab e un ambiente di test. e il db come faccio a portarlo online ?
+- [Ambiente]: vedi procedura per creare il repository su GitLab ✅ e un ambiente di test. e il db come faccio a portarlo online ?
 - [Film]: metodo per il recupero di tutti i metadati dal file excel al momento non ancora disponibile e aggiorna i dati in tabella. Il file copertina, lo copi su src/resources/copertine/film e sul db memorizzi solo il nome del file. 
 
 ===================================================================================================================================
