@@ -69,7 +69,7 @@ public class Form extends FormLayout implements BeforeEnterObserver {
     private final MultiSelectComboBox<TagDto> tags = new MultiSelectComboBox<>();
 
     private final Button save = new Button("Salva");
-    private final Anchor cancel = new Anchor("audio", "Annulla");
+//    private final Anchor cancel = new Anchor("audio", "Annulla");
 
     public Form(AudioFileServiceImpl service) {
         this.service = service;
