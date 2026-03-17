@@ -33,7 +33,7 @@ public class AudioDto {
 
 
     // Tags associati private
-    List<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
+    private List<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
 
     
 }
