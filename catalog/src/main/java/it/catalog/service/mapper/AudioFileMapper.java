@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
 import it.catalog.persistence.entity.AudioFile;
-import it.catalog.persistence.entity.OggettoTag;
+import it.catalog.persistence.entity.Tag;
 import it.catalog.service.dto.AudioDto;
 import it.catalog.service.dto.TagDto;
 
@@ -18,14 +18,26 @@ import it.catalog.service.dto.TagDto;
 public interface AudioFileMapper {
     
 	@Mapping(target = "formato", source = "formato") 
-//	@Mapping(target = "tags", ignore = true) 
 	@Mapping(target = "tags", expression = "java(getTags(entity.getTags()))")
 	AudioDto toDto(AudioFile entity); 
 	
 	@Mapping(target = "formato", expression = "java(AudioFile.Formato.valueOf(dto.getFormato()))") 
+//	@Mapping(target = "tags", ignore = true) 
+	// MapStruct vedrà che AudioDto ha una List<TagDto> e AudioFile ha un Set<Tag>
+    // Cercherà un metodo per mappare TagDto -> Tag e lo userà per l'intera collezione.
 	AudioFile toEntity(AudioDto dto);
 	
+	// Questo metodo istruisce MapStruct su come mappare il singolo Tag
+    @Mapping(target = "tipoOggetto", constant = "Audio") // Forza il tipo su 'Audio' per i nuovi tag
+    Tag toTagEntity(TagDto dto);
+	
+	
 	List<AudioDto> toDtoList(List<AudioFile> entities);
+	
+//	@Mapping(target = "tags", source = "tagsConcat")
+//	AudioDto toDto(AudioFileCustomerEntity entity);
+//	
+//	List<AudioDto> toDtoList(List<AudioFileCustomerEntity> entities);
 	
 	
 	// Conversione Page<Entity> → Page<Dto>
@@ -39,10 +51,10 @@ public interface AudioFileMapper {
     }
 	
 	
-    default List<TagDto> getTags(Set<OggettoTag> tags) {
+    default List<TagDto> getTags(Set<Tag> tags) {
         if (tags == null) return null;
         return tags.stream()
-            .map(tag -> new TagDto(tag.getTag().getIdTag(), tag.getTag().getNomeTag(),tag.getTag().getTipoOggetto())) // Adatta al tuo costruttore TagDto
+            .map(tag -> new TagDto(tag.getIdTag(), tag.getNomeTag(),tag.getTipoOggetto())) // Adatta al tuo costruttore TagDto
             .collect(Collectors.toList());
     }
     
