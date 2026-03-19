@@ -53,25 +53,45 @@ public class HomeView extends VerticalLayout {
        add(paddindlayout,row1,row2,row3);
     }
    
-    private Button createCategoryButton(String label, String route) {
-        Button button = new Button(label);
-        
-        if ("Film".equals(label)) {
-        	
-        	button.getStyle().set("--lumo-button-primary-background-color", "red");
-        	button.getStyle().set("--lumo-button-primary-text-color", "white");
-        	button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+	private Button createCategoryButton(String label, String route) {
+		Button button = new Button(label);
+       	button.getStyle().set("color", "black");
 
-        }
+		if ("Film".equals(label)) {
 
-        button.addClassName("multiline-button");
-        button.addClickListener(e -> {
-            // Puoi usare un service condiviso o un ViewModel per passare i dati
-            getUI().ifPresent(ui -> ui.navigate(route));
-        });
+			button.getStyle().set("--lumo-button-primary-background-color", "red");
+			button.getStyle().set("--lumo-button-primary-text-color", "white");
+			button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        return button;
-    }
+		} else if ("Audio".equals(label)) {
+
+			button.getStyle().set("background-color", "red");
+
+		} else if ("Immagini".equals(label)) {
+
+			button.getStyle().set("background-color", "green");
+//        	button.getStyle().set("color", "white");
+
+		} else if ("Video".equals(label)) {
+
+			button.getStyle().set("background-color", "yellow");
+//        	button.getStyle().set("color", "white");
+
+		} else if ("Documenti".equals(label)) {
+
+			button.getStyle().set("background-color", "#e0e0e0");
+//        	button.getStyle().set("color", "white");
+
+		}
+
+		button.addClassName("multiline-button");
+		button.addClickListener(e -> {
+			// Puoi usare un service condiviso o un ViewModel per passare i dati
+			getUI().ifPresent(ui -> ui.navigate(route));
+		});
+
+		return button;
+	}
     
     
 }
