@@ -1,6 +1,5 @@
 package it.catalog.service.impl;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,15 +8,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import it.catalog.common.enums.StatiDocumento;
 import it.catalog.persistence.entity.Documento;
 import it.catalog.persistence.repository.DocumentoRepository;
-import it.catalog.persistence.repository.OggettoTagRepository;
 import it.catalog.service.dto.DocumentoDto;
 import it.catalog.service.dto.TagDto;
-import it.catalog.service.dto.search.DtoFilter_;
-import it.catalog.service.interfaces.DocumentoService;
+import it.catalog.service.dto.search.DtoFilter;
+import it.catalog.service.interfaces.SearchService;
 import it.catalog.service.interfaces.TagService;
 import it.catalog.service.mapper.DocumentoMapper;
 import it.catalog.utility.PathPrefixProvider;
@@ -26,11 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class DocumentoServiceImpl implements DocumentoService {
+public class DocumentoServiceImpl implements SearchService<DocumentoDto, DtoFilter> {
 
     private final DocumentoRepository repository;
     private final DocumentoMapper mapper;
-    private final OggettoTagRepository oggettoTagRepository;
     private final TagService tagService;
     
     private final PathPrefixProvider prefixProvider;
@@ -38,11 +36,11 @@ public class DocumentoServiceImpl implements DocumentoService {
     
     public DocumentoServiceImpl(DocumentoRepository documentoRepository, 
     		DocumentoMapper documentoMapper,SpecificationFactory<Documento> specificationFactory,
-    		OggettoTagRepository oggettoTagRepository,PathPrefixProvider prefixProvider,TagService tagService) {
+    		PathPrefixProvider prefixProvider,TagService tagService) {
         this.repository = documentoRepository;
         this.mapper = documentoMapper;
         this.specificationFactory = specificationFactory;
-        this.oggettoTagRepository = oggettoTagRepository;
+       
         this.prefixProvider = prefixProvider;
         this.tagService= tagService;
     }
@@ -50,85 +48,52 @@ public class DocumentoServiceImpl implements DocumentoService {
     
     @Override
     /**query fatta sulla index per avere tutti i tags dell'oggetto Documenti */
-    public List<TagDto> getAllTagsForDoc() {
-    	return tagService.findByTipoOggetto("Documenti");
-    }
-    
-    
+    public List<TagDto> getAllTags() {
+    	return tagService.findByTipoOggetto("Documento");
+    }  
     
     @Override
-    public DocumentoDto trovaPerId(Long id) {
+    public DocumentoDto findById(Long id) {
          	
-    	var dtoOpt = repository.findById(id).map(entity -> mapper.toDto(entity,prefixProvider));
-        dtoOpt.ifPresent(dto -> dto.setTags(tagService.findTagsByObject("Documenti", dto.getIdDocumento())));
+    	var dtoOpt = repository.findById(id).map(entity -> mapper.toDto(entity,prefixProvider));   
         return dtoOpt.orElse(new DocumentoDto());
     }
     
     @Override
-    public DocumentoDto create(DocumentoDto dto) {
+    @Transactional
+    public DocumentoDto save(DocumentoDto dto) {
         Documento saved = repository.save(mapper.toEntity(dto,prefixProvider));
-        		
-        log.info("Success save new document {}",saved.getIdDocumento());
-        List<String> tagNames = dto.getTags() != null ? 
-        		dto.getTags().stream().map(TagDto::getNomeTag).toList()
-        		: Collections.EMPTY_LIST;
-        
-        tagService.upsertTagsForObject("Documenti", saved.getIdDocumento(),  tagNames);
-        log.info("Update Tags list for Image file {}",saved.getIdDocumento());
-        DocumentoDto res = mapper.toDto(saved,prefixProvider);
-        res.setTags(dto.getTags());
-        return res;
-
+        log.info("Save New Document file. Id {}",saved.getIdDocumento());
+        return dto;
     }
-
+    
     @Override
-    public Page<DocumentoDto> search(DtoFilter_ filtro,  List<String> tagNames, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public Page<DocumentoDto> findPage(Pageable pageable,DtoFilter filter) {
         
-    	Specification<Documento> spec = (root, query, cb) -> cb.conjunction();     
-    	
-    	 if (filtro != null && filtro.getCampo() != null && filtro.getValore() != null) {
-             try {
-            	 Field field = DocumentoDto.class.getDeclaredField(filtro.getCampo());
-                 Class<?> type = field.getType();
-            	 
-            	spec = specificationFactory.buildOld(
-                filtro.getCampo(),
-                filtro.getValore(),
-                type
-            );       
-            	if (tagNames != null && !tagNames.isEmpty())
-            		spec = spec.and(specificationFactory.withTag("Documenti", tagNames));
-            	
-            	
-            	
-             } catch (NoSuchFieldException e) {
-                 // Campo non valido, ignora il filtro
-            	 log.error("Campo non valido",e);
-             }
-    	 }
-
+    	Specification<Documento> spec = specificationFactory.build("Documento",filter);     
+    
 	    Page<Documento> result =repository.findAll(spec, pageable);
 	    if (result.isEmpty()) {
 	        return new PageImpl<>(Collections.emptyList(), pageable, 0); // caso Not Found
 	    }
-	    return result.map(entity -> {
-	    	
-	    	DocumentoDto dto=mapper.toDto(entity,prefixProvider);
-	    		
-	    	dto.setTags(tagService.findTagsByObject("Documenti", entity.getIdDocumento()));
-	    	
-	    	return dto;
-	    		
-	    });
 	    
+	    return mapper.toDtoPage(result);
+ 
     }
     
+	@Override
+	public long count() {
+
+		return repository.count();		 
+	}
+	
     @Override
-    public void cancella(Long id) {       
+    public void delete(Long id) {       
         repository.findById(id).ifPresent(doc -> {
         	doc.setStato(StatiDocumento.ELIMINATO);
         	repository.save(doc);
-            log.info("Cancelled Document file {} with success",id);
+            log.info("Cancelled Document idFile {} with success",id);
         });
     }
 
@@ -137,7 +102,7 @@ public class DocumentoServiceImpl implements DocumentoService {
     	repository.findById(id).ifPresent(doc -> {
         	doc.setStato(StatiDocumento.ATTIVO);
         	repository.save(doc);
-            log.info("Cancelled Document file {} with success",id);
+            log.info("Recovery Document idFile {} with success",id);
         });
     	
     }
