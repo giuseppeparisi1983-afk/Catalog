@@ -119,7 +119,7 @@ public class Form extends FormLayout implements BeforeEnterObserver {
         });
 
         // Binder bindings
-        binder.forField(title).asRequired("Titolo obbligatorio").bind(AudioDto::getTitle, AudioDto::setTitle);
+        binder.forField(title).asRequired("Titolo obbligatorio").bind(AudioDto::getNome, AudioDto::setNome);
         binder.forField(description).bind(AudioDto::getDescription, AudioDto::setDescription);
         binder.forField(filename).asRequired("Filename obbligatorio").bind(AudioDto::getFilename, AudioDto::setFilename);
         binder.forField(mimeType).asRequired("MIME obbligatorio").bind(AudioDto::getMimeType, AudioDto::setMimeType);

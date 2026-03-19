@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AudioDto {
     private Long id;
-    private String title;
+    private String nome;
     private String description;
     private String filename; 
     private String mimeType; 

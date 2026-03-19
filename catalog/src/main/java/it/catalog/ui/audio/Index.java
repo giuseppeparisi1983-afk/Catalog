@@ -57,7 +57,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
             .setKey("rowNumber"); // Chiave opzionale
     	
          grid.addColumn(new ComponentRenderer<>(audio -> {
-      	    Span span = new Span(audio.getTitle());
+      	    Span span = new Span(audio.getNome());
       	    if (audio.isCancelled()) {
       	        span.addClassName("riga-cancellata");
       	    }
@@ -66,7 +66,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
-         .setHeader("Titolo").setSortable(true).setKey("title");
+         .setHeader("Titolo").setSortable(true).setKey("nome");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
         	 Span span = new Span(audio.getGenere());
@@ -376,28 +376,6 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
 //             });
 
     }
-    
-    
-    private void conferma(Long id,String msg) {
-    	Dialog conferma = new Dialog();
-		conferma.add(new Text(msg));
-		
-		Button confermaBtn = new Button("Conferma", evn -> {
-			if (msg.contains("cancellare"))
-			service.delete(id);
-			else
-				service.recovery(id);
-			refresh();
-			conferma.close();
-			Notification.show(msg.contains("cancellare") ? "Audio cancellato" : "Audio ripristinato");
-		});
-		
-		Button annullaBtn = new Button("Annulla", evnt -> conferma.close());
-		
-		conferma.add(new HorizontalLayout(confermaBtn, annullaBtn));
-		conferma.open();
-    }
-    
 
 //		private void newAudio() {
 ////   	 RouteParameters params = new RouteParameters("id", String.valueOf("0"));

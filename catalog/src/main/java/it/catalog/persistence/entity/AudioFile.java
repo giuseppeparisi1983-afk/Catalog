@@ -8,6 +8,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,7 +34,8 @@ public class AudioFile {
 	@Id 
 	@GeneratedValue(strategy = GenerationType.IDENTITY) 
 	private Long id; 
-	private String title; 
+	@Column(name = "title")
+	private String nome; 
 	private String description; 
 	private String filename; private String mimeType; 
 	private Integer durationSeconds; 
