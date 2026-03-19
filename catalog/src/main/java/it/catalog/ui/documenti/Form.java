@@ -1,5 +1,7 @@
 package it.catalog.ui.documenti;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.Set;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -28,12 +31,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
@@ -42,21 +40,26 @@ import it.catalog.common.enums.StatiDocumento;
 import it.catalog.common.enums.TipoDocumento;
 import it.catalog.service.dto.DocumentoDto;
 import it.catalog.service.dto.TagDto;
-import it.catalog.service.interfaces.DocumentoService;
+import it.catalog.service.impl.DocumentoServiceImpl;
 import it.catalog.ui.common.MainLayout;
 
-@Route(value="documents-form/:id", layout = MainLayout.class)
+@Route(value="documents-form/:id/:view", layout = MainLayout.class)
 @PageTitle("Documento - Form")
 //@Menu(order = 1, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
-public class Form extends Composite<VerticalLayout> implements BeforeEnterObserver,HasUrlParameter<Long> {
+public class Form extends Composite<VerticalLayout> implements BeforeEnterObserver{
+//public class Form extends Composite<VerticalLayout> implements BeforeEnterObserver,HasUrlParameter<Long> {
 
 	private TextField nome = new TextField();
 	private TextField estensione = new TextField();
 	private NumberField dimensione = new NumberField();
+	private NumberField visualizzazioni = new NumberField();
 	private TextField lingua = new TextField();
 	private IntegerField versione = new IntegerField();
+	private IntegerField rating = new IntegerField();
 	//@PropertyId("categoria")
 	private ComboBox<TipoDocumento> categoria = new ComboBox<>("Categoria");
+	private Checkbox chkPreferito = new Checkbox("Preferito");
+	private Checkbox chkCancellato = new Checkbox("Cancellato");
 	private TextField autore = new TextField();
 	private DateTimePicker lastView = new DateTimePicker();
 	private TextArea descrizione = new TextArea();
@@ -73,17 +76,17 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
     private Button indietro = new Button();
     private Button salva = new Button();
     
-	private DocumentoService service;
+	private DocumentoServiceImpl service;
 	 private final Binder<DocumentoDto> binder = new Binder<>(DocumentoDto.class);
 	
 	 private DocumentoDto dto=new DocumentoDto();
 	 
 	 private boolean viewMode = true;
 
-	 public Form(DocumentoService service) {
+	 public Form(DocumentoServiceImpl service) {
         
     	this.service=service;
-    	
+  
     	VerticalLayout layoutColumn2 = new VerticalLayout();
         H1 h1 = new H1();
         HorizontalLayout layoutRow = new HorizontalLayout();
@@ -219,7 +222,7 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
  // listener per il pulsante Salva
     private void saveVideo() {
     	binder.writeBeanIfValid(dto);
-    	service.create(dto);
+    	service.save(dto);
         Notification.show("Elemento salvato!", 3000, Notification.Position.TOP_CENTER);
         getUI().ifPresent(ui -> ui.navigate(Index.class)); // Torna alla lista eventualmente
     }
@@ -233,7 +236,7 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
         if (idParam.isPresent()) {
             try {
 //            	binder.bindInstanceFields(this); // associa automaticamente i campi del form alle proprietà del DTO basandosi sul nome.
-            	this.dto =service.trovaPerId(Long.parseLong(idParam.get()));
+            	this.dto =service.findById(Long.parseLong(idParam.get()));
             	bindFieldsFromObject(this.dto);
                 updateFieldState(); // aggiorna i campi e visibilità del pulsante
             	binder.readBean(dto); // Popola automaticamente i campi. IMPORTANTE: prima si definiscono i binding, poi si chiama readBean().               
@@ -250,9 +253,9 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
 	private void configTags() {
 		
 		 // Carica tutti i tag disponibili
-        List<TagDto> allTags = new ArrayList<>(service.getAllTagsForDoc());
+        List<TagDto> allTags = new ArrayList<>(service.getAllTags());
 		 	tagsSelector.setItems(allTags);
-	        tagsSelector.setWidth("300px");
+	        tagsSelector.setWidth("360px");
 	        tagsSelector.setPlaceholder("Tags");
 	        tagsSelector.setItemLabelGenerator(TagDto::getNomeTag);// Mostra solo il nome del tag
 	        ListDataProvider<TagDto> dataProvider = new ListDataProvider<>(allTags);
@@ -260,7 +263,7 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
 	        tagsSelector.setAllowCustomValue(true);
 	        tagsSelector.addCustomValueSetListener(e -> {
 	            String nomeTag = e.getDetail();
-	            TagDto nuovoTag=new TagDto(nomeTag,"Persona");
+	            TagDto nuovoTag=new TagDto(nomeTag,"Documento");
 	          
 	            
 	            // Aggiungi il nuovo tag agli items senza ricreare il provider
@@ -305,75 +308,95 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
 	
 	  private void configureBindings() {
 		  
-		  binder.forField(nome)
-          .withNullRepresentation("")
-          .asRequired("Campo obbligatorio")
-          .withValidator(name -> name.length() >= 3, "Minimo 3 caratteri")
-          .bind(DocumentoDto::getNome,DocumentoDto::setNome);
+			binder.forField(nome).withNullRepresentation("").asRequired("Campo obbligatorio")
+					.withValidator(name -> name.length() >= 3, "Minimo 3 caratteri")
+					.bind(DocumentoDto::getNome, DocumentoDto::setNome);
 
-		  binder.forField(estensione)
-		  .asRequired("Campo obbligatorio")
-		  .bind(DocumentoDto::getEstensione,DocumentoDto::setEstensione);
-		  
-		  /**
-		   * i campi NumberField lavorano con i tipi Double, mentre su DocumentoDto 
-		   * dimensione è di tipo Long. Per questo serve una conversione manuale tramite Converter
-		   * */
-		  binder.forField(dimensione)
-		  .withConverter(
-                  doubleVal -> doubleVal == null ? null : doubleVal.longValue(),
-                  longVal -> longVal == null ? null : longVal.doubleValue(),
-                  "Valore non valido"
-              )
-	        .withValidator(n -> n != null && n > 0.0, "Deve essere maggiore di 0")
-	        .bind(DocumentoDto::getDimensione,DocumentoDto::setDimensione);
+			binder.forField(estensione).asRequired("Campo obbligatorio").bind(DocumentoDto::getEstensione,
+					DocumentoDto::setEstensione);
 
-		  
-		  binder.forField(lingua)
-		  .withNullRepresentation("")
-		  .bind(DocumentoDto::getLingua,DocumentoDto::setLingua);
-		  
-		  binder.forField(versione)
-	        .withConverter(
-	        		value -> value, // da IntegerField → DTO
-	        		value -> value == null ? null : value // da DTO → IntegerField
-	        		)
-	        .withValidator(n -> n != null && n > 0, "Il valore deve essere maggiore di 0")
-	        .bind(DocumentoDto::getVersione, DocumentoDto::setVersione);
-		  
-		  binder.forField(categoria)
-		  .asRequired("Campo obbligatorio")
-		  .bind(DocumentoDto::getCategoria,DocumentoDto::setCategoria);
+			/**
+			 * i campi NumberField lavorano con i tipi Double, mentre su DocumentoDto
+			 * dimensione è di tipo Long. Per questo serve una conversione manuale tramite
+			 * Converter
+			 */
+			binder.forField(dimensione)
+					.withConverter(doubleVal -> doubleVal == null ? null : doubleVal.longValue(),
+							longVal -> longVal == null ? null : longVal.doubleValue(), "Valore non valido")
+					.withValidator(n -> n != null && n > 0.0, "Deve essere maggiore di 0")
+					.bind(DocumentoDto::getDimensione, DocumentoDto::setDimensione);
 
-		  binder.forField(autore).bind(DocumentoDto::getAutore,DocumentoDto::setAutore);
+			binder.forField(visualizzazioni)
+			.withConverter(doubleVal -> doubleVal == null ? null : doubleVal.longValue(),
+					longVal -> longVal == null ? null : longVal.doubleValue(), "Valore non valido")
+			.bind(DocumentoDto::getVisualizzazioni, DocumentoDto::setVisualizzazioni);
+			
+			
+			binder.forField(lingua).withNullRepresentation("").bind(DocumentoDto::getLingua, DocumentoDto::setLingua);
 
-		  // DateTimePicker: accetta null
-	        binder.bind(lastUpdate, DocumentoDto::getLastUpdate,DocumentoDto::setLastUpdate);
-	        
-		  binder.forField(descrizione)
-		  .bind(DocumentoDto::getDescrizione,DocumentoDto::setDescrizione);
-		  
-		  binder.forField(path)
-          .asRequired("Campo obbligatorio")
-          .withValidator(name -> name.length() >= 5, "Minimo 5 caratteri")
-          .bind(DocumentoDto::getPath,DocumentoDto::setPath);
-		  
-		  binder.forField(origine)
-		  .bind(DocumentoDto::getOrigine,DocumentoDto::setOrigine);
+			binder.forField(versione).withConverter(value -> value, // da IntegerField → DTO
+					value -> value == null ? null : value // da DTO → IntegerField
+			).withValidator(n -> n != null && n > 0, "Il valore deve essere maggiore di 0")
+					.bind(DocumentoDto::getVersione, DocumentoDto::setVersione);
 
-		  // DateTimePicker: accetta null
-	        binder.bind(dataCreazione, DocumentoDto::getDataCreazione,DocumentoDto::setDataCreazione);
+			binder.forField(categoria).asRequired("Campo obbligatorio").bind(DocumentoDto::getCategoria,
+					DocumentoDto::setCategoria);
 
-	        binder.bind(lastView, DocumentoDto::getLastView,DocumentoDto::setLastView);
-	        
-		  binder.forField(note)
-		  .bind(DocumentoDto::getNote,DocumentoDto::setNote);
-		  
-	        // ComboBox: accetta null
-	        binder.forField(stato)
-	        .asRequired("Campo obbligatorio")
-	        .bind(DocumentoDto::getStato,DocumentoDto::setStato);
-		  
+			binder.forField(autore).bind(DocumentoDto::getAutore, DocumentoDto::setAutore);
+
+			binder.forField(rating).withConverter(value -> value, // da IntegerField → DTO
+					value -> value == null ? null : value // da DTO → IntegerField
+			).bind(DocumentoDto::getRating, DocumentoDto::setRating);
+			
+			binder.forField(chkPreferito)
+		    .bind(DocumentoDto::isPreferito, DocumentoDto::setPreferito);
+			
+			// DateTimePicker: accetta null
+			binder.forField(lastUpdate).withConverter(
+					// UI → DTO
+					localDateTime -> localDateTime == null ? null
+							: localDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+
+					// DTO → UI
+					instant -> instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault()),
+
+					"Data non valida").bind(DocumentoDto::getLastUpdate, DocumentoDto::setLastUpdate);
+
+			binder.forField(descrizione).bind(DocumentoDto::getDescrizione, DocumentoDto::setDescrizione);
+
+			binder.forField(path).asRequired("Campo obbligatorio")
+					.withValidator(name -> name.length() >= 5, "Minimo 5 caratteri")
+					.bind(DocumentoDto::getPath, DocumentoDto::setPath);
+
+			binder.forField(origine).bind(DocumentoDto::getOrigine, DocumentoDto::setOrigine);
+
+			// DateTimePicker: accetta null
+			binder.forField(dataCreazione).withConverter(
+					// UI → DTO
+					localDateTime -> localDateTime == null ? null
+							: localDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+
+					// DTO → UI
+					instant -> instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault()),
+
+					"Data non valida").bind(DocumentoDto::getDataArchiviazione, DocumentoDto::setDataArchiviazione);
+
+			binder.forField(lastView).withConverter(
+					// UI → DTO
+					localDateTime -> localDateTime == null ? null
+							: localDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+
+					// DTO → UI
+					instant -> instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault()),
+
+					"Data non valida").bind(DocumentoDto::getLastView, DocumentoDto::setLastView);
+
+			binder.forField(note).bind(DocumentoDto::getNote, DocumentoDto::setNote);
+
+			// ComboBox: accetta null
+			binder.forField(stato).asRequired("Campo obbligatorio").bind(DocumentoDto::getStato,
+					DocumentoDto::setStato);
+
 	  }
 	
 	  private void bindFieldsFromObject(DocumentoDto dto) {
@@ -391,16 +414,14 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
 	  
 	  
 	  
-	@Override
-    public void setParameter(BeforeEvent event, @OptionalParameter Long id) {
-        Location location = event.getLocation();
-        QueryParameters queryParams = location.getQueryParameters();
-        String viewParam = queryParams.getParameters()
-            .getOrDefault("view", List.of("true"))
-            .get(0);
-
-        viewMode = Boolean.parseBoolean(viewParam);
-    }
+		/*
+		 * @Override public void setParameter(BeforeEvent event, @OptionalParameter Long
+		 * id) { Location location = event.getLocation(); QueryParameters queryParams =
+		 * location.getQueryParameters(); String viewParam = queryParams.getParameters()
+		 * .getOrDefault("view", List.of("true")) .get(0);
+		 * 
+		 * viewMode = Boolean.parseBoolean(viewParam); }
+		 */
 	
 	
 }
