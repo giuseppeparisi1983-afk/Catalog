@@ -8,11 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -298,12 +300,32 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         return filter;
     }
 
+	public void conferma(Long id, String msg) {
+		Dialog conferma = new Dialog();
+		conferma.add(new Text(msg));
+
+		Button confermaBtn = new Button("Conferma", evn -> {
+			if (msg.contains("cancellare"))
+				service.delete(id);
+			else
+				service.recovery(id);
+			refresh();
+			conferma.close();
+			Notification.show(msg.contains("cancellare") ? "Elemento cancellato" : "Elemento ripristinato");
+		});
+
+		Button annullaBtn = new Button("Annulla", evnt -> conferma.close());
+
+		conferma.add(new HorizontalLayout(confermaBtn, annullaBtn));
+		conferma.open();
+
+	}
     public void refresh() {
     	 // 1. Costruiamo il filtro aggiornato con quello che c'è scritto nella UI
         F filter = buildFilter();
         
         // 2. Prepariamo la richiesta paginata
-        PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by("title"));
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by("nome"));
         
         // 3. Chiamiamo il service passando SIA la paginazione SIA il filtro
         // NOTA: il tuo service.findPage deve accettare (Pageable, Filter)
