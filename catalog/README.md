@@ -6,6 +6,7 @@
 - **0.0.1-SNAPSHOT**  implementazione del metodo di ricerca valido solo per i file audio
 - **1.0.0-SNAPSHOT**  centralizzazione del sistema di ricerca da riutilizzare sulle altre index
 - **1.0.1-SNAPSHOT**  bugFix su ricerca dentro ui.audio.index e salvataggio dentro ui.audio.form
+- **1.0.2-SNAPSHOT**  bugFix su indirizzamento verso ui.documenti.index e ui.documenti.form
 ===================================================================================================================================
 
 ##TODO
@@ -14,7 +15,7 @@
 			1. paginazione da sistemare non funziona per come dovrebbe ✅
 			2. non funziona la ricerca per tags ✅
 			3. la sequenza della prima colonna non si aggiorna con la paginazione ✅
-			4. refresh dei risultati da verrificare
+			4. refresh dei risultati da verificare
 - Bug Audio.Form:
 			1. non funziona l'aggiornamento dei tag
 			2. grafica da sistemare
@@ -30,7 +31,7 @@
 - Immagini.Index: Le label devono essere uguali alle intestazioni delle colonne del grid. Quando si cancellano i campi di ricerca bisogna restituire una findAll
 - Video.Index: la ricerca funziona solo per titolo. Inoltre, quando si cancellano i campi di ricerca bisogna restituire una findAll
 - Chitarra.Inex: ci sono solo i campi di GuitarDto ma dovrebbero comparire anche gli altri di VideoDto. Inoltre, quando si cancellano i campi di ricerca bisogna restituire una findAll. La ricerca non funziona.
-
+- Documenti.form:non funziona il sistema della view true | false
 - Documenti.form: aggiungi l'anteprima o l'immagine con il link dell'apertura
 - Bug Chitarra.form: stile da sistemare
 - Ricerca: Aggiungere le seguenti funzionalità
