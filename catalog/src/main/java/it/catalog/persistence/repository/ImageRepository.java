@@ -1,5 +1,9 @@
 package it.catalog.persistence.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -19,4 +23,12 @@ JpaSpecificationExecutor<ImageFile>{
 //	          LOWER(i.mimeType) LIKE LOWER(CONCAT('%', :text, '%')))
 //	        """)
 //			Page<ImageFile> search(@Param("text") String text, Pageable pageable);
+	
+	
+	
+	@Override
+	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
+	Page<ImageFile> findAll(Specification<ImageFile> spec, Pageable pageable);
+	
+	
 }
