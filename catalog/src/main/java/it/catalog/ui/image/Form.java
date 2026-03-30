@@ -32,7 +32,7 @@ import it.catalog.service.dto.TagDto;
 import it.catalog.service.interfaces.ImageFileService;
 import it.catalog.ui.common.MainLayout;
 
-@Route(value = "images-form", layout = MainLayout.class)
+@Route(value = "images-form/:id/:view", layout = MainLayout.class)
 @PageTitle("Immagini - Form")
 public class Form extends FormLayout implements BeforeEnterObserver {
 
@@ -88,7 +88,7 @@ public class Form extends FormLayout implements BeforeEnterObserver {
         tags.setItemLabelGenerator(TagDto::getNomeTag);
 
         // Binder bindings
-        binder.forField(title).asRequired("Titolo obbligatorio").bind(ImageDto::getTitle, ImageDto::setTitle);
+        binder.forField(title).asRequired("Titolo obbligatorio").bind(ImageDto::getNome, ImageDto::setNome);
         binder.forField(description).bind(ImageDto::getDescription, ImageDto::setDescription);
         binder.forField(filename).asRequired("Filename obbligatorio").bind(ImageDto::getFilename, ImageDto::setFilename);
         binder.forField(mimeType).asRequired("MIME obbligatorio").bind(ImageDto::getMimeType, ImageDto::setMimeType);
@@ -116,7 +116,7 @@ public class Form extends FormLayout implements BeforeEnterObserver {
                 bean.setTags(new ArrayList<>(tags.getSelectedItems()));
                 // DateTimePicker conversione
                 bean.setDataArchiviazione(toInstant(dataArchiviazione.getValue()));
-                bean.setDataUltimaVisualizzazione(toInstant(dataUltimaVisualizzazione.getValue()));
+                bean.setLastView(toInstant(dataUltimaVisualizzazione.getValue()));
                 service.save(bean);
                 Notification.show("Salvato");
                 getUI().ifPresent(ui -> ui.navigate(""));
@@ -143,7 +143,7 @@ public class Form extends FormLayout implements BeforeEnterObserver {
                     binder.readBean(dto);
                     tags.setValue(dto.getTags() == null ? Set.of() : new HashSet<>(dto.getTags()));
                     dataArchiviazione.setValue(fromInstant(dto.getDataArchiviazione()));
-                    dataUltimaVisualizzazione.setValue(fromInstant(dto.getDataUltimaVisualizzazione()));
+                    dataUltimaVisualizzazione.setValue(fromInstant(dto.getLastView()));
                 }
             } catch (NumberFormatException ignored) {}
         } else {

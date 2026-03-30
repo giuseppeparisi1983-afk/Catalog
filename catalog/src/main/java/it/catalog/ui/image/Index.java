@@ -2,193 +2,307 @@ package it.catalog.ui.image;
 
 
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import it.catalog.persistence.repository.TagRepository;
 import it.catalog.service.dto.ImageDto;
 import it.catalog.service.dto.TagDto;
-import it.catalog.service.dto.search.DtoFilter_;
-import it.catalog.service.interfaces.ImageFileService;
+import it.catalog.service.dto.search.DtoFilter;
+import it.catalog.service.impl.ImageFileServiceImpl;
 import it.catalog.ui.common.MainLayout;
+import it.catalog.ui.utility.AbstractSearchView;
 
 @Route(value = "images", layout = MainLayout.class)
 @PageTitle("Immagini")
-public class Index extends VerticalLayout {
+public class Index extends AbstractSearchView<ImageDto, DtoFilter> {
 
-    private final ImageFileService service;
-    private final Grid<ImageDto> grid = new Grid<>(ImageDto.class, false);
+	DateTimeFormatter FORMAT_DATETIME = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+	DateTimeFormatter FORMAT_DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZoneId.systemDefault());
 
-    private final ComboBox<String> searchFieldSelector = new ComboBox<>();
-    private final TextField searchField = new TextField();
-    private final MultiSelectComboBox<TagDto> tagFilter = new MultiSelectComboBox<>();
-    private final Button applyFilter = new Button("Applica");
-
-    private final ComboBox<Integer> pageSizeSelect = new ComboBox<>("Per pagina");
-    private final Button prev = new Button("«");
-    private final Button next = new Button("»");
-    private final Span pageInfo = new Span();
-
-    private int pageNumber = 0;
-    private Sort sort = Sort.by(Sort.Direction.ASC, "id");
-
-    public Index(ImageFileService service, TagRepository tagRepo) {
-        this.service = service;
-        setSizeFull();
-        add(new H2("Archivio Immagini"));
-
-//        searchFieldSelector.setItems("Titolo", "Filename", "MimeType", "Tutti");
-//        searchFieldSelector.setValue("Tutti");
-        setComboBoxSampleData(searchFieldSelector);
-        searchField.setPlaceholder("Cerca...");
-        searchField.setClearButtonVisible(true);
-        searchField.setValueChangeMode(ValueChangeMode.EAGER); // in questo modo la ricerca parte subito
-        searchField.setWidth("280px");
-        searchField.addValueChangeListener(e -> {
-          	 if (e.getValue() == null || e.getValue().trim().isEmpty()) {
-        		
-                searchFieldSelector.clear();// Azzera la selezione
-       	    }
-//      	 [DA TESTARE]
-      	 if ((searchFieldSelector.getValue() == null || searchFieldSelector.getValue().trim().isEmpty()) && !e.getValue().trim().isEmpty()) {
-      		 
-      		Notification.show("Impossibile proseguire. Selezionare il criterio di ricerca", 3000, Notification.Position.MIDDLE);
-      	 
-      	 }
-      	 else {
-       	//currentPage = 0;
-           refresh();
-      	 }
-           });
-        
-        tagFilter.setPlaceholder("Tags");
-        tagFilter.setWidth("300px");   
-        tagFilter.setItemLabelGenerator(TagDto::getNomeTag);// Mostra solo il nome del tag
-        tagFilter.setItems(service.getAllTagsForImage()); // Popola con i tag disponibili
-        applyFilter.addClickListener(e -> { pageNumber = 0; refresh(); });
-
-        HorizontalLayout top = new HorizontalLayout(
-                new Anchor("form", "Nuovo"),
-                searchFieldSelector, searchField, tagFilter, applyFilter
-        );
-        add(top);
-
-        grid.addColumn(ImageDto::getId).setHeader("ID").setSortable(true).setAutoWidth(true);
-        grid.addColumn(ImageDto::getTitle).setHeader("Titolo").setSortable(true).setAutoWidth(true);
-        grid.addColumn(ImageDto::getFilename).setHeader("Filename").setSortable(true).setAutoWidth(true);
-        grid.addColumn(ImageDto::getMimeType).setHeader("MIME").setSortable(true).setAutoWidth(true);
-        grid.addColumn(ImageDto::getFormato).setHeader("Formato").setSortable(true).setAutoWidth(true);
-        grid.addColumn(ImageDto::getTipoFile).setHeader("Tipo").setSortable(true).setAutoWidth(true);
-        grid.addColumn(ImageDto::getSizeBytes).setHeader("Dim.").setSortable(true).setAutoWidth(true);
-
-        grid.addComponentColumn(item -> {
-            Anchor edit = new Anchor("form?id=" + item.getId(), "Modifica");
-            Anchor del = new Anchor("#", "Cancella");
-            del.getElement().addEventListener("click", ev -> {
-                service.delete(item.getId());
-                getUI().ifPresent(ui -> ui.getPage().executeJs("alert('Elemento cancellato');"));
-                refresh();
-            });
-            return new HorizontalLayout(edit, del);
-        }).setHeader("Azioni");
-
-        grid.addItemClickListener(e -> getUI().ifPresent(ui -> ui.navigate("form?id=" + e.getItem().getId())));
-        grid.setHeight("60vh");
-        add(grid);
-
-        pageSizeSelect.setItems(10, 20, 50);
-        pageSizeSelect.setValue(10);
-        pageSizeSelect.addValueChangeListener(e -> { pageNumber = 0; refresh(); });
-
-        prev.addClickListener(e -> { if (pageNumber > 0) { pageNumber--; refresh(); }});
-        next.addClickListener(e -> { pageNumber++; refresh(); });
-
-        grid.addSortListener(e -> {
-            var orders = e.getSortOrder();
-            if (!orders.isEmpty()) {
-                var o = orders.get(0);
-             // DA VEDERE
-//                String prop = switch (o.getSorted().getHeader().toString()) {
-//                    case "ID" -> "id"; case "Titolo" -> "title"; case "Filename" -> "filename";
-//                    case "MIME" -> "mimeType"; case "Formato" -> "formato"; case "Tipo" -> "tipoFile";
-//                    case "Dim." -> "sizeBytes"; default -> "id";
-//                };
-//                sort = Sort.by(o.getDirection() == GridSortOrder.Direction.ASCENDING ? Sort.Direction.ASC : Sort.Direction.DESC, prop);
-                pageNumber = 0;
-                refresh();
-            }
-        });
-
-        HorizontalLayout pager = new HorizontalLayout(pageSizeSelect, prev, next, pageInfo);
-        add(pager);
-
-        refresh();
-    }
-
-    private void refresh() {
-    	// DA VEDERE
-    	   String text = Optional.ofNullable(searchField.getValue()).orElse("").trim();
-        String criterion = Optional.ofNullable(searchFieldSelector.getValue()).orElse("Tutti");
-        
-        DtoFilter_ filtro = new DtoFilter_(criterion, text,new ArrayList<>(tagFilter.getSelectedItems())); // inizialmente
-        
-        
-        List<String> requiredTags = tagFilter.getSelectedItems().stream() .map(TagDto::getNomeTag) .toList();
-        Pageable pageable = PageRequest.of(pageNumber, pageSizeSelect.getValue(), sort);
-//
-        Page<ImageDto> page = service.findPage(filtro, pageable, requiredTags);
-        
-        if (page.isEmpty()) {
-			grid.setVisible(false);
-			pageInfo.setVisible(false);
-			Notification.show("Nessun dato trovato", 3000, Notification.Position.MIDDLE);
-		} else {
-			grid.setVisible(true);
-			pageInfo.setVisible(true);
-			grid.setItems(page.getContent());
-			pageNumber = page.getTotalPages() - 1;
-			pageInfo.setText("Pagina " + (pageNumber + 1) + " di " + Math.max(page.getTotalPages(), 1) + " — Totale: " + page.getTotalElements());
-		}
-        
-    }
-    
-    private void setComboBoxSampleData(ComboBox<String> comboBox) {
-   	 List<String> sampleItems = Arrays.stream(ImageDto.class.getDeclaredFields())
-        	    .map(Field::getName)
-        	    .filter(nome -> !nome.equalsIgnoreCase("id")) // esclude il campo "id"
-        	    .collect(Collectors.toList());
-       comboBox.setItems(sampleItems);
-       comboBox.setPlaceholder("Cerca per...");
-       comboBox.setWidth("min-content");
-       comboBox.setClearButtonVisible(true);
+    public Index(ImageFileServiceImpl service, TagRepository tagRepo) {
        
-       comboBox.addValueChangeListener(e -> {
-   		// ogni volta che cambia il criterio → refresh
-   		grid.getLazyDataView().refreshAll();
-   	});
-   }
+    	super(service, ImageDto.class, "Archivio Immagini", DtoFilter::new);
+
+		// Inizializza i criteri di ricerca basandosi sulle chiavi delle colonne
+		initSearchOptionsByGrid();
+ 
+    }
+
+    
+    @Override
+	protected void configureGrid(Grid<ImageDto> grid) {
+    	
+    	 
+    	 // 1. Aggiungi la colonna del numero di riga come PRIMA colonna
+        grid.addColumn(LitRenderer.<ImageDto>of("<span>${index + 1}</span>"))
+            .setHeader("#")
+            .setFlexGrow(0)
+            .setAutoWidth(true)
+            .setResizable(true)
+            .setKey("rowNumber"); // Chiave opzionale
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+      	    Span span = new Span(image.getNome());
+      	    if (image.isCancelled())
+      	        span.addClassName("riga-cancellata");
+
+      	    return span;
+      	}))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
+         .setHeader("Titolo").setSortable(true).setKey("nome");
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+       	 Span span = new Span(image.getFilename());
+       	 if (image.isCancelled())
+       		 span.addClassName("riga-cancellata");
+       	 return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Nome File").setSortable(true).setKey("filename");
+        
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+       	 Span span = new Span(image.getMimeType());
+       	 if (image.isCancelled())
+       		 span.addClassName("riga-cancellata");
+
+       	 return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("MIME").setSortable(true).setKey("mimeType");
+       
+        grid.addColumn(new ComponentRenderer<>(image -> {
+       	 Span span = new Span(image.getFormato());
+       	 if (image.isCancelled())
+       		 span.addClassName("riga-cancellata");
+       	 return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Formato").setSortable(true).setKey("formato");
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+          	 Span span = new Span(image.getTipoFile());
+          	 if (image.isCancelled())
+          		 span.addClassName("riga-cancellata");
+          	 return span;
+           }))
+           .setResizable(true) // L'utente può allargarla
+           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+           .setHeader("Tipo").setSortable(true).setKey("tipoFile");
+
+        grid.addColumn(new ComponentRenderer<>(image -> {
+        	Span span = new Span(Long.toString(image.getSizeBytes()));   	
+        	if (image.isCancelled())
+        		span.addClassName("riga-cancellata");
+        	return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Dimensione (byte)").setSortable(true).setKey("sizeBytes");
+ 
+        // caselle checkbox
+        grid.addColumn(new ComponentRenderer<>(image -> {
+            Checkbox checkbox = new Checkbox(image.isPreferito());
+            checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+            if (image.isCancelled()) 
+            	checkbox.addClassName("riga-cancellata");
+            return checkbox;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Preferito").setSortable(true).setKey("preferito");
+        
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+     		Span span = new Span(image.getRating() != null ? image.getRating().toString() :"0");
+     		if (image.isCancelled())
+     			span.addClassName("riga-cancellata");
+     		return span;
+     	}))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Valutazione").setSortable(true).setKey("rating");
+        
+        
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+      		Span span = new Span(image.getDataArchiviazione() != null ? FORMAT_DATE.format(image.getDataArchiviazione()) : "");
+      		if (image.isCancelled()) {
+      			span.addClassName("riga-cancellata");
+      		}
+      		return span;
+      	}))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Archiviazione").setSortable(true).setKey("dataArchiviazione");
+       
+        grid.addColumn(new ComponentRenderer<>(image -> {
+       	 Span span = new Span(image.getDescription());
+       	 if (image.isCancelled())
+       		 span.addClassName("riga-cancellata");
+       	 return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Descrizione").setSortable(true).setKey("description");
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+            Checkbox checkbox = new Checkbox(image.isBackup());
+            checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+            if (image.isCancelled()) {
+            	checkbox.addClassName("riga-cancellata");
+    		}
+            return checkbox;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Backup").setSortable(true).setKey("backup");
+        
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+      		Span span = new Span(image.getLastView() != null ? FORMAT_DATETIME.format(image.getLastView().atZone(ZoneId.systemDefault())) : "");
+      		if (image.isCancelled()) {
+      			span.addClassName("riga-cancellata");
+      		}
+      		return span;
+      	}))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Ultima Visual").setSortable(true).setKey("lastView");
+        
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+      		Span span = new Span(String.valueOf(image.getVisualizzazioni()));
+      		if (image.isCancelled()) {
+      			span.addClassName("riga-cancellata");
+      		}
+      		return span;
+      	}))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Visual").setSortable(true).setKey("visualizzazioni");
+        
+        // colonna custom per i tag
+     	grid.addColumn(p -> {
+     	    if (p.getTags() == null) return "";
+     	    return p.getTags().stream()
+     	             .map(TagDto::getNomeTag)   // prendi solo il nome
+     	             .collect(Collectors.joining(", "));
+     	})
+     	.setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+     	.setHeader("Tags")
+     	/** per il ritorno a capo del valore*/
+     	.setRenderer(new ComponentRenderer<>(item -> {
+     	    Div div = new Div();
+     	    div.setText(item.getTags().stream()
+    	             .map(TagDto::getNomeTag)   // prendi solo il nome
+    	             .collect(Collectors.joining(", ")));
+     	    // Applica uno stile CSS per forzare il 'word-wrap'
+     	    div.getElement().getStyle().set("white-space", "normal"); 
+     	   if (item.isCancelled())
+     		  div.addClassName("riga-cancellata");
+     	    return div;
+     	})).setSortable(true).setKey("tags");
+
+        grid.addColumn(new ComponentRenderer<>(image -> {
+       	 Span span = new Span(image.getNote());
+       	 if (image.isCancelled()) {
+       		 span.addClassName("riga-cancellata");
+       	 }
+       	 return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Note").setSortable(true).setKey("note");
+        
+        grid.addColumn(new ComponentRenderer<>(image -> {
+            Checkbox checkbox = new Checkbox(image.isCancelled());
+            checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+            if (image.isCancelled()) {
+            	checkbox.addClassName("riga-cancellata");
+    		}
+            return checkbox;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Cancelled").setSortable(true).setKey("cancelled");
+        
+         grid.addComponentColumn(item -> {
+             Anchor edit = new Anchor("images-form/" + item.getId() + "/false", "modifica");
+             
+             Anchor del = new Anchor("images", "cancella");
+             del.getElement().addEventListener("click", ev -> {
+            	 conferma(item.getId(), "Sei sicuro di voler cancellare questo elemento ?");
+             });
+             
+             Anchor recovery = new Anchor("images", "ripristino");
+ 			recovery.getElement().addEventListener("click", ev -> {
+ 				conferma(item.getId(), "Stai ripristinando questo elemento. Sei sicuro di volerlo fare ?");
+ 			});
+             
+ 			if (item.isCancelled()) {
+ 				recovery.setVisible(true);
+				del.setVisible(false);
+			} else {
+				recovery.setVisible(false);
+				del.setVisible(true);
+			}
+             
+             return new HorizontalLayout(edit, del, recovery);
+         })
+         .setResizable(true) // L'utente può allargarla
+ 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+ 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+         .setHeader("Azioni");
+
+         
+         grid.getColumns().forEach(col -> col.setAutoWidth(true)); // adatta alla pagina
+
+      // rendi la tabella interattiva
+ 		grid.addItemClickListener(e -> getUI()
+ 				.ifPresent(ui -> ui.navigate("images-form/" + e.getItem().getId() + "/true")));
+    	
+    }
+ 
+    
+    @Override
+	protected void navigateToForm(Long id) {
+		// Gestisci la navigazione al form (nuovo o modifica)
+		String route = "images-form/" + (id != null ? id : "0") + "/false";
+		getUI().ifPresent(ui -> ui.navigate(route));
+	}
 }
