@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ImageDto {
     private Long id;
-    private String title;
+    private String nome;
     private String description;
     private String filename;
     private String mimeType;
@@ -19,15 +19,15 @@ public class ImageDto {
     private String tipoFile; // Fotografia, Sfondo, Illustrazione
     private boolean cancelled;
     private boolean preferito;
+    private String path;
     private Integer rating;
     private long visualizzazioni;
-    private Instant dataArchiviazione;
-    private Instant dataUltimaVisualizzazione;
+    private Instant lastView; 
+    private Instant dataArchiviazione; 
+    private Instant lastUpdate; 
     private boolean backup;
     private String note;
-    private Instant createdAt;
-    private Instant updatedAt;
-    
+
  // Tags associati private
-    List<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
+    private List<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
 }
