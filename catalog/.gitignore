@@ -32,3 +32,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+# Output di TypeScript
+*.js
+*.js.map
+
+# Cartelle di build
+dist/
+build/
+out/
