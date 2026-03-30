@@ -7,6 +7,7 @@
 - **1.0.0-SNAPSHOT**  centralizzazione del sistema di ricerca da riutilizzare sulle altre index
 - **1.0.1-SNAPSHOT**  bugFix su ricerca dentro ui.audio.index e salvataggio dentro ui.audio.form
 - **1.0.2-SNAPSHOT**  bugFix su indirizzamento verso ui.documenti.index e ui.documenti.form
+- **1.0.3-SNAPSHOT**  bugFix su documenti.index e imagini.index
 ===================================================================================================================================
 
 ##TODO
