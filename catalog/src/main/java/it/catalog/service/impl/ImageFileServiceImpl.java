@@ -3,6 +3,7 @@ package it.catalog.service.impl;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,7 +45,7 @@ public class ImageFileServiceImpl implements SearchService<ImageDto, DtoFilter>{
 	 @Override
 	 /**query fatta sulla index per avere tutti i tags dell'oggetto immagine */
   public List<TagDto> getAllTags() {
-		 return tagService.findByTipoOggetto("Immagini");
+		 return tagService.findByTipoOggetto("Image");
   }
     
     @Override
@@ -52,7 +53,7 @@ public class ImageFileServiceImpl implements SearchService<ImageDto, DtoFilter>{
     public Page<ImageDto> findPage(Pageable pageable,DtoFilter filter) {
     	
     	 // 1. Creiamo la specifica basata sul filtro ricevuto dalla UI
-	    Specification<ImageFile> spec = specFactory.build("Immagini", filter);
+	    Specification<ImageFile> spec = specFactory.build(filter);
    	
 	    Page<ImageFile> entityPage =repo.findAll(spec, pageable);
 	    if (entityPage.isEmpty()) {
@@ -73,7 +74,13 @@ public class ImageFileServiceImpl implements SearchService<ImageDto, DtoFilter>{
     @Override
     /**richiamato dalla pagina del form per aggiunta o modifica di un nuovo item* */
     public ImageDto findById(Long id) {
-        var dtoOpt = repo.findById(id).map(mapper::toDto);
+		Optional<ImageFile> opt = repo.findById(id);
+		if (opt.isEmpty()) {
+			log.warn("Image file with id {} not found", id);
+			return new ImageDto(); // ritorna un DTO vuoto se non trovato
+		}
+    	
+    	var dtoOpt = opt.map(mapper::toDto);
         return dtoOpt.orElse(new ImageDto());
     }
 

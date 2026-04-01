@@ -71,7 +71,7 @@ public class DocumentoServiceImpl implements SearchService<DocumentoDto, DtoFilt
     @Transactional(readOnly = true)
     public Page<DocumentoDto> findPage(Pageable pageable,DtoFilter filter) {
         
-    	Specification<Documento> spec = specificationFactory.build("Documento",filter);     
+    	Specification<Documento> spec = specificationFactory.build(filter);     
     
 	    Page<Documento> result =repository.findAll(spec, pageable);
 	    if (result.isEmpty()) {

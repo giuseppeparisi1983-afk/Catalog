@@ -87,7 +87,7 @@ public class AudioFileServiceImpl implements SearchService<AudioDto, DtoFilter> 
 		
 		
 	    // 1. Creiamo la specifica basata sul filtro ricevuto dalla UI
-	    Specification<AudioFile> spec = specFactory.build("Audio", filter);
+	    Specification<AudioFile> spec = specFactory.build(filter);
 
 	 // 2. Eseguiamo la query filtrata e paginata
 	    // Grazie al @BatchSize(size=25) sull'entità, i tag verranno caricati efficientemente
