@@ -30,7 +30,7 @@ public interface ImageFileMapper {
 	
 	
 	// Questo metodo istruisce MapStruct su come mappare il singolo Tag
-    @Mapping(target = "tipoOggetto", constant = "Imagini") // Forza il tipo su 'Documento' per i nuovi tag
+    @Mapping(target = "tipoOggetto", constant = "Image") // Forza il tipo su 'Image' per i nuovi tag
     Tag toTagEntity(TagDto dto);
 	
 	List<ImageDto> toDtoList(List<ImageFile> entities);

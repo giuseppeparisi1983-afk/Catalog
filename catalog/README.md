@@ -12,6 +12,8 @@
 
 ##TODO
 
+- da aggiungere il footer con il Copyrait
+
 - Bug Audio.Index: 
 			1. paginazione da sistemare non funziona per come dovrebbe ✅
 			2. non funziona la ricerca per tags ✅
