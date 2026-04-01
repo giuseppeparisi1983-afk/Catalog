@@ -23,7 +23,7 @@ import jakarta.persistence.criteria.Predicate;
 public class SpecificationFactory<T> {
 
 
-    public Specification<T> build(String tipoOggetto,DtoFilter filter) {
+    public Specification<T> build(DtoFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
