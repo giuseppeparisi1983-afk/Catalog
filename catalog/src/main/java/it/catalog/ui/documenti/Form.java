@@ -118,7 +118,7 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
         salva.setWidth("min-content");
         salva.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         // listener per il torna indietro
-        salva.addClickListener(e -> saveVideo());
+        salva.addClickListener(e -> save());
         layoutRow2.setWidthFull();
         layoutColumn2.setFlexGrow(1.0, layoutRow2);
         layoutRow2.addClassName(Gap.SMALL);
@@ -220,7 +220,7 @@ public class Form extends Composite<VerticalLayout> implements BeforeEnterObserv
     }
     
  // listener per il pulsante Salva
-    private void saveVideo() {
+    private void save() {
     	binder.writeBeanIfValid(dto);
     	service.save(dto);
         Notification.show("Elemento salvato!", 3000, Notification.Position.TOP_CENTER);
