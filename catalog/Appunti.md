@@ -4,6 +4,7 @@
 
 
 `**URL d'accesso**` `http://localhost:8081/` 
+`**Comando per l'export del db da lanciare da C:\xampp\mysql\bin **` `mysqldump -u root -p --single-transaction --quick --default-character-set=utf8mb4 catalog > "C:\Users\giuse\git\repository\catalog\src\main\resources\db\gestionale_dump.sql"`
 
 ### 1. Aggiunta logo  
 
