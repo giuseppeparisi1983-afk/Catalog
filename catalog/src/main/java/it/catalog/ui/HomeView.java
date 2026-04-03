@@ -23,8 +23,8 @@ public class HomeView extends VerticalLayout {
     	setAlignItems(Alignment.CENTER);
 //         setSpacing(true);
 
-    	 HorizontalLayout paddindlayout = new HorizontalLayout();
-    	 paddindlayout.getStyle().set("padding-top", "40px");
+//    	 HorizontalLayout paddindlayout = new HorizontalLayout();
+//    	 paddindlayout.getStyle().set("padding-top", "40px");
 
     	
          HorizontalLayout row1 = new HorizontalLayout();
@@ -47,10 +47,11 @@ public class HomeView extends VerticalLayout {
        row3.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
        row3.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-       row3.add(createCategoryButton("Video","video"),createCategoryButton("Film", "documents"));
+       row3.add(createCategoryButton("Video","video"),createCategoryButton("Film", "film"));
        
        
-       add(paddindlayout,row1,row2,row3);
+//       add(paddindlayout,row1,row2,row3);
+       add(row1,row2,row3);
     }
    
 	private Button createCategoryButton(String label, String route) {
