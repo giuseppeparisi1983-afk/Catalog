@@ -8,12 +8,15 @@
 - **1.0.1-SNAPSHOT**  bugFix su ricerca dentro ui.audio.index e salvataggio dentro ui.audio.form
 - **1.0.2-SNAPSHOT**  bugFix su indirizzamento verso ui.documenti.index e ui.documenti.form
 - **1.0.3-SNAPSHOT**  bugFix su documenti.index e imagini.index
+- **1.1.0-SNAPSHOT**  introduzione della index per i film
 ===================================================================================================================================
 
 ##TODO
 
-- da aggiungere il footer con il Copyrait
-
+- BE dei film fatto. FE da fare. Aggiungere nuovi dato con i campi aggiunti ✅
+- da aggiungere il footer con il Copyright ✅
+- Aggiunta del form per i film
+- reingnegnerizzazione gestione di tutti i form
 - Bug Audio.Index: 
 			1. paginazione da sistemare non funziona per come dovrebbe ✅
 			2. non funziona la ricerca per tags ✅
@@ -33,7 +36,7 @@
 - Documenti.Index: Non funziona la ricerca, inoltre quando si cancella il campo search deve resettare anche la select del criterio
 - Immagini.Index: Le label devono essere uguali alle intestazioni delle colonne del grid. Quando si cancellano i campi di ricerca bisogna restituire una findAll
 - Video.Index: la ricerca funziona solo per titolo. Inoltre, quando si cancellano i campi di ricerca bisogna restituire una findAll
-- Chitarra.Inex: ci sono solo i campi di GuitarDto ma dovrebbero comparire anche gli altri di VideoDto. Inoltre, quando si cancellano i campi di ricerca bisogna restituire una findAll. La ricerca non funziona.
+- Chitarra.Index: ci sono solo i campi di GuitarDto ma dovrebbero comparire anche gli altri di VideoDto. Inoltre, quando si cancellano i campi di ricerca bisogna restituire una findAll. La ricerca non funziona.
 - Documenti.form:non funziona il sistema della view true | false
 - Documenti.form: aggiungi l'anteprima o l'immagine con il link dell'apertura
 - Bug Chitarra.form: stile da sistemare
