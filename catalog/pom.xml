@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -19,7 +21,8 @@
 		<vaadin.version>24.5.5</vaadin.version>
 		<spring-boot.version>3.5.5</spring-boot.version>
 		<!-- <lombok.version>1.18.30</lombok.version>-->
-		<!-- MapStruct e Lombok non leggono direttamente la property java.version. 
+		<!-- MapStruct e Lombok non leggono direttamente la property
+		java.version. 
 		Serve esplicitare maven.compiler.source e maven.compiler.target-->
 		<maven.compiler.source>21</maven.compiler.source>
 		<maven.compiler.target>21</maven.compiler.target>
@@ -140,8 +143,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.11.0</version>
 				<configuration>
-					<!-- Dichiarazione degli annotation processors che utilizzano MapStruct e Lombok-->
-					<annotationProcessorPaths>				
+					<!-- Dichiarazione degli annotation processors che
+					utilizzano MapStruct e Lombok-->
+					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
@@ -150,7 +154,8 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok-mapstruct-binding</artifactId>
-							<!-- lombok-mapstruct-binding è fondamentale per evitare errori come “Unknown property” 
+							<!-- lombok-mapstruct-binding è fondamentale per
+							evitare errori come “Unknown property” 
 							quando si usa Lombok con MapStruct -->
 							<version>0.2.0</version>
 						</path>
@@ -164,6 +169,28 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>production</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.vaadin</groupId>
+						<artifactId>vaadin-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>build-frontend</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<!-- <repositories>
 		<repository>
 			<id>vaadin-addons</id>
