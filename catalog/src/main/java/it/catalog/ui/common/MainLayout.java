@@ -1,5 +1,7 @@
 package it.catalog.ui.common;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -10,6 +12,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -18,10 +21,14 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 public class MainLayout extends AppLayout {
 
+    private final VerticalLayout wrapper = new VerticalLayout();
+    private final Div footer = new Div();
+	 
     public MainLayout() {
     	 setPrimarySection(Section.DRAWER);
     	createHeader();
         createDrawer();
+        createFooter();
     }
 
     private void createHeader() {
@@ -66,7 +73,7 @@ logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
         Tooltip.forComponent(video).setText("Sezione video");
         SideNavItem musica    = new SideNavItem("Audio", it.catalog.ui.audio.Index.class, VaadinIcon.MUSIC.create());
         Tooltip.forComponent(musica).setText("Archivia e ascolta la tua musica");
-        SideNavItem film      = new SideNavItem("Film", it.catalog.ui.video.Index.class, VaadinIcon.FILM.create());
+        SideNavItem film      = new SideNavItem("Film", it.catalog.ui.film.Index.class, VaadinIcon.FILM.create());
         Tooltip.forComponent(film).setText("Archivia e guarda i tuoi film");
 
         // Figlio di "Video"
@@ -98,7 +105,56 @@ logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
         // Inserisco nel drawer dell’AppLayout
         addToDrawer(nav);
     }
+    
+    
+    private void createFooter() {
+        
+        footer.getStyle().set("text-align", "center");
+        footer.getStyle().set("padding", "var(--lumo-space-m)");
+        footer.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        footer.getStyle().set("font-size", "var(--lumo-font-size-s)");
+    	footer.setText("© 2026 Giuseppe – Tutti i diritti riservati");
 
+    }
+    
+    @Override
+    protected void afterNavigation() {
+        super.afterNavigation();
+
+        // Ogni volta che cambia la view, aggiorno il contenuto principale
+//        Component content = getContent();
+//        wrapper.removeAll();
+//
+//        wrapper.add(content, footer);
+//        wrapper.setFlexGrow(1, content);
+    }
+
+    @Override
+    public void setContent(Component content) {
+        if (content == null) {
+            super.setContent(null);
+            return;
+        }
+
+        // Svuotiamo il wrapper per evitare accumuli di vecchie View
+        wrapper.removeAll();
+        wrapper.setSizeFull();
+        wrapper.setPadding(false);
+        wrapper.setSpacing(false);
+
+        // Costruiamo la gerarchia: 
+        // 1. La View dinamica (es. HomeView) sopra
+        // 2. Il Footer statico sotto
+        wrapper.add(content, footer);
+        
+        // Diciamo alla View di espandersi per occupare tutto lo spazio verticale utile
+        wrapper.setFlexGrow(1, content);
+
+        // Passiamo il wrapper completo al vero setContent dell'AppLayout
+        super.setContent(wrapper);
+    }
+    
+    
     // Utility per allineare gli elementi
     private static class Spacer extends Div {
         public Spacer() {
