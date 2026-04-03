@@ -45,6 +45,9 @@ import it.catalog.ui.common.MainLayout;
 
 @Route(value="documents-form/:id/:view", layout = MainLayout.class)
 @PageTitle("Documento - Form")
+/**
+ * Visualizzazione e Salvataggio parte tags KO
+ * */
 //@Menu(order = 1, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 public class Form extends Composite<VerticalLayout> implements BeforeEnterObserver{
 //public class Form extends Composite<VerticalLayout> implements BeforeEnterObserver,HasUrlParameter<Long> {
