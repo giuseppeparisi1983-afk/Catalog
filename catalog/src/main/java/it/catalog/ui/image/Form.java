@@ -43,6 +43,10 @@ import it.catalog.ui.common.MainLayout;
 
 @Route(value = "images-form/:id/:view", layout = MainLayout.class)
 @PageTitle("Immagini - Form")
+/**
+ * Visualizzazione e Salvataggio OK compresi i tags
+ * */
+
 public class Form extends Composite<VerticalLayout> implements BeforeEnterObserver {
 
     private final ImageFileServiceImpl service;
