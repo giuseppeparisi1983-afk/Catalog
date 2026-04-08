@@ -242,7 +242,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setHeader("Durata (min)").setSortable(true).setKey("durationSeconds");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
-      		Span span = new Span(audio.getDataUltimaVisualizzazione() != null ? FORMAT_DATETIME.format(audio.getDataUltimaVisualizzazione().atZone(ZoneId.systemDefault())) : "");
+      		Span span = new Span(audio.getLastView() != null ? FORMAT_DATETIME.format(audio.getLastView().atZone(ZoneId.systemDefault())) : "");
       		if (audio.isCancelled()) {
       			span.addClassName("riga-cancellata");
       		}
@@ -251,7 +251,19 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Ultima Visual").setSortable(true).setKey("dataUltimaVisualizzazione");
+         .setHeader("Ultima Visual").setSortable(true).setKey("lastView");
+
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+        	 Span span = new Span(audio.getLastUpdate() != null ? FORMAT_DATETIME.format(audio.getLastUpdate().atZone(ZoneId.systemDefault())) : "");
+        	 if (audio.isCancelled()) {
+        		 span.addClassName("riga-cancellata");
+        	 }
+        	 return span;
+         }))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Aggiornamento").setSortable(true).setKey("lastUpdate");
          
 //         grid.addColumn(AudioDto::getSizeBytes).setHeader("Dimensione (byte)").setSortable(true).setAutoWidth(true).setKey("sizeBytes");
          

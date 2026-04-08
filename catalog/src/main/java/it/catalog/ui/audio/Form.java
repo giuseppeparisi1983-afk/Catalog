@@ -149,8 +149,8 @@ public class Form extends FormLayout implements BeforeEnterObserver {
             AudioDto bean = Optional.ofNullable(service.findById(idParam)).orElse(new AudioDto());
             if (binder.writeBeanIfValid(bean)) {
                 bean.setTags(new ArrayList<>(tags.getSelectedItems()));
-                bean.setDataArchiviazione(toInstant(dataArchiviazione.getValue()));
-                bean.setDataUltimaVisualizzazione(toInstant(dataUltimaVisualizzazione.getValue()));
+//                bean.setDataArchiviazione(toInstant(dataArchiviazione.getValue()));
+//                bean.setDataUltimaVisualizzazione(toInstant(dataUltimaVisualizzazione.getValue()));
                 service.save(bean);
                 Notification.show("Salvato");
                 // 🔄 aggiorna la lista dei tag disponibili
@@ -184,8 +184,8 @@ public class Form extends FormLayout implements BeforeEnterObserver {
                 if (dto != null) {
                     binder.readBean(dto);
                     tags.setValue(dto.getTags() == null ? Set.of() : new HashSet<>(dto.getTags()));
-                    dataArchiviazione.setValue(fromInstant(dto.getDataArchiviazione()));
-                    dataUltimaVisualizzazione.setValue(fromInstant(dto.getDataUltimaVisualizzazione()));
+//                    dataArchiviazione.setValue(fromInstant(dto.getDataArchiviazione()));
+//                    dataUltimaVisualizzazione.setValue(fromInstant(dto.getDataUltimaVisualizzazione()));
                     coverPreview.setSrc(Optional.ofNullable(dto.getCoverPath()).orElse(""));
                     binder.readBean(dto); // Popola automaticamente i campi. IMPORTANTE: prima si definiscono i binding, poi si chiama readBean().
                 }
