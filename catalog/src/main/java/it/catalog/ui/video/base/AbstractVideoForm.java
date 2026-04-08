@@ -2,10 +2,10 @@ package it.catalog.ui.video.base;
 
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Anchor;
@@ -36,8 +36,9 @@ public abstract class AbstractVideoForm<T extends VideoDto> extends FormLayout {
 	protected final TextField titolo = new TextField("Titolo");
 	protected final ComboBox<CategorieVideo> categoria = new ComboBox<>("Categoria");
 	protected final TextField percorsoFile = new TextField("Path");
-	protected final DatePicker dataArchiviazione = new DatePicker("Data Archiviazione");
-	protected final DateTimePicker ultimaVisualizzazione = new DateTimePicker("Ultima Visualizzazione");
+	protected final DateTimePicker dataArchiviazione = new DateTimePicker("Data Archiviazione");
+	protected final DateTimePicker lastViewField = new DateTimePicker("Ultima Visualizzazione");
+	protected final DateTimePicker lastUpdateField = new DateTimePicker("Aggiornamento");
 	protected final IntegerField durataMin = new IntegerField("Durata (minuti)");
 	protected final IntegerField visualizzazioni = new IntegerField("Visual");
 	protected final Checkbox cancelled = new Checkbox("Cancelled");
@@ -118,7 +119,7 @@ public abstract class AbstractVideoForm<T extends VideoDto> extends FormLayout {
         partialFormLout.getStyle().set("padding", "0").set("margin", "0");
         partialFormLout.setPadding(false);
         partialFormLout.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
-        partialFormLout.add(level1,level2,ultimaVisualizzazione);
+        partialFormLout.add(level1,level2,lastViewField);
         
         row1.add(partialFormLout,imageLink);
         
@@ -251,13 +252,37 @@ public abstract class AbstractVideoForm<T extends VideoDto> extends FormLayout {
         .bind(VideoDto::isCancelled, VideoDto::setCancelled);
         
         // DatePicker: accetta null
-        binder.forField(dataArchiviazione)
-//        .asRequired("Data obbligatoria")
-//        .withValidator(date -> date != null && !date.isBefore(LocalDate.now()), "Data non può essere nel passato")
-        .bind(VideoDto::getDataArchiviazione, VideoDto::setDataArchiviazione);
+        binder.forField(dataArchiviazione).withConverter(
+				// UI → DTO
+				localDateTime -> localDateTime == null ? null
+						: localDateTime.atZone(ZoneId.systemDefault()).toInstant(),
 
-        // DateTimePicker: accetta null
-        binder.bind(ultimaVisualizzazione, VideoDto::getUltimaVisualizzazione, VideoDto::setUltimaVisualizzazione);
+				// DTO → UI
+				instant -> instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault()),
+
+				"Data non valida").bind(VideoDto::getDataArchiviazione, VideoDto::setDataArchiviazione);
+        
+        binder.forField(lastViewField).withConverter(
+				// UI → DTO
+				localDateTime -> localDateTime == null ? null
+						: localDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+
+				// DTO → UI
+				instant -> instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault()),
+
+				"Data non valida").bind(VideoDto::getLastView, VideoDto::setLastView);
+        
+        
+        binder.forField(lastUpdateField).withConverter(
+				// UI → DTO
+				localDateTime -> localDateTime == null ? null
+						: localDateTime.atZone(ZoneId.systemDefault()).toInstant(),
+
+				// DTO → UI
+				instant -> instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault()),
+
+				"Data non valida").bind(VideoDto::getLastUpdate, VideoDto::setLastUpdate);
+
 
         // NumberField: non accetta null → serve converter
         binder.forField(rating) 
@@ -282,13 +307,13 @@ public abstract class AbstractVideoForm<T extends VideoDto> extends FormLayout {
         if (bean != null && bean.getId() != null) {
             
         	bean.setVisualizzazioni(bean.getVisualizzazioni() + 1);
-        	bean.setUltimaVisualizzazione(LocalDateTime.now());
+        	//bean.setLastView(null); DA VERIFICARE
             // 1. Chiamata al Service Generico
             videoService.save(bean);
             
             // Aggiorna il form
             visualizzazioni.setValue(bean.getVisualizzazioni());
-            ultimaVisualizzazione.setValue(bean.getUltimaVisualizzazione());
+            //lastViewField.setValue(bean.getLastView());  DA VERIFICARE
             
         } else {
             Notification.show("Salva il video prima di poter cliccare l'immagine!");

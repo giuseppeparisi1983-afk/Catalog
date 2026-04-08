@@ -104,12 +104,20 @@ public abstract class AbstractVideoIndex<T extends VideoDto> extends VerticalLay
  	})).setHeader("Views").setSortable(true).setKey("visualizzazioni");
      
      grid.addColumn(new ComponentRenderer<>(video -> {
- 		Span span = new Span(video.getUltimaVisualizzazione() != null ? FORMAT_DATETIME.format(video.getUltimaVisualizzazione()) : "");
+ 		Span span = new Span(video.getLastView() != null ? FORMAT_DATETIME.format(video.getLastView()) : "");
  		if (video.isCancelled()) {
  			span.addClassName("riga-cancellata");
  		}
  		return span;
- 	})).setHeader("Ultima Visual.").setSortable(true).setKey("ultima_visualizzazione");
+ 	})).setHeader("Ultima Visual.").setSortable(true).setKey("lastView");
+
+     grid.addColumn(new ComponentRenderer<>(video -> {
+    	 Span span = new Span(video.getLastUpdate() != null ? FORMAT_DATETIME.format(video.getLastUpdate()) : "");
+    	 if (video.isCancelled()) {
+    		 span.addClassName("riga-cancellata");
+    	 }
+    	 return span;
+     })).setHeader("Aggiornamento").setSortable(true).setKey("lastUpdate");
      
      grid.addColumn(new ComponentRenderer<>(video -> {
  		Span span = new Span(video.getPercorsoFile());
