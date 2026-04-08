@@ -1,7 +1,6 @@
 package it.catalog.persistence.entity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import it.catalog.common.enums.CategorieVideo;
 import jakarta.persistence.Entity;
@@ -30,8 +29,9 @@ public class Video {
     private Double rating;
     private Integer visualizzazioni;
     private Integer durataMin;
-    private LocalDate dataArchiviazione;
-    private LocalDateTime ultimaVisualizzazione;
+    private Instant dataArchiviazione;
+    private Instant lastView;
+    private Instant lastUpdate;
     private Boolean backup;
     private String note;
     private Boolean cancelled;

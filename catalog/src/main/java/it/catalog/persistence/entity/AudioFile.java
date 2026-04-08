@@ -49,9 +49,8 @@ public class AudioFile {
 	private boolean cancelled; private boolean preferito; 
 	private Integer rating; private long visualizzazioni;
 	private Instant dataArchiviazione; 
-	private Instant dataUltimaVisualizzazione; 
+	private Instant lastView; 
 	private boolean backup; private String note;
-	private Instant createdAt = Instant.now(); 
 	private Instant updatedAt; 
 	
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}) 

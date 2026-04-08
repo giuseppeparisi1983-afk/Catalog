@@ -112,7 +112,7 @@ public class Film {
         inverseJoinColumns = @JoinColumn(name = "id_tag")
     )
  // 1. Applica il filtro 'Audio' automaticamente ogni volta che Hibernate carica questa collezione
- 	  @SQLJoinTableRestriction("id_tag IN (SELECT t.id_tag FROM tag t WHERE t.tipo_oggetto = 'Film')")
+ 	  @SQLJoinTableRestriction("id_tag IN (SELECT t.id_tag FROM tag t WHERE t.tipo_oggetto = 'film')")
  	  // 2. Evita il problema N+1 durante la paginazione caricando i tag a blocchi
  	  @BatchSize(size = 25) // "passo" di caricamento dei tag, da regolare in base alla dimensione media delle pagine
     private Set<Tag> tags = new HashSet<>();
