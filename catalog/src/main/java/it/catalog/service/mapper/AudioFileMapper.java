@@ -17,11 +17,13 @@ import it.catalog.service.dto.TagDto;
 @Mapper(componentModel = "spring")
 public interface AudioFileMapper {
     
+	@Mapping(target = "lastUpdate", source ="updatedAt" ) // Mappa lastUpdate → updatedAt 
 	@Mapping(target = "formato", source = "formato") 
 	@Mapping(target = "tags", expression = "java(getTags(entity.getTags()))")
 	AudioDto toDto(AudioFile entity); 
 	
 	@Mapping(target = "formato", expression = "java(AudioFile.Formato.valueOf(dto.getFormato()))") 
+	@Mapping(target = "updatedAt", source ="lastUpdate" ) // Mappa  updatedAt → lastUpdate 
 //	@Mapping(target = "tags", ignore = true) 
 	// MapStruct vedrà che AudioDto ha una List<TagDto> e AudioFile ha un Set<Tag>
     // Cercherà un metodo per mappare TagDto -> Tag e lo userà per l'intera collezione.

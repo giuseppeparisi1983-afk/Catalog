@@ -1,5 +1,6 @@
 package it.catalog.service.dto;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -22,8 +23,9 @@ public class VideoDto {
     private int visualizzazioni;
 //    private String dataArchiviazione;
 //    private String ultimaVisualizzazione;
-    private LocalDate dataArchiviazione;
-    private LocalDateTime ultimaVisualizzazione;
+    private Instant dataArchiviazione;
+    private Instant lastView;
+    private Instant lastUpdate;
     private Integer durataMin;
     private Boolean preferito;
     private String note;

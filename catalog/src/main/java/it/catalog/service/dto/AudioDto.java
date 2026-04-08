@@ -27,7 +27,8 @@ public class AudioDto {
     private Integer rating; 
     private long visualizzazioni; 
     private Instant dataArchiviazione; 
-    private Instant dataUltimaVisualizzazione; 
+    private Instant lastView; 
+    private Instant lastUpdate; 
     private boolean backup;
     private String note; 
 
