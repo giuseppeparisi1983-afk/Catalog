@@ -196,7 +196,7 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		})).setResizable(true) // L'utente può allargarla
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Ultimo Aggiornamento").setSortable(true).setKey("lastUpdate");
+		.setHeader("Aggiornamento").setSortable(true).setKey("lastUpdate");
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
 			Span span = new Span(doc.getLastView() != null ? FORMAT_DATETIME.format(doc.getLastView().atZone(ZoneId.systemDefault())) : "");
