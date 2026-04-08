@@ -13,6 +13,8 @@
 
 ##TODO
 
+- rimappa l'entity dei video e controlla il mapping de campi sui film nella index 
+- Aggiungi la parte dei tags ai video
 - BE dei film fatto. FE da fare. Aggiungere nuovi dato con i campi aggiunti ✅
 - da aggiungere il footer con il Copyright ✅
 - Aggiunta del form per i film
