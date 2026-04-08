@@ -122,6 +122,30 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
          .setHeader("Titolo").setSortable(true).setKey("nome");
+
+        grid.addColumn(new ComponentRenderer<>(film -> {
+        	Span span = new Span(film.getGenere());
+        	if (film.isCancelled())
+        		span.addClassName("riga-cancellata");
+        	
+        	return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
+        .setHeader("Genere").setSortable(true).setKey("genere");
+
+        grid.addColumn(new ComponentRenderer<>(film -> {
+        	Span span = new Span(String.valueOf(film.getAnnoUscita()));
+        	if (film.isCancelled())
+        		span.addClassName("riga-cancellata");
+        	
+        	return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
+        .setHeader("Anno").setSortable(true).setKey("annoUscita");
 		 
 		 
 		  grid.addColumn(new ComponentRenderer<>(film -> {
@@ -134,6 +158,17 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
         .setHeader("Nome File").setSortable(true).setKey("filename");
+
+		  grid.addColumn(new ComponentRenderer<>(film -> {
+			  Span span = new Span(film.getPathFile());
+			  if (film.isCancelled())
+				  span.addClassName("riga-cancellata");
+			  return span;
+		  }))
+		  .setResizable(true) // L'utente può allargarla
+		  .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+		  .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+		  .setHeader("Path").setSortable(true).setKey("pathFile");
 		
 		
 		 grid.addColumn(new ComponentRenderer<>(film -> {
@@ -146,19 +181,6 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
         .setHeader("Formato").setSortable(true).setKey("formato");
-		
-		
-		
-		  grid.addColumn(new ComponentRenderer<>(film -> {
-          	 Span span = new Span(film.getTrailer());
-          	 if (film.isCancelled())
-          		 span.addClassName("riga-cancellata");
-          	 return span;
-           }))
-           .setResizable(true) // L'utente può allargarla
-           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-           .setHeader("Trailer").setSortable(true).setKey("trailer");
 
         grid.addColumn(new ComponentRenderer<>(film -> {
         	Span span = new Span(Long.toString(film.getSizeBytes()));   	
@@ -197,7 +219,66 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setHeader("Valutazione").setSortable(true).setKey("voto");
         
         
+        grid.addColumn(new ComponentRenderer<>(film -> {
+          	 Span span = new Span(film.getRegista());
+          	 if (film.isCancelled()) {
+          		 span.addClassName("riga-cancellata");
+          	 }
+          	 return span;
+           }))
+           .setResizable(true) // L'utente può allargarla
+           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+           .setHeader("Regista").setSortable(true).setKey("regista");
         
+        grid.addColumn(new ComponentRenderer<>(film -> {
+          	 Span span = new Span(film.getProtagonisti());
+          	 if (film.isCancelled()) {
+          		 span.addClassName("riga-cancellata");
+          	 }
+          	 return span;
+           }))
+           .setResizable(true) // L'utente può allargarla
+           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+           .setHeader("Protagonisti").setSortable(true).setKey("protagonisti");
+        
+        grid.addColumn(new ComponentRenderer<>(film -> {
+         	 Span span = new Span(film.getTrama());
+         	 if (film.isCancelled()) {
+         		 span.addClassName("riga-cancellata");
+         	 }
+         	 return span;
+          }))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Trama").setSortable(true).setKey("trama");
+        
+        
+        grid.addColumn(new ComponentRenderer<>(film -> {
+          	 Span span = new Span(film.getDurata());
+          	 if (film.isCancelled()) {
+          		 span.addClassName("riga-cancellata");
+          	 }
+          	 return span;
+           }))
+           .setResizable(true) // L'utente può allargarla
+           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+           .setHeader("Durata").setSortable(true).setKey("durata");
+        
+		  grid.addColumn(new ComponentRenderer<>(film -> {
+	          	 Span span = new Span(film.getTrailer());
+	          	 if (film.isCancelled())
+	          		 span.addClassName("riga-cancellata");
+	          	 return span;
+	           }))
+	           .setResizable(true) // L'utente può allargarla
+	           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+	           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+	           .setHeader("Trailer").setSortable(true).setKey("trailer");
+		  
         grid.addColumn(new ComponentRenderer<>(film -> {
       		Span span = new Span(film.getDataArchiviazione() != null ? FORMAT_DATE.format(film.getDataArchiviazione()) : "");
       		if (film.isCancelled()) {
@@ -235,6 +316,18 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
          .setHeader("Ultima Visual").setSortable(true).setKey("lastView");
+
+        grid.addColumn(new ComponentRenderer<>(film -> {
+        	Span span = new Span(film.getLastView() != null ? FORMAT_DATETIME.format(film.getLastUpdate().atZone(ZoneId.systemDefault())) : "");
+        	if (film.isCancelled()) {
+        		span.addClassName("riga-cancellata");
+        	}
+        	return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Aggiornamento").setSortable(true).setKey("lastUpdate");
         
         
         grid.addColumn(new ComponentRenderer<>(film -> {
