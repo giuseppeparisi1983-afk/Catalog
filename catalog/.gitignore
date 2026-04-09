@@ -42,3 +42,4 @@ build/
 dist/
 build/
 out/
+frontend/generated/
