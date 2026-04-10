@@ -48,6 +48,7 @@ public class AudioFile {
 	private Integer annoPubblicazione; 
 	private boolean cancelled; private boolean preferito; 
 	private Integer rating; private long visualizzazioni;
+	@Column(name = "data_archiviazione", columnDefinition = "DATETIME(6)")
 	private Instant dataArchiviazione; 
 	private Instant lastView; 
 	private boolean backup; private String note;
