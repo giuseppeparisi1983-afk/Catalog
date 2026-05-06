@@ -29,6 +29,7 @@ import it.catalog.service.dto.search.DateRangeCriterion;
 import it.catalog.service.dto.search.StringCriterion;
 import it.catalog.service.interfaces.SearchService;
 
+/*Logica universale di ricerca, paginazione e UI*/
 public abstract class AbstractSearchView<T, F extends BaseFilter> extends VerticalLayout {
 
     protected final SearchService<T, F> service;
@@ -325,7 +326,10 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         F filter = buildFilter();
         
         // 2. Prepariamo la richiesta paginata
-        PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by("nome"));
+//        PageRequest pageable = PageRequest.of(pageNumber, pageSize, Sort.by("nome"));
+        
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize, 
+        	    currentSort.isUnsorted() ? Sort.by(Sort.Direction.DESC, "id") : currentSort);
         
         // 3. Chiamiamo il service passando SIA la paginazione SIA il filtro
         // NOTA: il tuo service.findPage deve accettare (Pageable, Filter)
