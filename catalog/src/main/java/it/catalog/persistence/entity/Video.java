@@ -1,12 +1,23 @@
 package it.catalog.persistence.entity;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.SQLJoinTableRestriction;
 
 import it.catalog.common.enums.CategorieVideo;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -35,5 +46,20 @@ public class Video {
     private Boolean backup;
     private String note;
     private Boolean cancelled;
+    
+    
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}) 
+    @JoinTable(
+        name = "oggetto_tag",
+        joinColumns = @JoinColumn(name = "id_oggetto",
+        foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)
+        ),
+        inverseJoinColumns = @JoinColumn(name = "id_tag")
+    )
+  // 1. Applica il filtro 'Audio' automaticamente ogni volta che Hibernate carica questa collezione
+  @SQLJoinTableRestriction("id_tag IN (SELECT t.id_tag FROM tag t WHERE t.tipo_oggetto = 'Video')")
+  // 2. Evita il problema N+1 durante la paginazione caricando i tag a blocchi
+  @BatchSize(size = 25) // "passo" di caricamento dei tag, da regolare in base alla dimensione media delle pagine
+private Set<Tag> tags = new HashSet<>();
 
 }

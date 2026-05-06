@@ -1,18 +1,15 @@
 package it.catalog.service.dto;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 
 import it.catalog.common.enums.CategorieVideo;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class VideoDto {
+public class VideoDto implements VideoRecord{
     private Integer id;
     private String titolo;
 //    @Enumerated(EnumType.STRING)
@@ -20,7 +17,7 @@ public class VideoDto {
     private CategorieVideo categoria;
     private Double rating;
     private Boolean backup;
-    private int visualizzazioni;
+    private Integer visualizzazioni;
 //    private String dataArchiviazione;
 //    private String ultimaVisualizzazione;
     private Instant dataArchiviazione;
@@ -31,5 +28,7 @@ public class VideoDto {
     private String note;
     private String percorsoFile;
     private boolean cancelled;   
+    
+    private List<TagDto> tags; 
     
 }
