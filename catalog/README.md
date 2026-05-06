@@ -9,14 +9,14 @@
 - **1.0.2-SNAPSHOT**  bugFix su indirizzamento verso ui.documenti.index e ui.documenti.form
 - **1.0.3-SNAPSHOT**  bugFix su documenti.index e imagini.index
 - **1.1.0-SNAPSHOT**  introduzione della index per i film
+- **1.1.1-SNAPSHOT**  bugFix per l'index dei video e dei video chitarra
 ===================================================================================================================================
 
 ##TODO
 
-- rimappa l'entity dei video e controlla il mapping de campi sui film nella index 
-- Aggiungi la parte dei tags ai video
-- BE dei film fatto. FE da fare. Aggiungere nuovi dato con i campi aggiunti ✅
-- da aggiungere il footer con il Copyright ✅
+- rimappa l'entity dei video e controlla il mapping de campi sui film nella index ✅
+- Aggiungi la parte dei tags ai video ✅
+
 - Aggiunta del form per i film
 - reingnegnerizzazione gestione di tutti i form
 - Bug Audio.Index: 
@@ -32,11 +32,10 @@
 - Gestione delle utenze Prendere spunto da Persone
 - Export dei dati
 - Dashboard con le statistiche. Analisi sui vari framework
-- Manca la gestione dei film
-- Bug sulla ricerca nella Index: è necessario dare la possibilità di scegliere qualsiasi campo come criterio di ricerca. Le label devono essere uguali alle intestazioni delle colonne del grid. [DA VERIFICARE]
-- Audio.Index: da verificare l'errore sull'intervallo delle date [DA VERIFICARE]
+- Bug sulla ricerca nella Index: è necessario dare la possibilità di scegliere qualsiasi campo come criterio di ricerca. Le label devono essere uguali alle intestazioni delle colonne del grid. [DA VERIFICARE] ✅
+- Audio.Index: da verificare l'errore sull'intervallo delle date [DA VERIFICARE] ✅
 - Documenti.Index: Non funziona la ricerca, inoltre quando si cancella il campo search deve resettare anche la select del criterio
-- Immagini.Index: Le label devono essere uguali alle intestazioni delle colonne del grid. Quando si cancellano i campi di ricerca bisogna restituire una findAll
+- Immagini.Index: Le label devono essere uguali alle intestazioni delle colonne del grid. Quando si cancellano i campi di ricerca bisogna restituire una findAll ✅
 - Video.Index: la ricerca funziona solo per titolo. Inoltre, quando si cancellano i campi di ricerca bisogna restituire una findAll
 - Chitarra.Index: ci sono solo i campi di GuitarDto ma dovrebbero comparire anche gli altri di VideoDto. Inoltre, quando si cancellano i campi di ricerca bisogna restituire una findAll. La ricerca non funziona.
 - Documenti.form:non funziona il sistema della view true | false
@@ -58,13 +57,15 @@
 - [Ambiente]: Installazione di AS locale in modo da poter accedere in lettura alle risorse in locale
 - [Ambiente]: Se la fase di lettura và bene, introdurre su ogni form uno spazio che tramite Drag&Drop permetta l'upload del file fisico da salvare nel path specificato. Note Salva il file anche sull'HD di backup
 - [Ambiente]: Sulla classe main CatalogApplication estrarre dall'hd tutti i metadati già presenti e aggiornare il db
-- [Ambiente]: vedi procedura per creare il repository su GitLab ✅ e un ambiente di test. e il db come faccio a portarlo online ?
 - [Film]: metodo per il recupero di tutti i metadati dal file excel al momento non ancora disponibile e aggiorna i dati in tabella. Il file copertina, lo copi su src/resources/copertine/film e sul db memorizzi solo il nome del file. 
 
 ===================================================================================================================================
 
 ##FATTO
 
+- [Ambiente]: vedi procedura per creare il repository su GitLab e un ambiente di test. e il db come faccio a portarlo online ✅
+- BE dei film fatto. FE da fare. Aggiungere nuovi dati con i campi aggiunti ✅
+- da aggiungere il footer con il Copyright ✅
 - Bug Audio.Index:
 
 				1) Le label della select devono essere uguali alle intestazioni delle colonne del grid. ✅

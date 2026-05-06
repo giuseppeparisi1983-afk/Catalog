@@ -3,8 +3,11 @@
 ###Appunti
 
 
-`**URL d'accesso**` `http://localhost:8081/` 
+`**URL d'accesso**` `LOCAL: http://localhost:8081/ 		OnLine: https://catalogws.onrender.com`
+
 `**Comando per l'export del db da lanciare da C:\xampp\mysql\bin **` `mysqldump -u root -p --single-transaction --quick --default-character-set=utf8mb4 catalog > "C:\Users\giuse\git\repository\catalog\src\main\resources\db\gestionale_dump.sql"`
+
+
 
 ### 1. Aggiunta logo  
 
@@ -208,7 +211,15 @@ La view rimane la stessa istanza in memoria.
 Quindi se nel Listener c'è un metodo che non aggiorna i dati Vaadin non ricarica la pagina solo perché clicchi un link che punta alla stessa route se sei già sulla stessa route non farà nulla.
 
 
+### 7. Deploy Online
 
+Ad ogni singolo deploy, Render distrugge il vecchio container e ne crea uno completamente nuovo partendo dal tuo Dockerfile.
+
+Immagine Immutabile: Viene creata una nuova "immagine" (uno snapshot del sistema) che contiene il sistema operativo, Java 21 e il tuo nuovo file .jar.
+
+Ambiente Pulito: Questo garantisce che non ci siano "residui" di vecchi test. Se l'app gira sul tuo PC con Docker, girerà identica su Render.
+
+Niente aggiornamenti "parziali": Non viene mai caricato solo il .jar su un ambiente esistente. Viene sempre ricostruita l'intera "scatola" (container).
 
 
 
