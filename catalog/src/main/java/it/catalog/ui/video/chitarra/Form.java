@@ -10,7 +10,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -23,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import it.catalog.common.enums.CategorieVideo;
 import it.catalog.common.enums.Difficolta;
 import it.catalog.service.dto.GuitarDto;
+import it.catalog.service.dto.VideoDto;
 import it.catalog.service.interfaces.IGuitarService;
 import it.catalog.service.interfaces.IVideoService;
 import it.catalog.ui.common.MainLayout;
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Route(value = "chitarra-form", layout = MainLayout.class)
 @PageTitle("Video Chitarra - Form")
 @Slf4j
-public class Form extends AbstractVideoForm<GuitarDto>  implements BeforeEnterObserver,HasUrlParameter<Integer>{
+public class Form extends AbstractVideoForm<VideoDto>  implements BeforeEnterObserver,HasUrlParameter<Integer>{
 
    
 	// Variabili sentinella
@@ -54,7 +54,7 @@ public class Form extends AbstractVideoForm<GuitarDto>  implements BeforeEnterOb
     public Form(IGuitarService chitarraService, IVideoService videoService) {
    
     	// 1. Passiamo il service e la classe specifica al costruttore del padre (SUPER) per il Binder
-        super(GuitarDto.class,videoService,"Modulo Video Chitarra");
+        super(VideoDto.class,videoService,"Modulo Video Chitarra");
     	
     	this.service = chitarraService;
       
@@ -105,24 +105,24 @@ public class Form extends AbstractVideoForm<GuitarDto>  implements BeforeEnterOb
     private void configureBindings() {
 		
     	// ComboBox: difficolta null
-		binder.forField(difficolta)
-		.asRequired("Imposta il livello di difficolta")
-				.bind(GuitarDto::getDifficolta, GuitarDto::setDifficolta);
-
-		// TextField: Non accetta stringa vuota
-		binder.forField(autore)
-		.withNullRepresentation("")
-		.asRequired("L'autore è obbligatorio")
-				.withValidator(name -> name.length() >= 3, "Minimo 3 caratteri")
-				.bind(GuitarDto::getAutore, GuitarDto::setAutore);
-
-		binder.forField(visto)
-				.withConverter(checked -> checked != null && checked, value -> value != null && value)
-				.bind(GuitarDto::getVisto, GuitarDto::setVisto);
-
-		binder.forField(todo)
-				.withConverter(checked -> checked != null && checked, value -> value != null && value)
-				.bind(GuitarDto::getTodo, GuitarDto::setTodo);
+//		binder.forField(difficolta)
+//		.asRequired("Imposta il livello di difficolta")
+//				.bind(GuitarDto::getDifficolta, GuitarDto::setDifficolta);
+//
+//		// TextField: Non accetta stringa vuota
+//		binder.forField(autore)
+//		.withNullRepresentation("")
+//		.asRequired("L'autore è obbligatorio")
+//				.withValidator(name -> name.length() >= 3, "Minimo 3 caratteri")
+//				.bind(GuitarDto::getAutore, GuitarDto::setAutore);
+//
+//		binder.forField(visto)
+//				.withConverter(checked -> checked != null && checked, value -> value != null && value)
+//				.bind(GuitarDto::getVisto, GuitarDto::setVisto);
+//
+//		binder.forField(todo)
+//				.withConverter(checked -> checked != null && checked, value -> value != null && value)
+//				.bind(GuitarDto::getTodo, GuitarDto::setTodo);
 	}
     
    
@@ -147,10 +147,10 @@ public class Form extends AbstractVideoForm<GuitarDto>  implements BeforeEnterOb
         	 guitar=new GuitarDto();
         }
 		
-		if(guitar.getCategoria() == null)
-			guitar.setCategoria(CategorieVideo.guitar);         	 // FORZIAMO LA CATEGORIA NEL DTO
-		
-		setBean(guitar);// Popolo il form (e il binder)
+//		if(guitar.getCategoria() == null)
+//			guitar.setCategoria(CategorieVideo.guitar);         	 // FORZIAMO LA CATEGORIA NEL DTO
+//		
+//		setBean(guitar);// Popolo il form (e il binder)
 
        
     }
@@ -162,12 +162,12 @@ public class Form extends AbstractVideoForm<GuitarDto>  implements BeforeEnterOb
         if (binder.validate().isOk()) {
             // 2. Recupero il DTO aggiornato dal Binder
              // (Contiene i dati digitati dall'utente + l'ID se era una modifica)
-        	GuitarDto dtoDaSalvare = binder.getBean();
+        	//GuitarDto dtoDaSalvare = binder.getBean();
 
              try {
                  // 3. Chiamata al Service per scrivere su DB
             	// QUI USIAMO IL SERVICE SPECIFICO
-            	 service.save(dtoDaSalvare);
+            	 //service.save(dtoDaSalvare);
 
                  Notification.show("Video salvato correttamente!",3000, Notification.Position.TOP_CENTER);
                  getUI().ifPresent(ui -> ui.navigate(Index.class)); // Torna alla lista eventualmente
