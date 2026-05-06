@@ -7,12 +7,14 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import it.catalog.persistence.entity.Chitarra;
 import it.catalog.persistence.entity.Tag;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DateRangeCriterion;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.dto.search.SearchCriterion;
 import it.catalog.service.dto.search.StringCriterion;
+import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
@@ -54,13 +56,25 @@ public class SpecificationFactory<T> {
 
             // 3. Filtro per Tags (Relazione Many-to-Many)
             if (filter.getTags() != null && !filter.getTags().isEmpty()) {
-                // Facciamo una join con la tabella dei tag
-                Join<T, Tag> tagJoin = root.join("tags");
-                
+
                 // Estraiamo gli ID dei tag selezionati nel filtro
                 List<Long> tagIds = filter.getTags().stream()
                                           .map(TagDto::getIdTag)
                                           .toList();
+                
+             // Determiniamo il percorso verso i tag in base al tipo di entità (Root)
+                From<?, ?> from;
+                if (root.getJavaType().equals(Chitarra.class)) {
+                    // Se stiamo cercando Chitarre, dobbiamo passare per la join "video"
+                    from = root.join("video");
+                } else {
+                    // Se stiamo cercando Video (o altre entità con i tag diretti), usiamo root
+                    from = root;
+                }
+                
+                // Facciamo una join con la tabella dei tag
+                Join<?, ?> tagJoin = from.join("tags");
+
                 
                 // Aggiungiamo il predicato IN
                 predicates.add(tagJoin.get("idTag").in(tagIds));
