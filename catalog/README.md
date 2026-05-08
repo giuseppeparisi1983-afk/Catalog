@@ -14,6 +14,8 @@
 
 ##TODO
 
+- Bug: Documenti.Form non funziona il salvataggio dei tags [DA VEDERE]
+- Documenti.Form Obbligatorietà dei campi [DA VEDERE]
 - rimappa l'entity dei video e controlla il mapping de campi sui film nella index ✅
 - Aggiungi la parte dei tags ai video ✅
 

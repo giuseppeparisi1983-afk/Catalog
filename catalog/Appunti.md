@@ -39,6 +39,15 @@ La classe SpecificationFactory<T> è stata aggiunta come supporto per questa fun
 1. Per salvare o caricare i dati iniettare o definire il Service
 2. definizione dell'oggetto Dto e del binder corrispondente
 3. Perchè ````nomeBinder.bindInstanceFields(this);```` funzioni è necessario che i campi del form devono essere dichiarati come variabili di istanza (non locali dentro il costruttore). Inoltre i loro nomi devono corrispondere esattamente alle proprietà del DTO. Esempio: TextField name ↔ getName() / setName() nel DTO questo vale per tutti i componenti supportati da Vaadin Binder per i tipi Integer c'è IntegerField per i double c'è NumberField con le String o degli oggetti custom posso utilizzare le Combobox anche se per il tipo String si preferisce TextField. Infine, il Binder deve essere inizializzato DOPO che i campi sono stati creati.
+
+Nota: Il Binder di Vaadin è progettato per essere "intelligente". Quando chiami il metodo bindInstanceFields(this), lui segue questa logica:
+		- Scansiona tutti i campi della tua classe (es. nome, dimensione, tags).
+		- Per ogni campo, controlla se è già stato associato a una proprietà tramite un precedente comando forField(...).
+		- Se il campo risulta già "occupato" da un binding manuale, il Binder lo ignora e non prova a sovrascriverlo.
+
+È per questo che la regola d'oro con il Binder è: prima fai i binding manuali (quelli con i converter o logiche speciali), e solo alla fine chiami bindInstanceFields(this) per gestire automaticamente tutto il resto che è standard.
+
+
 4. Per collegare i campi del form ai dati del dto sull'override del metodo beforeEnter() basta fare
 		- nomeBinder.bindInstanceFields(this);
 		- findById(id) Se l’ID è nella route, viene trovato e caricato il dto da modificare (se presente)
@@ -63,7 +72,7 @@ Questo agisce come un "ponte":
 
 Java -> DB: Prende la label dall'Enum e la scrive nel DB.
 DB -> Java: Legge la stringa dal DB e ritrova l'Enum corrispondente. Per questo è stato introdotto il metodo fromLabel() in tutti gli enumerations per poter ritrovare l'Enum partendo dalla stringa letta dal database.
-Le classi Converter che tramite la classe astratta AbstractLabelConverter che implementa AttributeConverter<E, String> di jakarta interca il salvataggio e la lettura.
+Le classi Converter che tramite la classe astratta AbstractLabelConverter che implementa AttributeConverter<E, String> di jakarta intercetta il salvataggio e la lettura.
 L'annotation @Converter(autoApply = true) indica che il converter  si applicherà automaticamente ovunque usi l'Enum specifico.
 
 Per coerenza dei dati su video.Form la combo categoria è stata settata con tutte le categorie TRANNE Chitarra in modo che sia impossibile selezionare questa voce. Dopo il salvataggio non avrai mai nel DB un record con categoria=CHITARRA con i campi di GuitarDto popolati.
@@ -94,7 +103,16 @@ sui DTO entra in gioco l’ereditarietà e il Template Method Pattern:
 
 	- Definizione di video.chitarra.Form extends AbstractVideoForm<GuitarDto> che oltre a richiamare AbstractVideoForm aggiunge i campi specifici per la chitarra.
 
-Così l’utente vede un unico form per “Modulo Chitarra”, senza dover passare da due schermate. Il salvataggio dietro le quinte rimane doppio (prima Video, poi Chitarra), ma l’utente non se ne accorge.
+Così l’utente vede un unico form per “Modulo Chitarra”, senza dover passare da due schermate. Il salvataggio dietro le quinte rimane doppio (prima Video, poi Chitarra), ma l’utente non se ne accorge. 
+I  tipi dei componenti di un form Vaadin Vs Tipi di campi nel Dto:
+
+			NumberField -> aspetta sempre Double.
+			IntegerField -> aspetta sempre Integer.
+			Checkbox -> aspetta Boolean.
+			TextField -> aspetta String.
+			MultiSelectComboBox -> aspetta un java.util.Set
+			DatePicker -> aspetta LocalDate (solo data)
+			DateTimePicker -> aspetta un LocalDateTime (data e ora)
 
 ####5.2 Gestione condivisa delle Index
 
