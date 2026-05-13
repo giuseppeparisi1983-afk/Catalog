@@ -1,16 +1,11 @@
 package it.catalog.service.impl;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 
 import it.catalog.persistence.entity.Tag;
-
 import it.catalog.persistence.repository.TagRepository;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.interfaces.TagService;
@@ -31,11 +26,12 @@ public class TagServiceImpl implements TagService {
        
     }
 
-   private Tag createIfNotExists(String nomeTag,String tipoOggetto) {
-       log.info("Parametri ingresso {} , {}",nomeTag,tipoOggetto); 
-	   return tagRepo.findByNomeTag(nomeTag)
-                      .orElseGet(() -> tagRepo.save(new Tag(nomeTag,tipoOggetto)));
-    }
+	/*
+	 * private Tag createIfNotExists(String nomeTag,String tipoOggetto) {
+	 * log.info("Parametri ingresso {} , {}",nomeTag,tipoOggetto); return
+	 * tagRepo.findByNomeTag(nomeTag) .orElseGet(() -> tagRepo.save(new
+	 * Tag(nomeTag,tipoOggetto))); }
+	 */
     
 //   @Override
 //   public List<Long> findIdByTypeAndTags(String tipoOggetto, List<String> tagNames) {
@@ -92,9 +88,20 @@ public class TagServiceImpl implements TagService {
 //    }
     
     @Override
+    public Optional<Tag> findByNomeTag(String nomeTag) {
+    	
+    	Tag tag=tagRepo.findByNomeTag(nomeTag);
+    	    	
+    	// ofNullable restituisce un Optional vuoto se tag è null, 
+        // permettendo al chiamante di usare orElseGet
+        return Optional.ofNullable(tag);
+
+    }
+
+    @Override
     public List<TagDto> findByTipoOggetto(String tipo) {
     	
-     	return 
+    	return 
     			tagMapper.mapToList(tagRepo.findByTipoOggetto(tipo));
 //    	return oggettoTagRepo.findByTipoOggetto(tipo).stream()
 //    			 .map(OggettoTag::getTag)
@@ -132,14 +139,29 @@ public class TagServiceImpl implements TagService {
 //        }
 //    }
 
-    
-	/*
-	 * @Override public TagDto create(TagDto dto) { Tag tag =
-	 * tagMapper.toEntity(dto); return tagMapper.toDto(tagRepo.save(tag)); }
-	 * 
-	 * @Override public Optional<TagDto> findById(Long id) { return
-	 * tagRepo.findById(id).map(tagMapper::toDto); }
-	 * 
+	@Override
+	public Tag findById(Long id) {
+		return tagRepo.findByIdTag(id);
+	}
+	
+	@Override
+	public Tag create(Tag newTag) {
+		
+		return tagRepo.save(newTag);
+	}
+	
+    /*
+	 
+	   @Override public Optional<TagDto> findById(Long id) { 
+    	return tagRepo.findById(id).map(tagMapper::toDto); }
+	
+	@Override
+	public TagDto create(TagDto dto) {
+		Tag tag = tagMapper.toEntity(dto);
+		return tagMapper.toDto(tagRepo.save(tag));
+	}
+	 
+	 
 	 * @Override public List<TagDto> findAll() { return
 	 * tagMapper.mapToList(tagRepo.findAll()); }
 	 */
