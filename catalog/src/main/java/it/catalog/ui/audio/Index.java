@@ -23,8 +23,8 @@ import it.catalog.service.dto.AudioDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.impl.AudioFileServiceImpl;
+import it.catalog.ui.common.AbstractSearchView;
 import it.catalog.ui.common.MainLayout;
-import it.catalog.ui.utility.AbstractSearchView;
 
 @Route(value = "audio", layout = MainLayout.class)
 @PageTitle("Audio")
