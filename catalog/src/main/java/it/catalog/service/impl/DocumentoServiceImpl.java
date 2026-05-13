@@ -2,6 +2,8 @@ package it.catalog.service.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import it.catalog.common.enums.StatiDocumento;
 import it.catalog.persistence.entity.Documento;
+import it.catalog.persistence.entity.Tag;
 import it.catalog.persistence.repository.DocumentoRepository;
 import it.catalog.service.dto.DocumentoDto;
 import it.catalog.service.dto.TagDto;
@@ -62,9 +65,29 @@ public class DocumentoServiceImpl implements SearchService<DocumentoDto, DtoFilt
     @Override
     @Transactional
     public DocumentoDto save(DocumentoDto dto) {
-        Documento saved = repository.save(mapper.toEntity(dto,prefixProvider));
-        log.info("Save New Document file. Id {}",saved.getIdDocumento());
-        return dto;
+
+    	Documento entity =mapper.toEntity(dto,prefixProvider);
+
+    			Set<Tag> managedTags = dto.getTags().stream().map(tagDto -> {
+    				// Se il DTO ha già l'ID, lo carichiamo (o lo usiamo direttamente)
+    				if (tagDto.getIdTag() != null) {
+    					return tagService.findById(tagDto.getIdTag());
+
+    				}
+    				// Se l'ID è null, cerchiamo per nome per evitare duplicati
+    				return tagService.findByNomeTag(tagDto.getNomeTag())
+    						.orElseGet(() -> {
+    							Tag newTag = new Tag();
+    							newTag.setNomeTag(tagDto.getNomeTag());
+    							newTag.setTipoOggetto("Documento"); // Associa il tipo 'Documento' ai nuovi tag");
+    							return tagService.create(newTag);
+    						});
+    			}).collect(Collectors.toSet());
+
+    	entity.setTags(managedTags);
+    	entity = repository.save(entity);
+    	log.info("Save New Document file. Id {}",entity.getId());
+    	return dto;
     }
     
     @Override
