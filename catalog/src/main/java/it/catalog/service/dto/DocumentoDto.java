@@ -1,7 +1,7 @@
 package it.catalog.service.dto;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 import it.catalog.common.enums.StatiDocumento;
 import it.catalog.common.enums.TipoDocumento;
@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DocumentoDto {
 
-	 private Long idDocumento;
+	 private Long id;
 	    private String nome;
 	    private String path;
-	    private Long dimensione;
+	    private Double dimensione;
 	    private String autore;
 	    private String descrizione;
 	    private TipoDocumento categoria;
@@ -34,5 +34,5 @@ public class DocumentoDto {
 	    private Instant lastUpdate; 
 	    
 	 // aggiungiamo i tag direttamente nel DTO
-	    private List<TagDto> tags;
+	    private Set <TagDto> tags;
 }

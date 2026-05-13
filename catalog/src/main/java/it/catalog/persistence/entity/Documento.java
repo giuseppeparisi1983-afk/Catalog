@@ -29,15 +29,19 @@ import lombok.Data;
 public class Documento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    /**
+     * Questa annotation ci dice che l'ID viene deciso dal database 
+     * solo nel momento in cui la riga viene scritta fisicamente.
+     * */
     @Column(name = "id")
-    private Long idDocumento;
+    private Long id;
 
     private String nome;
     private String estensione;
     
     @Column(name = "path_file")
     private String path;
-    private Long dimensione;
+    private Double dimensione;
     private Instant dataArchiviazione;
     private Instant lastUpdate;
     private Instant lastView;
