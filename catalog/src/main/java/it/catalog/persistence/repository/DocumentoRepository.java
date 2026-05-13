@@ -22,7 +22,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, Long>, Jpa
 	List<String> findDistinctStato();
 
     @EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
-	Page<Documento> findAll(Specification<Documento	> spec, Pageable pageable);
+	Page<Documento> findAll(Specification<Documento> spec, Pageable pageable);
     
     @EntityGraph(attributePaths = {"tags"})
     @Override

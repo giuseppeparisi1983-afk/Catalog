@@ -2,24 +2,22 @@ package it.catalog.ui.documenti;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import it.catalog.common.enums.StatiDocumento;
@@ -27,8 +25,8 @@ import it.catalog.service.dto.DocumentoDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.impl.DocumentoServiceImpl;
+import it.catalog.ui.common.AbstractSearchView;
 import it.catalog.ui.common.MainLayout;
-import it.catalog.ui.utility.AbstractSearchView;
 
 //@Menu(order = 0, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 @Uses(Icon.class)
@@ -254,7 +252,11 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
 				span.addClassName("riga-cancellata");
 			return span;
-		})).setHeader("Path").setSortable(true).setKey("path");
+		}))
+		.setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Path").setSortable(true).setKey("path");
 
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
@@ -302,14 +304,14 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		grid.addComponentColumn(document -> {
 			HorizontalLayout actions = new HorizontalLayout();
 
-			Anchor edit = new Anchor("documents-form/" + document.getIdDocumento() + "/false", "Modifica");
+			Anchor edit = new Anchor("documents-form/" + document.getId() + "?view=false", "Modifica");
 			Anchor delete = new Anchor("documents", "cancella");
 			delete.getElement().addEventListener("click", ev -> {
-				conferma(document.getIdDocumento(), "Sei sicuro di voler cancellare questo elemento ?");
+				conferma(document.getId(), "Sei sicuro di voler cancellare questo elemento ?");
 			});
 			Anchor recovery = new Anchor("documents", "ripristino");
 			recovery.getElement().addEventListener("click", ev -> {
-				conferma(document.getIdDocumento(), "Stai ripristinando questo elemento. Sei sicuro di volerlo fare ?");
+				conferma(document.getId(), "Stai ripristinando questo elemento. Sei sicuro di volerlo fare ?");
 			});
 
 			
@@ -330,8 +332,14 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		//        grid.getColumns().forEach(column -> column.setResizable(true));
 
 		// rendi la tabella interattiva
-		grid.addItemClickListener(e -> getUI()
-				.ifPresent(ui -> ui.navigate("documents-form/" + e.getItem().getIdDocumento() + "/true")));
+		grid.addItemClickListener(event -> {
+		    Long id = event.getItem().getId();
+		    // Prepariamo il parametro ?view=true o ?view=false
+		    QueryParameters qp = QueryParameters.simple(Map.of("view", "true"));
+		    
+		    // Navigazione: target, parametro ID, query parameters
+		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
+		});
 
 	}
 
@@ -352,8 +360,13 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 	@Override
 	protected void navigateToForm(Long id) {
 		// Gestisci la navigazione al form (nuovo o modifica)
-		String route = "documents-form/" + (id != null ? id : "0") + "/false";
-		getUI().ifPresent(ui -> ui.navigate(route));
+//		String route = "documents-form/" + (id != null ? id : "0") + "/false";
+//		getUI().ifPresent(ui -> ui.navigate(route));
+		// Prepariamo il parametro ?view=true o ?view=false
+	    QueryParameters qp = QueryParameters.simple(Map.of("view", "false"));
+	    
+	    // Navigazione: target, parametro ID, query parameters
+	    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
 	}
 
 }

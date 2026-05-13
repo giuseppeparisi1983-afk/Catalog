@@ -21,7 +21,7 @@ import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.VideoRecord;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.interfaces.SearchService;
-import it.catalog.ui.utility.AbstractSearchView;
+import it.catalog.ui.common.AbstractSearchView;
 
 /*Qui definisci le colonne della Grid comuni a tutti i video.*/
 //T è il tipo del DTO (VideoDto o GuitarDto)

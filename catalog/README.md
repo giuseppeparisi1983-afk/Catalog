@@ -10,6 +10,7 @@
 - **1.0.3-SNAPSHOT**  bugFix su documenti.index e imagini.index
 - **1.1.0-SNAPSHOT**  introduzione della index per i film
 - **1.1.1-SNAPSHOT**  bugFix per l'index dei video e dei video chitarra
+- **1.1.2-SNAPSHOT**  bugFix sul salvataggio dei tags sul Document.Form
 ===================================================================================================================================
 
 ##TODO

@@ -30,8 +30,8 @@ import it.catalog.service.dto.FilmDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.impl.FilmServiceImpl;
+import it.catalog.ui.common.AbstractSearchView;
 import it.catalog.ui.common.MainLayout;
-import it.catalog.ui.utility.AbstractSearchView;
 
 @Route(value="film", layout = MainLayout.class)
 @PageTitle("Film")
