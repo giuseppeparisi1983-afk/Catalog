@@ -2,21 +2,19 @@ package it.catalog.ui.audio;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import it.catalog.service.dto.AudioDto;
@@ -81,7 +79,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setHeader("Genere").setSortable(true).setKey("genere");
 
          grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getFilename());
+        	 Span span = new Span(audio.getPath());
         	 if (audio.isCancelled()) {
         		 span.addClassName("riga-cancellata");
         	 }
@@ -90,10 +88,10 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Nome File").setSortable(true).setKey("filename");
+         .setHeader("Path File").setSortable(true).setKey("path");
 
          grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getMimeType());
+        	 Span span = new Span(audio.getEstensione().getEstensione());
         	 if (audio.isCancelled()) {
         		 span.addClassName("riga-cancellata");
         	 }
@@ -102,19 +100,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("MIME").setSortable(true).setKey("mimeType");
-
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getFormato());
-        	 if (audio.isCancelled()) {
-        		 span.addClassName("riga-cancellata");
-        	 }
-        	 return span;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Formato").setSortable(true).setKey("formato");
+         .setHeader("Formato").setSortable(true).setKey("estensione");
 
          grid.addColumn(new ComponentRenderer<>(audio -> {
         	 Span span = new Span(audio.getAutore());
@@ -141,7 +127,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setHeader("Album").setSortable(true).setKey("album");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
-       		Span span = new Span(audio.getAnnoPubblicazione() != null ? audio.getAnnoPubblicazione().toString() : "0");
+       		Span span = new Span(audio.getAnno() != null ? audio.getAnno().toString() : "0");
        		if (audio.isCancelled())
        			span.addClassName("riga-cancellata");
        		return span;
@@ -149,7 +135,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Anno").setSortable(true).setKey("annoPubblicazione");
+         .setHeader("Anno").setSortable(true).setKey("anno");
          
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
@@ -204,7 +190,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setHeader("Archiviazione").setSortable(true).setKey("dataArchiviazione");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getDescription());
+        	 Span span = new Span(audio.getDescrizione());
         	 if (audio.isCancelled()) {
         		 span.addClassName("riga-cancellata");
         	 }
@@ -213,7 +199,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Descrizione").setSortable(true).setKey("description");
+         .setHeader("Descrizione").setSortable(true).setKey("descrizione");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
              Checkbox checkbox = new Checkbox(audio.isBackup());
@@ -230,7 +216,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
-      		Span span = new Span(audio.getDurationSeconds().toString());
+      		Span span = new Span(audio.getDuration().toString());
       		if (audio.isCancelled()) {
       			span.addClassName("riga-cancellata");
       		}
@@ -239,7 +225,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Durata (min)").setSortable(true).setKey("durationSeconds");
+         .setHeader("Durata (min)").setSortable(true).setKey("duration");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
       		Span span = new Span(audio.getLastView() != null ? FORMAT_DATETIME.format(audio.getLastView().atZone(ZoneId.systemDefault())) : "");
@@ -268,7 +254,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
 //         grid.addColumn(AudioDto::getSizeBytes).setHeader("Dimensione (byte)").setSortable(true).setAutoWidth(true).setKey("sizeBytes");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
-       		Span span = new Span(Long.toString(audio.getSizeBytes()));
+       		Span span = new Span(String.valueOf(audio.getDimensione()));
        		if (audio.isCancelled()) {
        			span.addClassName("riga-cancellata");
        		}
@@ -277,7 +263,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Dimensione (byte)").setSortable(true).setKey("sizeBytes");
+         .setHeader("Dimensione (byte)").setSortable(true).setKey("dimensione");
          
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
@@ -341,9 +327,9 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
      	    return div;
      	})).setSortable(true).setKey("tags");
          
-         
+
          grid.addComponentColumn(item -> {
-        	 Anchor edit = new Anchor("audio-form?id=" + item.getId()+"&view=false", "modifica");
+        	 Anchor edit = new Anchor("audio-form/" + item.getId()+"?view=false", "modifica");
              Anchor del = new Anchor("audio", "cancella");
              del.getElement().addEventListener("click", ev -> {
             	 conferma(item.getId(),"Sei sicuro di voler cancellare questo elemento ?");
@@ -369,7 +355,19 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setHeader("Azioni");
 
          
-         grid.addItemClickListener(e -> getUI().ifPresent(ui -> ui.navigate("audio-form?id=" + e.getItem().getId()+"&view=true")));
+//         grid.addItemClickListener(e -> getUI().
+//        		 ifPresent(ui -> ui.navigate("audio-form?id=" + e.getItem().getId()+"&view=true")));
+         
+     	// rendi la tabella interattiva
+ 		grid.addItemClickListener(event -> {
+ 		    Long id = event.getItem().getId();
+ 		    // Prepariamo il parametro ?view=true o ?view=false
+ 		    QueryParameters qp = QueryParameters.simple(Map.of("view", "true"));
+ 		    
+ 		    // Navigazione: target, parametro ID, query parameters
+ 		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
+ 		});
+ 		
 //         grid.setHeight("60vh");
 
              
