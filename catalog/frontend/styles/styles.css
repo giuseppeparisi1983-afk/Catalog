@@ -1,0 +1,9 @@
+.auto-width-combo {
+    width: auto;
+    min-width: 200px;   /* evita che sia troppo piccolo */
+    max-width: 100%;    /* evita overflow */
+}
+
+.auto-width-combo::part(input-field) {
+    width: auto;
+}
