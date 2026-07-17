@@ -1,8 +1,9 @@
 package it.catalog.service.dto;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
+import it.catalog.common.enums.FormatoAudio;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,20 +12,19 @@ import lombok.NoArgsConstructor;
 public class AudioDto {
     private Long id;
     private String nome;
-    private String description;
-    private String filename; 
-    private String mimeType; 
-    private Integer durationSeconds; 
-    private long sizeBytes;
-    private String formato; // MP3, FLAC, WAV 
+    private String descrizione;
+    private String path; 
+    private Double duration; 
+    private Double dimensione;
+    private FormatoAudio estensione; // 'MP3','WAV','AAC','FLAC','OGG'
     private String coverPath; 
     private String genere; 
     private String autore; 
     private String album; 
-    private Integer annoPubblicazione; 
+    private Integer anno; 
     private boolean cancelled; 
     private boolean preferito; 
-    private Integer rating; 
+    private Double rating; 
     private long visualizzazioni; 
     private Instant dataArchiviazione; 
     private Instant lastView; 
@@ -34,7 +34,7 @@ public class AudioDto {
 
 
     // Tags associati private
-    private List<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
+    private Set<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
 
     
 }

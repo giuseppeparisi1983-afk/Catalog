@@ -7,6 +7,7 @@ import java.util.Set;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
+import it.catalog.common.enums.FormatoAudio;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -29,25 +30,24 @@ import lombok.Data;
 @Table(name = "audio_file") 
 public class AudioFile { 
 	
-	public enum Formato { MP3, FLAC, WAV } 
-	
 	@Id 
 	@GeneratedValue(strategy = GenerationType.IDENTITY) 
 	private Long id; 
 	@Column(name = "title")
 	private String nome; 
-	private String description; 
-	private String filename; private String mimeType; 
-	private Integer durationSeconds; 
-	private long sizeBytes; 
-	@Enumerated(EnumType.STRING) 
-	private Formato formato; 
+	private String descrizione; 
+	private String path; 
+	private Double duration; 
+	private Double dimensione; 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "formato", nullable = false)
+	private FormatoAudio formato; 
 	private String coverPath; 
 	private String genere; 
 	private String autore; private String album; 
-	private Integer annoPubblicazione; 
+	private Integer anno; 
 	private boolean cancelled; private boolean preferito; 
-	private Integer rating; private long visualizzazioni;
+	private Double rating; private long visualizzazioni;
 	@Column(name = "data_archiviazione", columnDefinition = "DATETIME(6)")
 	private Instant dataArchiviazione; 
 	private Instant lastView; 

@@ -1,82 +1,48 @@
 package it.catalog.ui.audio;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.data.binder.Result;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.catalog.common.enums.FormatoAudio;
 import it.catalog.service.dto.AudioDto;
-import it.catalog.service.dto.TagDto;
-import it.catalog.service.impl.AudioFileServiceImpl;
+import it.catalog.service.dto.search.DtoFilter;
+import it.catalog.service.interfaces.SearchService;
+import it.catalog.ui.common.AbstractCommonFileForm;
 import it.catalog.ui.common.MainLayout;
 
 @Route(value = "audio-form", layout = MainLayout.class)
 @PageTitle("Audio - Form")
-public class Form extends FormLayout implements BeforeEnterObserver {
+public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDto, DtoFilter>> {
 
-    private final AudioFileServiceImpl service;
-
-    private Long idParam;
-    private final Binder<AudioDto> binder = new Binder<>(AudioDto.class);
-
-    private final TextField title = new TextField("Titolo");
-    private final TextArea description = new TextArea("Descrizione");
-    private final TextField filename = new TextField("Filename");
-    private final ComboBox<String> mimeType = new ComboBox<>("MIME type");
-    private final NumberField durationSeconds = new NumberField("Durata (s)");
-    private final NumberField sizeBytes = new NumberField("Dimensione (bytes)");
-    private final ComboBox<String> formato = new ComboBox<>("Formato audio");
+    private final TextField duration = new TextField("Durata");
+    private final ComboBox<FormatoAudio> estensione = new ComboBox<>("Estensione");
     private final TextField coverPath = new TextField("Cover path");
     private final Image coverPreview = new Image();
 
     private final TextField genere = new TextField("Genere");
     private final TextField autore = new TextField("Autore");
     private final TextField album = new TextField("Album");
-    private final NumberField annoPubblicazione = new NumberField("Anno");
-
-    private final Checkbox preferito = new Checkbox("Preferito");
-    private final Checkbox backup = new Checkbox("Backup");
-    private final NumberField rating = new NumberField("Rating");
-    private final NumberField visualizzazioni = new NumberField("Visualizzazioni");
-    private final DateTimePicker dataArchiviazione = new DateTimePicker("Data archiviazione");
-    private final DateTimePicker dataUltimaVisualizzazione = new DateTimePicker("Ultima visualizzazione");
-    private final TextArea note = new TextArea("Note");
-    private final MultiSelectComboBox<TagDto> tags = new MultiSelectComboBox<>();
-
-    private final Button save = new Button("Salva");
-//    private final Anchor cancel = new Anchor("audio", "Annulla");
-
-    public Form(AudioFileServiceImpl service) {
-        this.service = service;
+    private final IntegerField anno = new IntegerField("Anno");
+   
+    public Form(SearchService<AudioDto, DtoFilter> service) {
+    	 super("Modulo Audio",service, AudioDto.class);
 
         // Da sistemare con gli enumeration
-        mimeType.setItems("audio/mpeg", "audio/flac", "audio/wav", "audio/ogg");
-        formato.setItems("MP3","FLAC","WAV");
+//        mimeType.setItems("audio/mpeg", "audio/flac", "audio/wav", "audio/ogg");
+//        formato.setItems("MP3","FLAC","WAV");
         // DA VEDERE
 //        formato.setTooltipGenerator(f -> switch (f) {
 //            case "MP3" -> "Lossy, compatibilità ampia";
@@ -85,116 +51,204 @@ public class Form extends FormLayout implements BeforeEnterObserver {
 //            default -> "";
 //        });
 
-        sizeBytes.setWidth("150px"); sizeBytes.setStep(1); sizeBytes.setMin(0);
-        durationSeconds.setWidth("120px"); durationSeconds.setStep(1); durationSeconds.setMin(0);
-        annoPubblicazione.setWidth("120px"); annoPubblicazione.setStep(1);
+        // Layout per campi specifici
+        FormLayout specificLayout = new FormLayout();
+        
+        HorizontalLayout row1 = new HorizontalLayout();
 
-        coverPreview.setAlt("Cover preview"); coverPreview.setWidth("120px");
+	      row1.setAlignItems(FlexComponent.Alignment.BASELINE); // Allinea verticalmente al testo;
+	      
+	      row1.setSpacing(true);
+	      //row1.setWidth("100%");
+	
+	      
+	      nome.setWidth("490px");
+	      autore.setWidth("280px");
+	      duration.setWidth("120px"); 
+//	      duration.setStep(1); duration.setMin(0);
+	      
+	      row1.add(nome,autore,duration); 
+	        
+	      anno.setWidth("69px");
+	      anno.setWidth("120px"); anno.setStep(1);
+
+	      HorizontalLayout row2 = new HorizontalLayout();
+	      row2.setAlignItems(FlexComponent.Alignment.BASELINE);  
+	      row2.setSpacing(true);
+	      //row2.setWidth("70%");
+	   
+	      row2.add(genere,album,anno);
+	      
+	      HorizontalLayout row3 = new HorizontalLayout();
+	        row3.setAlignItems(FlexComponent.Alignment.BASELINE);  
+	        row3.setSpacing(true);
+	        row3.setWidth("90%");
+	        
+	        coverPath.setWidth("90%");
+//	        mimeType.setWidth("135px");
+//	        row3.add(coverPath,coverPreview,album);
+//	        row3.add(coverPath,mimeType);
+	        row3.add(coverPath);
+	        
+//	        VerticalLayout firstRow=new VerticalLayout();
+//	        firstRow.getStyle().set("padding", "0").set("margin", "0");
+//	        firstRow.setPadding(false);
+//	        firstRow.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
+//	        
+//	        
+//	        firstRow.add(row1,row2,row3);
+//	        
+//	        HorizontalLayout firstPart = new HorizontalLayout();
+//	        firstPart.setAlignItems(FlexComponent.Alignment.STRETCH);  
+//	        coverPreview.getStyle().set("margin-left", "auto"); 
+//	        firstPart.add(firstRow,coverPreview);
+	        
+	        HorizontalLayout row4 = new HorizontalLayout();
+	        row4.setAlignItems(FlexComponent.Alignment.BASELINE);  
+	        row4.setSpacing(true);
+	        row4.setWidth("90%");
+	        estensione.setWidth("108px");
+	        row4.add(path,estensione,dimensione);
+	        
+
+	        VerticalLayout formLayout=new VerticalLayout();
+	        
+	        formLayout.setSpacing(true);
+	        formLayout.getStyle().set("padding", "0").set("margin", "0");
+	        formLayout.setPadding(false);
+	        formLayout.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
+	        
+	        
+	        formLayout.add(row1,row2,row3,row4); 
+	        
+//	        formLayout.add(firstPart,row4); 
+	        
+//	        addInfoFile(formLayout); // Aggiungo il blocco delle info del file (Comuni)
+ 
+	        addDateFields(formLayout); // Aggiungo il blocco delle date (Comuni)
+	        
+	        addStatusFields(formLayout); // Aggiungo il blocco dello stato (Comuni)
+	        
+//	        // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
+	        addClassificationFields(formLayout);
+	          
+	          
+	        HorizontalLayout content = new HorizontalLayout();
+	        content.setAlignItems(FlexComponent.Alignment.START);  
+	        coverPreview.getStyle().set("margin-left", "auto"); 
+	        content.add(formLayout,coverPreview);
+	        
+	        
+	        // 4. Aggiungiamo il layout finito alla View
+//	        specificLayout.add(formLayout);    
+	        specificLayout.add(content);    
+	          
+//	           // 3. RICHIAMIAMO I METODI HELPER NELL'ORDINE VOLUTO
+
+	          add(specificLayout);
+
+        coverPreview.setAlt("Cover preview"); coverPreview.setWidth("220px");
         coverPath.addValueChangeListener(e -> coverPreview.setSrc(Optional.ofNullable(e.getValue()).orElse("")));
 
-     // Carica tutti i tag disponibili
-        List<TagDto> allTags = new ArrayList<>(service.getAllTags());
-        tags.setWidth("360px");
-        tags.setItems(allTags);
-        tags.setWidth("360px");
-        tags.setPlaceholder("Tags");
-        tags.setItemLabelGenerator(TagDto::getNomeTag);
-        ListDataProvider<TagDto> dataProvider = new ListDataProvider<>(allTags);
-        // Se vuoi permettere all’utente di aggiungere tags non presenti, puoi usare:
-        tags.setAllowCustomValue(true);
-        tags.addCustomValueSetListener(e -> {
-            String nomeTag = e.getDetail();
-            TagDto nuovoTag=new TagDto(nomeTag,"Audio");
-            
-            // Aggiungi il nuovo tag agli items senza ricreare il provider
-            if (!allTags.contains(nuovoTag)) {
-            	allTags.add(nuovoTag);
-                dataProvider.refreshAll(); // aggiorna la vista
-            }
-
-         // Mantieni la selezione precedente e aggiungi il nuovo tag
-            Set<TagDto> currentSelection = new HashSet<>(tags.getValue());
-            currentSelection.add(nuovoTag);
-            tags.setValue(currentSelection);
-        });
-
-        // Binder bindings
-        binder.forField(title).asRequired("Titolo obbligatorio").bind(AudioDto::getNome, AudioDto::setNome);
-        binder.forField(description).bind(AudioDto::getDescription, AudioDto::setDescription);
-        binder.forField(filename).asRequired("Filename obbligatorio").bind(AudioDto::getFilename, AudioDto::setFilename);
-        binder.forField(mimeType).asRequired("MIME obbligatorio").bind(AudioDto::getMimeType, AudioDto::setMimeType);
-        binder.forField(durationSeconds).withConverter(
-                v -> v == null ? null : v.intValue(), v -> v == null ? null : v.doubleValue(), "Numero non valido")
-            .bind(AudioDto::getDurationSeconds, AudioDto::setDurationSeconds);
-        binder.forField(sizeBytes).withConverter(
-                v -> v == null ? 0L : v.longValue(), v -> v == null ? null : v.doubleValue(), "Numero non valido")
-            .bind(AudioDto::getSizeBytes, AudioDto::setSizeBytes);
-        binder.forField(formato).asRequired("Formato obbligatorio").bind(AudioDto::getFormato, AudioDto::setFormato);
-        binder.forField(coverPath).bind(AudioDto::getCoverPath, AudioDto::setCoverPath);
-        binder.forField(genere).bind(AudioDto::getGenere, AudioDto::setGenere);
-        binder.forField(autore).bind(AudioDto::getAutore, AudioDto::setAutore);
-        binder.forField(album).bind(AudioDto::getAlbum, AudioDto::setAlbum);
-        binder.forField(annoPubblicazione).withConverter(
-                v -> v == null ? null : v.intValue(), v -> v == null ? null : v.doubleValue(), "Anno non valido")
-            .bind(AudioDto::getAnnoPubblicazione, AudioDto::setAnnoPubblicazione);
-        binder.forField(preferito).bind(AudioDto::isPreferito, AudioDto::setPreferito);
-        binder.forField(backup).bind(AudioDto::isBackup, AudioDto::setBackup);
-        binder.forField(rating).withConverter(v -> v == null ? null : v.intValue(), v -> v == null ? null : v.doubleValue(), "Valore non valido")
-              .bind(AudioDto::getRating, AudioDto::setRating);
-        binder.forField(visualizzazioni).withConverter(v -> v == null ? 0L : v.longValue(), v -> v == null ? null : v.doubleValue(), "Valore non valido")
-              .bind(AudioDto::getVisualizzazioni, AudioDto::setVisualizzazioni);
-        binder.forField(note).bind(AudioDto::getNote, AudioDto::setNote);
-
-        save.addClickListener(e -> {
-            AudioDto bean = Optional.ofNullable(service.findById(idParam)).orElse(new AudioDto());
-            if (binder.writeBeanIfValid(bean)) {
-                bean.setTags(new ArrayList<>(tags.getSelectedItems()));
-//                bean.setDataArchiviazione(toInstant(dataArchiviazione.getValue()));
-//                bean.setDataUltimaVisualizzazione(toInstant(dataUltimaVisualizzazione.getValue()));
-                service.save(bean);
-                Notification.show("Salvato");
-                // 🔄 aggiorna la lista dei tag disponibili
-                
-//                List<TagDto> allTags = new ArrayList<>(service.getAllTagsForAudio());
-//                tags.setItems(allTags);
-//                tags.setValue(samplePersonService.getAllTagsById(saved.getId()));
-                getUI().ifPresent(ui -> ui.navigate("audio")); 
-                // Nota: se ritorno sulla index non serve aggiornare il MultiSelectComboBox dei tags
-            } else {
-                Notification.show("Correggi i campi obbligatori");
-            }
-        });
-
-        setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("800px", 2));
-		HorizontalLayout horizontallayout = new HorizontalLayout(new Anchor("audio", "Indietro"), new H2("Audio"));
-		horizontallayout.add(coverPreview);
-		horizontallayout.add(visualizzazioni);
-		HorizontalLayout horizontallayout2 = new HorizontalLayout();
-		horizontallayout.add(horizontallayout2);
-		add(horizontallayout, title, filename, mimeType, formato, durationSeconds, sizeBytes, coverPath, genere, autore, album, annoPubblicazione, rating, visualizzazioni, preferito, backup, tags, description, dataArchiviazione, dataUltimaVisualizzazione, note, new HorizontalLayout(save, new Anchor("audio", "Annulla")));
+        // --- Popolamento delle ComboBox PRIMA che il metodo setParameter venga eseguito.---
+        estensione.setItems(FormatoAudio.values());
+        estensione.setItemLabelGenerator(FormatoAudio::getEstensione);
+        
+        binderFiled();
+          
     }
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        var params = event.getLocation().getQueryParameters().getParameters();
-        if (params.containsKey("id")) {
-            try {
-                idParam = Long.parseLong(params.get("id").get(0));
-                AudioDto dto = service.findById(idParam);
-                if (dto != null) {
-                    binder.readBean(dto);
-                    tags.setValue(dto.getTags() == null ? Set.of() : new HashSet<>(dto.getTags()));
-//                    dataArchiviazione.setValue(fromInstant(dto.getDataArchiviazione()));
-//                    dataUltimaVisualizzazione.setValue(fromInstant(dto.getDataUltimaVisualizzazione()));
-                    coverPreview.setSrc(Optional.ofNullable(dto.getCoverPath()).orElse(""));
-                    binder.readBean(dto); // Popola automaticamente i campi. IMPORTANTE: prima si definiscono i binding, poi si chiama readBean().
-                }
-            } catch (NumberFormatException ignored) {}
-        } else {
-            binder.readBean(new AudioDto());
-        }
-    }
+	private void binderFiled() {
+			
+		 // Binder DA VEDERE per l'obbligatorietà dei campi
+//        binder.forField(duration).withConverter(
+//                v -> v == null ? null : v.intValue(), v -> v == null ? null : v.doubleValue(), "Numero non valido")
+//            .bind(AudioDto::getDurationSeconds, AudioDto::setDurationSeconds);
+//        binder.forField(sizeBytes).withConverter(
+//                v -> v == null ? 0L : v.longValue(), v -> v == null ? null : v.doubleValue(), "Numero non valido")
+//            .bind(AudioDto::getSizeBytes, AudioDto::setSizeBytes);
+//        binder.forField(formato).asRequired("Formato obbligatorio").bind(AudioDto::getFormato, AudioDto::setFormato);
+//        binder.forField(genere).bind(AudioDto::getGenere, AudioDto::setGenere);
+//        binder.forField(anno).withConverter(
+//                v -> v == null ? null : v.intValue(), v -> v == null ? null : v.doubleValue(), "Anno non valido")
+//            .bind(AudioDto::getAnnoPubblicazione, AudioDto::setAnnoPubblicazione);
+        
+        // obbligatorietà dei campi
+		 binder.forField(anno).asRequired("Campo obbligatorio").bind("anno");
+		binder.forField(autore).asRequired("Campo obbligatorio").bind("autore");
 
-    private Instant toInstant(LocalDateTime ldt) { return ldt == null ? null : ldt.atZone(ZoneId.systemDefault()).toInstant(); }
-    private LocalDateTime fromInstant(Instant i) { return i == null ? null : LocalDateTime.ofInstant(i, ZoneId.systemDefault()); }
+//		binder.forField(duration).asRequired("Campo obbligatorio").bind("duration");
+		
+		binder.forField(duration)
+	    .withConverter(new Converter<String, Double>() {
+	        @Override
+	        public Result<Double> convertToModel(String value, ValueContext context) {
+	            // Se il campo è vuoto, restituiamo null (o 0.0 a seconda delle tue esigenze)
+	            if (value == null || value.trim().isEmpty()) {
+	                return Result.ok(null); 
+	            }
+	            
+	            // Sostituiamo la virgola con il punto per rendere il parsing universale
+	            String normalizedValue = value.replace(",", ".").trim();
+	            
+	            try {
+	                double parsed = Double.parseDouble(normalizedValue);
+	                return Result.ok(parsed);
+	            } catch (NumberFormatException e) {
+	                // Messaggio chiaro se l'utente scrive lettere o simboli strani
+	                return Result.error("Inserisci un numero decimale valido (es. 1.5 o 1,5)");
+	            }
+	        }
+
+	        @Override
+	        public String convertToPresentation(Double value, ValueContext context) {
+	            // Come mostrare il Double nel campo di testo quando carichi il DTO
+	            if (value == null) {
+	                return "";
+	            }
+	            // Mostriamo il valore formattato con il punto (o puoi usare la virgola se preferisci)
+	            return String.valueOf(value);
+	        }
+	    }).asRequired("Campo obbligatorio").bind("duration");
+		
+		binder.forField(estensione).asRequired("Campo obbligatorio").bind("estensione");
+		
+		binder.forField(coverPath).withValidator(
+    	        value -> value != null && value.matches(".*\\\\.*"),
+    	        "Il percorso del file deve contenere almeno un carattere '\\'"
+    	    ).asRequired("Campo obbligatorio").bind("coverPath");
+        
+		/**Questo binda AUTOMATICAMENTE solo i campi non ancora bindati 
+        I campi comuni (nome, data, tags, ecc.) sono già stati "occupati" dalla classe base, quindi non vengono sovrascritti*/
+		binder.bindInstanceFields(this);
+	}
+	
+	
+	
+	
+
+    // Implementazione dei metodi della logica
+    @Override protected AudioDto loadBean(Long id) { 
+    	
+    	AudioDto dto = null;
+    	
+    	  try {
+//          	binder.bindInstanceFields(this); // associa automaticamente i campi del form alle proprietà del DTO basandosi sul nome.
+    		  dto =service.findById(id);
+    		  if (dto != null) {
+    			  binder.readBean(dto); // Popola automaticamente i campi. IMPORTANTE: prima si definiscono i binding, poi si chiama readBean().               
+    	  }
+    	  } catch (NumberFormatException ex) {
+
+          }
+    	
+    	  return dto; 
+    
+    }
+    
+    @Override protected void saveBean(AudioDto bean) {service.save(bean); }
+    @Override protected AudioDto createNewBean() { return new AudioDto(); }
+    @Override protected void navigateBack() { getUI().ifPresent(ui -> ui.navigate("audio")); }
+    
+
 }

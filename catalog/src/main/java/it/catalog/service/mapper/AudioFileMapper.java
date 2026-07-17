@@ -18,11 +18,13 @@ import it.catalog.service.dto.TagDto;
 public interface AudioFileMapper {
     
 	@Mapping(target = "lastUpdate", source ="updatedAt" ) // Mappa lastUpdate → updatedAt 
-	@Mapping(target = "formato", source = "formato") 
-	@Mapping(target = "tags", expression = "java(getTags(entity.getTags()))")
+//	@Mapping(target = "formato", source = "formato") 
+	@Mapping(target = "estensione", source = "formato") 
+//	@Mapping(target = "tags", expression = "java(getTags(entity.getTags()))")
 	AudioDto toDto(AudioFile entity); 
 	
-	@Mapping(target = "formato", expression = "java(AudioFile.Formato.valueOf(dto.getFormato()))") 
+//	@Mapping(target = "formato", expression = "java(AudioFile.Formato.valueOf(dto.getFormato()))") 
+	@Mapping(target = "formato", source = "estensione") 
 	@Mapping(target = "updatedAt", source ="lastUpdate" ) // Mappa  updatedAt → lastUpdate 
 //	@Mapping(target = "tags", ignore = true) 
 	// MapStruct vedrà che AudioDto ha una List<TagDto> e AudioFile ha un Set<Tag>
@@ -30,8 +32,8 @@ public interface AudioFileMapper {
 	AudioFile toEntity(AudioDto dto);
 	
 	// Questo metodo istruisce MapStruct su come mappare il singolo Tag
-    @Mapping(target = "tipoOggetto", constant = "Audio") // Forza il tipo su 'Audio' per i nuovi tag
-    Tag toTagEntity(TagDto dto);
+//    @Mapping(target = "tipoOggetto", constant = "Audio") // Forza il tipo su 'Audio' per i nuovi tag
+//    Tag toTagEntity(TagDto dto);
 	
 	
 	List<AudioDto> toDtoList(List<AudioFile> entities);
