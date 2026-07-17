@@ -34,7 +34,6 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
     private TextField lingua = new TextField("Lingua");
     private IntegerField versione = new IntegerField("Versione");
     private TextField origine = new TextField("Origine");
-//    private TextField estensione = new TextField("Estensione");
     private ComboBox<TipoDocumento> categoria = new ComboBox<>("Categoria");
     private ComboBox<StatiDocumento> stato = new ComboBox<>("Stato");
 
@@ -43,8 +42,6 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
 
         // Layout per campi specifici
         FormLayout specificLayout = new FormLayout();
-        
- // --- MIXING PERSONALIZZATO ---
         
         HorizontalLayout row1 = new HorizontalLayout();
 //        row1.setAlignItems(FlexComponent.Alignment.CENTER); // Allinea verticalmente al testo
@@ -71,30 +68,9 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
       row2.setSpacing(true);
       row2.setWidth("70%");
       
-        
-      
         row2.add(lingua,origine,stato);
-        
-//      specificLayout.add(categoria,versione,lingua);
-
-
-//      specificLayout.add(stato,origine,backup);
-        
-        
-//        HorizontalLayout row3 = new HorizontalLayout();
-//        row3.setAlignItems(FlexComponent.Alignment.BASELINE);  
-//        row3.setSpacing(true);
-//        row3.setWidth("90%");
-//        
-//        estensione.setWidth("85px");
-//        //dimensione.setWidth("90px");
-//        path.setWidth("90%");
-//        
-//        row3.add(path,estensione,dimensione);
-        
-        
-        
-//		 // Aggiungo il primo blocco del padre (Nome, Path)
+                
+		 // Aggiungo il primo blocco del padre (Nome, Path)
 //      addIdentityFields(specificLayout); 
 //      
 //      specificLayout.add(estensione);
@@ -114,33 +90,14 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
         addDateFields(formLayout); // Aggiungo il blocco delle date (Comuni)
         
       addStatusFields(formLayout); // Aggiungo il blocco dello stato (Comuni)
-//      
-//      addStatusImageFields(formLayout); // Aggiungo il blocco delle immagini di stato (Comuni)
-//		
-      
-      
-//    HorizontalLayout row3 = new HorizontalLayout();
-//    row3.setAlignItems(FlexComponent.Alignment.BASELINE);  
-//    row3.setSpacing(true);
-//    row3.setWidth("70%");
-//    
-//    versione.setWidth("60px");
-//    
-//    
-//    row3.add(stato,origine,backup);
-        
-//      formLayout.add(row1,row2,row3,row4,row5,row6,row7); 
+
 
       // 4. Aggiungiamo il layout finito alla View
       specificLayout.add(formLayout);    
         
-//      // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
+      // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
         addClassificationFields(formLayout);
         
-        
-//         // 3. RICHIAMIAMO I METODI HELPER NELL'ORDINE VOLUTO
-
-//        
         add(specificLayout);
         
         // Lo aggiungiamo al form

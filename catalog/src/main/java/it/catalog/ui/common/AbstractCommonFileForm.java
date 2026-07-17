@@ -375,7 +375,7 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
     }
 
     /**
-     * Aggiunge i campi di tipo date (dataArchiviazione,lastUpdate, lastView)
+     * Aggiunge i campi di tipo date (dataArchiviazione,lastUpdate, backup)
      */
     protected void addDateFields(HasComponents container) {
         
