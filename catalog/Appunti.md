@@ -16,6 +16,10 @@ Per aggiungere il logo (favicon) al tuo portale Vaadin con Spring Boot, basta co
 I browser cercano automaticamente favicon.ico nella root del sito. 
 Se il file è lì, lo useranno come icona del sito, senza bisogno di annotazioni o configurazioni aggiuntive.
 
+### 1.1 Personalizzazione dello stile
+
+è possibile customizzare lo stile dei component nella UI dal file src/main/frontend/styles/styles.css
+
 ### 2. Automazione realizzazione del FrontEnd
 
 `>` Dopo la definizione della View dentro `https://start.vaadin.com/app`

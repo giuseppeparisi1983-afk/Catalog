@@ -11,17 +11,19 @@
 - **1.1.0-SNAPSHOT**  introduzione della index per i film
 - **1.1.1-SNAPSHOT**  bugFix per l'index dei video e dei video chitarra
 - **1.1.2-SNAPSHOT**  bugFix sul salvataggio dei tags sul Document.Form
+- **1.1.3-SNAPSHOT**  bugFix sul salvataggio degli audio e riordino dei campi per documenti e audio
 ===================================================================================================================================
 
 ##TODO
 
-- Bug: Documenti.Form non funziona il salvataggio dei tags ✅
-- Documenti.Form Obbligatorietà dei campi [DA VEDERE]
-- rimappa l'entity dei video e controlla il mapping de campi sui film nella index ✅
-- Aggiungi la parte dei tags ai video ✅
-
-- Aggiunta del form per i film
-- reingnegnerizzazione gestione di tutti i form
+- [Bug]: sui form i campi con i path devono essre degli import con l'upload non dei semplici TextField
+- [Bug]: il footer si sposta se provo a ingrandire o ridurre la pagina
+- Audio.form: [Bug] Non funziona il salvataggio e ordine e obbligastorietà dei campi da rivedere
+Manca il titolo del formla gestione del campo cancelled e attenzione alla gestione del campo Formato che sulla view è duplicato con il campo estensione
+- Documenti.form:manca il titolo del form
+- Immagini.form: ordine  e obbligatorietà da rivedere
+- Video.form e Chitarra.form: [Bug] errore sull'accesso alla pagina 
+- Film.form: da vedere comletamente
 - Bug Audio.Index: 
 			1. paginazione da sistemare non funziona per come dovrebbe ✅
 			2. non funziona la ricerca per tags ✅
@@ -61,11 +63,17 @@
 - [Ambiente]: Se la fase di lettura và bene, introdurre su ogni form uno spazio che tramite Drag&Drop permetta l'upload del file fisico da salvare nel path specificato. Note Salva il file anche sull'HD di backup
 - [Ambiente]: Sulla classe main CatalogApplication estrarre dall'hd tutti i metadati già presenti e aggiornare il db
 - [Film]: metodo per il recupero di tutti i metadati dal file excel al momento non ancora disponibile e aggiorna i dati in tabella. Il file copertina, lo copi su src/resources/copertine/film e sul db memorizzi solo il nome del file. 
+- [Film]: è necessario dare la possibilità di ricercare i film in base al proprio stato d'animo, da inserire come per i tags opzionalmente in fase di inserimento o aggiornamento di un film e selezionare l'emotion appropriata sulla pagina di ricerca
 
 ===================================================================================================================================
 
 ##FATTO
 
+- Documenti.form: ordine e obbligatorietà da rivedere ✅
+- Tradotti i menù dei componenti DatePicker e DateTimePicker
+- Bug: Documenti.Form non funziona il salvataggio dei tags ✅
+- rimappa l'entity dei video e controlla il mapping de campi sui film nella index ✅
+- Aggiungi la parte dei tags ai video ✅
 - [Ambiente]: vedi procedura per creare il repository su GitLab e un ambiente di test. e il db come faccio a portarlo online ✅
 - BE dei film fatto. FE da fare. Aggiungere nuovi dati con i campi aggiunti ✅
 - da aggiungere il footer con il Copyright ✅
