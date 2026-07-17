@@ -40,6 +40,22 @@ La classe SpecificationFactory<T> è stata aggiunta come supporto per questa fun
 
 	#### Form
 
+####### Ereditarietà della classi Form
+
+	==> it.catalog.ui.common.AbstractBaseForm<T, S extends SearchService<T, ?>> extends VerticalLayout implements HasUrlParameter<Long>
+	(Service,TypeBean,TypeBinder,Save,Cancel,isViewMode)
+
+		==> it.catalog.ui.common.AbstractCommonFileForm<T, S extends SearchService<T, ?>> extends AbstractBaseForm<T, S> 
+			(Nome,Path,Descrizione,Dimensione,BackUp,Preferito,Rating,Visualizzazioni,Note,Tags,Ultima Visualizzazione,Data Archiviazione,Ultimo Aggiornamento)
+	
+				==> it.catalog.ui.documenti.Form extends AbstractCommonFileForm<DocumentoDto, SearchService<DocumentoDto, DtoFilter>>
+				    (Autore,Lingua,Versione,Origine,Estensione,Categoria,Stato)
+				    
+				==> it.catalog.ui.audio.Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDto, DtoFilter>>
+				   (duration,estensione,coverPath,coverPreview,genere,autore,album,anno)    
+
+####### WorkFlow BE per i Form
+
 1. Per salvare o caricare i dati iniettare o definire il Service
 2. definizione dell'oggetto Dto e del binder corrispondente
 3. Perchè ````nomeBinder.bindInstanceFields(this);```` funzioni è necessario che i campi del form devono essere dichiarati come variabili di istanza (non locali dentro il costruttore). Inoltre i loro nomi devono corrispondere esattamente alle proprietà del DTO. Esempio: TextField name ↔ getName() / setName() nel DTO questo vale per tutti i componenti supportati da Vaadin Binder per i tipi Integer c'è IntegerField per i double c'è NumberField con le String o degli oggetti custom posso utilizzare le Combobox anche se per il tipo String si preferisce TextField. Infine, il Binder deve essere inizializzato DOPO che i campi sono stati creati.
@@ -58,8 +74,13 @@ Nota: Il Binder di Vaadin è progettato per essere "intelligente". Quando chiami
 		- nomeBinder.readBean(dto);
 Nota: 
 l'istruzione nomeBinder.bindInstanceFields(this); funziona solo se i campi sono accessibili direttamente (non incapsulati in altri oggetti). Per cui ad esempio se abbiamo un UtenteDto che contiene un oggetto PersonaDto. I campi di PersonaDto come nome, cognome, active sono annidati dentro l'istanza contenuta su UtenteDto. In questo dunque binder.bindInstanceFields(this) non può automaticamente associare nome, cognome, active ai campi di persona (nome dell'istanza dentro UtenteDto). Per questi campi devi usare il binding manuale con lambda.
+
 5. definizione del listener per il salvataggio  addButton.addClickListener(e -> addNew());
 addNew() è un metodo privato che mette un id=0 in modo che la findById non restituisca nulla e che ritrovi il form vuoto
+
+
+
+
 
 
 ### 3. Scelta utilizzo dei componenti sulle View
