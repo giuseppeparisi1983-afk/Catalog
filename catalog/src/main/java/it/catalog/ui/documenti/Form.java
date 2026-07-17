@@ -1,13 +1,15 @@
 package it.catalog.ui.documenti;
 
-import java.util.ArrayList;
-
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 
 import it.catalog.common.enums.StatiDocumento;
 import it.catalog.common.enums.TipoDocumento;
@@ -32,43 +34,117 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
     private TextField lingua = new TextField("Lingua");
     private IntegerField versione = new IntegerField("Versione");
     private TextField origine = new TextField("Origine");
-    private TextField estensione = new TextField("Estensione");
+//    private TextField estensione = new TextField("Estensione");
     private ComboBox<TipoDocumento> categoria = new ComboBox<>("Categoria");
     private ComboBox<StatiDocumento> stato = new ComboBox<>("Stato");
 
     public Form(SearchService<DocumentoDto, DtoFilter> service) {
-        super(service, DocumentoDto.class);
+        super("Modulo Documento",service, DocumentoDto.class);
 
         // Layout per campi specifici
         FormLayout specificLayout = new FormLayout();
         
  // --- MIXING PERSONALIZZATO ---
         
-        // 1. Voglio il Nome (Comune) in alto
-        specificLayout.add(nome); 
+        HorizontalLayout row1 = new HorizontalLayout();
+//        row1.setAlignItems(FlexComponent.Alignment.CENTER); // Allinea verticalmente al testo
+        row1.setAlignItems(FlexComponent.Alignment.BASELINE); // Allinea verticalmente al testo;
         
-        // 2. Poi voglio l'Autore (Specifico) e la Categoria (Specifica)
-        specificLayout.add(autore, categoria);
-        specificLayout.add(lingua, versione, origine, estensione, stato);
+        row1.setSpacing(true);
+        //row1.addClassName(Gap.MEDIUM);
+        //row1.setWidth("100%");
+        //row1.getStyle().set("flex-grow", "1");
+        //row1.setAlignItems(Alignment.START);
+        // row1.setJustifyContentMode(JustifyContentMode.CENTER);
+        row1.setWidth("100%");
+        //row1.setWidthFull();
         
-         // 3. RICHIAMIAMO I METODI HELPER NELL'ORDINE VOLUTO
-		
-		 // Aggiungo il primo blocco del padre (Nome, Path)
-        addIdentityFields(specificLayout); 
+        nome.setWidth("280px");
+        autore.setWidth("280px");
+        versione.setWidth("69px");
+        
+        row1.add(nome,autore,categoria,versione); 
+        
+        
+        HorizontalLayout row2 = new HorizontalLayout();
+      row2.setAlignItems(FlexComponent.Alignment.BASELINE);  
+      row2.setSpacing(true);
+      row2.setWidth("70%");
+      
+        
+      
+        row2.add(lingua,origine,stato);
+        
+//      specificLayout.add(categoria,versione,lingua);
 
-        addStatusFields(specificLayout); // Aggiungo il blocco dello stato (Comuni)
-        
-        addDateFields(specificLayout); // Aggiungo il blocco delle date (Comuni)
-		
-        // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
-        addClassificationFields(specificLayout);
+
+//      specificLayout.add(stato,origine,backup);
         
         
-        // 4. Aggiungiamo il layout finito alla View
+//        HorizontalLayout row3 = new HorizontalLayout();
+//        row3.setAlignItems(FlexComponent.Alignment.BASELINE);  
+//        row3.setSpacing(true);
+//        row3.setWidth("90%");
+//        
+//        estensione.setWidth("85px");
+//        //dimensione.setWidth("90px");
+//        path.setWidth("90%");
+//        
+//        row3.add(path,estensione,dimensione);
+        
+        
+        
+//		 // Aggiungo il primo blocco del padre (Nome, Path)
+//      addIdentityFields(specificLayout); 
+//      
+//      specificLayout.add(estensione);
+
+        VerticalLayout formLayout=new VerticalLayout();
+        
+        formLayout.setSpacing(true);
+        formLayout.getStyle().set("padding", "0").set("margin", "0");
+        formLayout.setPadding(false);
+        formLayout.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
+        
+        
+        formLayout.add(row1,row2); 
+        
+        addInfoFile(formLayout); // Aggiungo il blocco delle informazioni sul file (Comuni)
+
+        addDateFields(formLayout); // Aggiungo il blocco delle date (Comuni)
+        
+      addStatusFields(formLayout); // Aggiungo il blocco dello stato (Comuni)
+//      
+//      addStatusImageFields(formLayout); // Aggiungo il blocco delle immagini di stato (Comuni)
+//		
+      
+      
+//    HorizontalLayout row3 = new HorizontalLayout();
+//    row3.setAlignItems(FlexComponent.Alignment.BASELINE);  
+//    row3.setSpacing(true);
+//    row3.setWidth("70%");
+//    
+//    versione.setWidth("60px");
+//    
+//    
+//    row3.add(stato,origine,backup);
+        
+//      formLayout.add(row1,row2,row3,row4,row5,row6,row7); 
+
+      // 4. Aggiungiamo il layout finito alla View
+      specificLayout.add(formLayout);    
+        
+//      // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
+        addClassificationFields(formLayout);
+        
+        
+//         // 3. RICHIAMIAMO I METODI HELPER NELL'ORDINE VOLUTO
+
+//        
         add(specificLayout);
         
         // Lo aggiungiamo al form
-        addComponentAtIndex(1, specificLayout); // Lo mettiamo prima del footer
+//        addComponentAtIndex(1, specificLayout); // Lo mettiamo prima del footer
         
         
         // --- Popolamento delle ComboBox PRIMA che il metodo setParameter venga eseguito.---
@@ -78,10 +154,16 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
         stato.setItems(StatiDocumento.values());
         stato.setItemLabelGenerator(StatiDocumento::getLabel);
         
-        // Bind dei campi specifici
+        // Bind e obligatorietà dei campi specifici 
     	binder.forField(categoria).asRequired("Campo obbligatorio").bind(DocumentoDto::getCategoria,
 				DocumentoDto::setCategoria);
-        
+
+    	binder.forField(stato).asRequired("Campo obbligatorio").bind(DocumentoDto::getStato,
+    			DocumentoDto::setStato);
+
+    	binder.forField(versione).asRequired("Campo obbligatorio").bind(DocumentoDto::getVersione,
+    			DocumentoDto::setVersione);
+    	
        /**Questo binda AUTOMATICAMENTE solo i campi non ancora bindati (autore, lingua)
          I campi comuni (nome, data, tags, ecc.) sono già stati "occupati" dalla classe base, quindi non vengono sovrascritti*/
         binder.bindInstanceFields(this);

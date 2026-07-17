@@ -59,7 +59,7 @@ public class Documento {
     private StatiDocumento stato;
     private String origine;
     private boolean preferito; 
-    private Integer rating; 
+    private Double rating; 
     private long visualizzazioni; 
     private boolean backup;
     private String note;
