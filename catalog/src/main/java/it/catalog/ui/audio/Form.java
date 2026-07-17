@@ -159,26 +159,9 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
     }
 
 	private void binderFiled() {
-			
-		 // Binder DA VEDERE per l'obbligatorietà dei campi
-//        binder.forField(duration).withConverter(
-//                v -> v == null ? null : v.intValue(), v -> v == null ? null : v.doubleValue(), "Numero non valido")
-//            .bind(AudioDto::getDurationSeconds, AudioDto::setDurationSeconds);
-//        binder.forField(sizeBytes).withConverter(
-//                v -> v == null ? 0L : v.longValue(), v -> v == null ? null : v.doubleValue(), "Numero non valido")
-//            .bind(AudioDto::getSizeBytes, AudioDto::setSizeBytes);
-//        binder.forField(formato).asRequired("Formato obbligatorio").bind(AudioDto::getFormato, AudioDto::setFormato);
-//        binder.forField(genere).bind(AudioDto::getGenere, AudioDto::setGenere);
-//        binder.forField(anno).withConverter(
-//                v -> v == null ? null : v.intValue(), v -> v == null ? null : v.doubleValue(), "Anno non valido")
-//            .bind(AudioDto::getAnnoPubblicazione, AudioDto::setAnnoPubblicazione);
-        
-        // obbligatorietà dei campi
+
 		 binder.forField(anno).asRequired("Campo obbligatorio").bind("anno");
 		binder.forField(autore).asRequired("Campo obbligatorio").bind("autore");
-
-//		binder.forField(duration).asRequired("Campo obbligatorio").bind("duration");
-		
 		binder.forField(duration)
 	    .withConverter(new Converter<String, Double>() {
 	        @Override
@@ -216,15 +199,12 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 		binder.forField(coverPath).withValidator(
     	        value -> value != null && value.matches(".*\\\\.*"),
     	        "Il percorso del file deve contenere almeno un carattere '\\'"
-    	    ).asRequired("Campo obbligatorio").bind("coverPath");
+    	    ).bind("coverPath");
         
 		/**Questo binda AUTOMATICAMENTE solo i campi non ancora bindati 
         I campi comuni (nome, data, tags, ecc.) sono già stati "occupati" dalla classe base, quindi non vengono sovrascritti*/
 		binder.bindInstanceFields(this);
 	}
-	
-	
-	
 	
 
     // Implementazione dei metodi della logica
