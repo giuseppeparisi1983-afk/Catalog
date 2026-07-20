@@ -13,6 +13,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -52,7 +54,7 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 //        });
 
         // Layout per campi specifici
-        FormLayout specificLayout = new FormLayout();
+//        FormLayout specificLayout = new FormLayout();
         
         HorizontalLayout row1 = new HorizontalLayout();
 
@@ -70,7 +72,14 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 	      row1.add(nome,autore,duration); 
 	        
 	      anno.setWidth("69px");
-	      anno.setWidth("120px"); anno.setStep(1);
+	      anno.setWidth("120px"); 
+	      // Limiti anche lato componente (UI)
+	      anno.setMin(1900);
+	      anno.setMax(2080);
+	      anno.setStep(1);
+	      anno.setI18n(new IntegerField.IntegerFieldI18n()
+	    		    .setMinErrorMessage("L'anno deve essere maggiore o uguale a 1900")
+	    		    .setMaxErrorMessage("L'anno non può superare il 2080"));
 
 	      HorizontalLayout row2 = new HorizontalLayout();
 	      row2.setAlignItems(FlexComponent.Alignment.BASELINE);  
@@ -90,38 +99,48 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 //	        row3.add(coverPath,mimeType);
 	        row3.add(coverPath);
 	        
-//	        VerticalLayout firstRow=new VerticalLayout();
-//	        firstRow.getStyle().set("padding", "0").set("margin", "0");
-//	        firstRow.setPadding(false);
-//	        firstRow.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
-//	        
-//	        
-//	        firstRow.add(row1,row2,row3);
-//	        
-//	        HorizontalLayout firstPart = new HorizontalLayout();
-//	        firstPart.setAlignItems(FlexComponent.Alignment.STRETCH);  
-//	        coverPreview.getStyle().set("margin-left", "auto"); 
-//	        firstPart.add(firstRow,coverPreview);
-	        
 	        HorizontalLayout row4 = new HorizontalLayout();
 	        row4.setAlignItems(FlexComponent.Alignment.BASELINE);  
 	        row4.setSpacing(true);
 	        row4.setWidth("90%");
 	        estensione.setWidth("108px");
 	        row4.add(path,estensione,dimensione);
+
 	        
+	        
+	        VerticalLayout topFormRows=new VerticalLayout();
+	        topFormRows.getStyle().set("padding", "0").set("margin", "0");
+	        topFormRows.setPadding(false);
+	        topFormRows.setSpacing(true);
+	        topFormRows.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
+	        
+	        
+	        topFormRows.add(row2,row3,row4);
+
+	        HorizontalLayout topSection = new HorizontalLayout();
+	        topSection.setWidthFull();
+	        topSection.setSpacing(true);
+	        topSection.setAlignItems(FlexComponent.Alignment.START); 
+	    
+	        settingCover(); // Imposta le proprietà dell'immagine coverPreview
+	        
+	        // Aggiungiamo prima le righe del form e poi l'immagine
+	        topSection.add(topFormRows,coverPreview);
+	        
+	     // Diamo tutto lo spazio orizzontale rimanente al form, lasciando l'immagine a dimensione fissa
+	        topSection.expand(topFormRows);
 
 	        VerticalLayout formLayout=new VerticalLayout();
 	        
-	        formLayout.setSpacing(true);
-	        formLayout.getStyle().set("padding", "0").set("margin", "0");
 	        formLayout.setPadding(false);
+	        formLayout.setSpacing(true);
+//	        formLayout.getStyle().set("padding", "0").set("margin", "0");
 	        formLayout.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
 	        
+	        formLayout.add(row1,topSection);
+//	        formLayout.add(row1,row2,row3,row4); 
 	        
-	        formLayout.add(row1,row2,row3,row4); 
-	        
-//	        formLayout.add(firstPart,row4); 
+//	        formLayout.add(topSection,row4); 
 	        
 //	        addInfoFile(formLayout); // Aggiungo il blocco delle info del file (Comuni)
  
@@ -129,41 +148,44 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 	        
 	        addStatusFields(formLayout); // Aggiungo il blocco dello stato (Comuni)
 	        
-//	        // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
+//	        // Poi aggiungo il blocco Descrizione, note e Tag (Comuni)
 	        addClassificationFields(formLayout);
-	          
-	          
-	        HorizontalLayout content = new HorizontalLayout();
-	        content.setAlignItems(FlexComponent.Alignment.START);  
-	        coverPreview.getStyle().set("margin-left", "auto"); 
-	        content.add(formLayout,coverPreview);
 	        
 	        
-	        // 4. Aggiungiamo il layout finito alla View
 //	        specificLayout.add(formLayout);    
-	        specificLayout.add(content);    
-	          
-//	           // 3. RICHIAMIAMO I METODI HELPER NELL'ORDINE VOLUTO
 
-	          add(specificLayout);
+	          add(formLayout);
 
-        coverPreview.setAlt("Cover preview"); coverPreview.setWidth("220px");
+        /** l'istruzione che segue serve a creare un'anteprima dell'immagine in tempo reale (Real-time Preview).
+         *  Ogni volta che l'utente modifica il percorso nel campo di testo coverPath, l'immagine coverPreview si aggiorna 
+         *  all'istante a schermo, senza dover premere "Salva" o ricaricare la pagina.
+         *  Così ad esempio se nel campo coverPath c'è una stringa (es. [https://sito.it/foto.jpg](https://sito.it/foto.jpg) 
+         *  o images/cover.jpg), usa quel valore come src dell'imagine.
+         * */
+	     // L'istruzione coverPreview.setSrc(...) imposta esattamente l'attributo src del tag <img> generato da Vaadin.	  
+	     // Optional.ofNullable(e.getValue()).orElse("") è un controllo di sicurezza Null-Safe: Se il campo viene svuotato o diventa null, invece di far piantare l'applicazione con una NullPointerException, restituisce una stringa vuota "".     
         coverPath.addValueChangeListener(e -> coverPreview.setSrc(Optional.ofNullable(e.getValue()).orElse("")));
 
         // --- Popolamento delle ComboBox PRIMA che il metodo setParameter venga eseguito.---
         estensione.setItems(FormatoAudio.values());
         estensione.setItemLabelGenerator(FormatoAudio::getEstensione);
         
-        binderFiled();
+        binderSpecificFiled();
           
     }
 
-	private void binderFiled() {
+	private void binderSpecificFiled() {
 
-		 binder.forField(anno).asRequired("Campo obbligatorio").bind("anno");
+		binder.forField(anno)
+        .asRequired("Campo obbligatorio")
+        .bind("anno");
+		 
 		binder.forField(autore).asRequired("Campo obbligatorio").bind("autore");
 		binder.forField(duration)
-	    .withConverter(new Converter<String, Double>() {
+		// 1. Controlla prima la Stringa del TextField (se è vuota si ferma qui)
+	    .asRequired("Campo obbligatorio") 
+	    // 2. Se c'è del testo, lo passa al convertitore
+		.withConverter(new Converter<String, Double>() {
 	        @Override
 	        public Result<Double> convertToModel(String value, ValueContext context) {
 	            // Se il campo è vuoto, restituiamo null (o 0.0 a seconda delle tue esigenze)
@@ -192,13 +214,13 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 	            // Mostriamo il valore formattato con il punto (o puoi usare la virgola se preferisci)
 	            return String.valueOf(value);
 	        }
-	    }).asRequired("Campo obbligatorio").bind("duration");
+	    }).bind("duration");
 		
 		binder.forField(estensione).asRequired("Campo obbligatorio").bind("estensione");
 		
 		binder.forField(coverPath).withValidator(
-    	        value -> value != null && value.matches(".*\\\\.*"),
-    	        "Il percorso del file deve contenere almeno un carattere '\\'"
+				value -> value == null || value.isBlank() || value.contains("\\") || value.contains("//"), // questo non è un campo obbligatorio, ma se l'utente scrive qualcosa, deve contenere almeno un carattere '\' o '/'
+    	        "Il percorso del file deve contenere almeno un carattere '\\'" // Questo messaggio viene mostrato nel caso la validazione fallisce ovvero se tutte le condizioni della lambda restituiscono false
     	    ).bind("coverPath");
         
 		/**Questo binda AUTOMATICAMENTE solo i campi non ancora bindati 
@@ -207,6 +229,35 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 	}
 	
 
+	// setting the image coverPreview properties
+	private void settingCover() {
+        coverPreview.setWidth("160px");   // Dimensione fissa per evitare il crollo se vuota
+        coverPreview.setHeight("200px");
+        coverPreview.getStyle()
+            .set("object-fit", "cover")                           // Mantiene le proporzioni
+            .set("border-radius", "var(--lumo-border-radius-m)")   // Stile pulito Vaadin
+            .set("background-color", "var(--lumo-contrast-5pct)"); // Sfondo grigio placeholder se vuota
+
+        // Se l'immagine è vuota e NON vuoi mostrare neanche il rettangolo grigio:
+        // 1. Fondamentale: dice a Vaadin di aggiornare il valore a OGNI singolo carattere digitato
+        coverPath.setValueChangeMode(ValueChangeMode.EAGER);
+
+        // 2. Gestiamo il cambio di valore nell'evento (scatta ogni volta che il testo cambia)
+        coverPath.addValueChangeListener(e -> {
+            String valore = e.getValue(); // Usiamo la variabile dell'evento!
+            boolean haValore = valore != null && !valore.isBlank();
+            
+            coverPreview.setVisible(haValore);
+            if (haValore) {
+                coverPreview.setSrc(valore);
+            }
+        });
+        coverPreview.setAlt("Cover preview");      
+//        coverPreview.getStyle().set("margin-left", "auto"); 
+	
+	}
+	
+	
     // Implementazione dei metodi della logica
     @Override protected AudioDto loadBean(Long id) { 
     	
@@ -226,7 +277,7 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
     
     }
     
-    @Override protected void saveBean(AudioDto bean) {service.save(bean); }
+    @Override protected void saveBean(AudioDto bean) {service.save(bean);}
     @Override protected AudioDto createNewBean() { return new AudioDto(); }
     @Override protected void navigateBack() { getUI().ifPresent(ui -> ui.navigate("audio")); }
     
