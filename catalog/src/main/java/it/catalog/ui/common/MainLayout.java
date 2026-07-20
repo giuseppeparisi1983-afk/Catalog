@@ -138,7 +138,13 @@ logo.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
         // Svuotiamo il wrapper per evitare accumuli di vecchie View
         wrapper.removeAll();
-        wrapper.setSizeFull();
+//        wrapper.setSizeFull();
+        wrapper.setWidthFull();            // Larghezza 100%
+        /** l'istruzione sotto serve per dire al wrapper di occupare ALMENO il 100% dello schermo 
+         * (così se la pagina è corta il footer sta in fondo), ma se il form è lungo, 
+         * LASCIA che l'altezza cresca e spingi il footer più in basso*/
+        wrapper.setMinHeight("100%");      // Altezza MINIMA 100% (non fissa!)
+        wrapper.getStyle().set("box-sizing", "border-box");
         wrapper.setPadding(false);
         wrapper.setSpacing(false);
 
