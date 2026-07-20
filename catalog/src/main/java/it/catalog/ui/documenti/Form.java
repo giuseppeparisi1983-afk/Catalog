@@ -41,7 +41,7 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
         super("Modulo Documento",service, DocumentoDto.class);
 
         // Layout per campi specifici
-        FormLayout specificLayout = new FormLayout();
+//        FormLayout specificLayout = new FormLayout();
         
         HorizontalLayout row1 = new HorizontalLayout();
 //        row1.setAlignItems(FlexComponent.Alignment.CENTER); // Allinea verticalmente al testo
@@ -91,19 +91,19 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
         
       addStatusFields(formLayout); // Aggiungo il blocco dello stato (Comuni)
 
+      // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
+      addClassificationFields(formLayout);
 
       // 4. Aggiungiamo il layout finito alla View
-      specificLayout.add(formLayout);    
+//      specificLayout.add(formLayout);    
         
-      // Poi aggiungo il blocco dei Tag e Descrizione (Comuni)
-        addClassificationFields(formLayout);
-        
-        add(specificLayout);
+//        add(specificLayout);
         
         // Lo aggiungiamo al form
 //        addComponentAtIndex(1, specificLayout); // Lo mettiamo prima del footer
         
-        
+      add(formLayout);
+      
         // --- Popolamento delle ComboBox PRIMA che il metodo setParameter venga eseguito.---
         categoria.setItems(TipoDocumento.values());
         categoria.setItemLabelGenerator(TipoDocumento::getLabel); // o .name()
@@ -111,7 +111,12 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
         stato.setItems(StatiDocumento.values());
         stato.setItemLabelGenerator(StatiDocumento::getLabel);
         
-        // Bind e obligatorietà dei campi specifici 
+        binderSpecificFiled();
+
+    }
+
+	private void binderSpecificFiled() {
+		 // Bind e obligatorietà dei campi specifici 
     	binder.forField(categoria).asRequired("Campo obbligatorio").bind(DocumentoDto::getCategoria,
 				DocumentoDto::setCategoria);
 
@@ -123,9 +128,12 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
     	
        /**Questo binda AUTOMATICAMENTE solo i campi non ancora bindati (autore, lingua)
          I campi comuni (nome, data, tags, ecc.) sono già stati "occupati" dalla classe base, quindi non vengono sovrascritti*/
-        binder.bindInstanceFields(this);
-    }
-
+        binder.bindInstanceFields(this);      		
+	}
+    
+    
+    
+    
     // Implementazione dei metodi della logica
     @Override protected DocumentoDto loadBean(Long id) { 
     	
