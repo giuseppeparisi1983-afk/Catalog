@@ -277,7 +277,7 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
     
     }
     
-    @Override protected void saveBean(AudioDto bean) {service.save(bean);}
+    @Override protected void saveBean(AudioDto bean) {service.save(bean); }
     @Override protected AudioDto createNewBean() { return new AudioDto(); }
     @Override protected void navigateBack() { getUI().ifPresent(ui -> ui.navigate("audio")); }
     
