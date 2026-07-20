@@ -12,6 +12,7 @@
 - **1.1.1-SNAPSHOT**  bugFix per l'index dei video e dei video chitarra
 - **1.1.2-SNAPSHOT**  bugFix sul salvataggio dei tags sul Document.Form
 - **1.1.3-SNAPSHOT**  bugFix sul salvataggio degli audio e riordino dei campi per documenti e audio
+- **1.1.4-SNAPSHOT**  bugFix sul form degli audio
 ===================================================================================================================================
 
 ##TODO
