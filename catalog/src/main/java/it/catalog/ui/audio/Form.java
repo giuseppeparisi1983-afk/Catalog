@@ -156,16 +156,6 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 
 	          add(formLayout);
 
-        /** l'istruzione che segue serve a creare un'anteprima dell'immagine in tempo reale (Real-time Preview).
-         *  Ogni volta che l'utente modifica il percorso nel campo di testo coverPath, l'immagine coverPreview si aggiorna 
-         *  all'istante a schermo, senza dover premere "Salva" o ricaricare la pagina.
-         *  Così ad esempio se nel campo coverPath c'è una stringa (es. [https://sito.it/foto.jpg](https://sito.it/foto.jpg) 
-         *  o images/cover.jpg), usa quel valore come src dell'imagine.
-         * */
-	     // L'istruzione coverPreview.setSrc(...) imposta esattamente l'attributo src del tag <img> generato da Vaadin.	  
-	     // Optional.ofNullable(e.getValue()).orElse("") è un controllo di sicurezza Null-Safe: Se il campo viene svuotato o diventa null, invece di far piantare l'applicazione con una NullPointerException, restituisce una stringa vuota "".     
-        coverPath.addValueChangeListener(e -> coverPreview.setSrc(Optional.ofNullable(e.getValue()).orElse("")));
-
         // --- Popolamento delle ComboBox PRIMA che il metodo setParameter venga eseguito.---
         estensione.setItems(FormatoAudio.values());
         estensione.setItemLabelGenerator(FormatoAudio::getEstensione);
@@ -220,7 +210,7 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 		
 		binder.forField(coverPath).withValidator(
 				value -> value == null || value.isBlank() || value.contains("\\") || value.contains("//"), // questo non è un campo obbligatorio, ma se l'utente scrive qualcosa, deve contenere almeno un carattere '\' o '/'
-    	        "Il percorso del file deve contenere almeno un carattere '\\'" // Questo messaggio viene mostrato nel caso la validazione fallisce ovvero se tutte le condizioni della lambda restituiscono false
+    	        "Il percorso del file deve contenere almeno un carattere '\\' o '/'" // Questo messaggio viene mostrato nel caso la validazione fallisce ovvero se tutte le condizioni della lambda restituiscono false
     	    ).bind("coverPath");
         
 		/**Questo binda AUTOMATICAMENTE solo i campi non ancora bindati 
@@ -231,30 +221,40 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 
 	// setting the image coverPreview properties
 	private void settingCover() {
-        coverPreview.setWidth("160px");   // Dimensione fissa per evitare il crollo se vuota
-        coverPreview.setHeight("200px");
-        coverPreview.getStyle()
-            .set("object-fit", "cover")                           // Mantiene le proporzioni
-            .set("border-radius", "var(--lumo-border-radius-m)")   // Stile pulito Vaadin
-            .set("background-color", "var(--lumo-contrast-5pct)"); // Sfondo grigio placeholder se vuota
+		coverPreview.setWidth("160px"); // Dimensione fissa per evitare il crollo se vuota
+		coverPreview.setHeight("200px");
+		coverPreview.getStyle().set("object-fit", "cover") // Mantiene le proporzioni
+				.set("border-radius", "var(--lumo-border-radius-m)") // Stile pulito Vaadin
+				.set("background-color", "var(--lumo-contrast-5pct)"); // Sfondo grigio placeholder se vuota
 
-        // Se l'immagine è vuota e NON vuoi mostrare neanche il rettangolo grigio:
-        // 1. Fondamentale: dice a Vaadin di aggiornare il valore a OGNI singolo carattere digitato
-        coverPath.setValueChangeMode(ValueChangeMode.EAGER);
+		// 1. Placeholder: Esempio visivo dentro il campo (scompare appena l'utente
+		// digita)
+		coverPath.setPlaceholder("es. https://sito.it/cover.jpg oppure /images/copertina.jpg");
 
-        // 2. Gestiamo il cambio di valore nell'evento (scatta ogni volta che il testo cambia)
-        coverPath.addValueChangeListener(e -> {
-            String valore = e.getValue(); // Usiamo la variabile dell'evento!
-            boolean haValore = valore != null && !valore.isBlank();
-            
-            coverPreview.setVisible(haValore);
-            if (haValore) {
-                coverPreview.setSrc(valore);
-            }
-        });
-        coverPreview.setAlt("Cover preview");      
+		// 2. HelperText: Spiegazione sintetica sempre visibile SOTTO il campo
+		coverPath.setHelperText(
+				"Puoi inserire un URL remoto (http/https) o un percorso relativo del server (es. /images/...)");
+
+		// Se l'immagine è vuota e NON vuoi mostrare neanche il rettangolo grigio:
+		// 1. Fondamentale: dice a Vaadin di aggiornare il valore a OGNI singolo
+		// carattere digitato
+		coverPath.setValueChangeMode(ValueChangeMode.EAGER);
+
+		// 2. Gestiamo il cambio di valore nell'evento (scatta ogni volta che il testo
+		// cambia)
+		coverPath.addValueChangeListener(e -> {
+			String valore = e.getValue(); // Usiamo la variabile dell'evento!
+			boolean haValore = valore != null && !valore.isBlank();
+
+			coverPreview.setVisible(haValore);
+			if (haValore) {
+				coverPreview.setSrc(valore);
+			}
+		});
+
+		coverPreview.setAlt("Cover preview");
 //        coverPreview.getStyle().set("margin-left", "auto"); 
-	
+
 	}
 	
 	
