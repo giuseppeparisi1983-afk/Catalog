@@ -79,7 +79,7 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
     // Date (usiamo DatePicker per semplicità, ma lastUpdate spesso è sola lettura)
     protected DateTimePicker lastView = new DateTimePicker("Ultima visualizzazione");
     protected DatePicker dataArchiviazione = new DatePicker("Data Archiviazione");
-    protected DatePicker lastUpdate = new DatePicker("Ultimo aggiornamento");
+    protected DateTimePicker lastUpdate = new DateTimePicker("Ultimo Aggiornamento");
     
     
  // 2. Definisci la zona di riferimento (es. fuso orario del server o dell'utente)
@@ -87,9 +87,7 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
 
     public AbstractCommonFileForm(String title,S service, Class<T> beanType) {
         super(title,service, beanType);
-        
-        // Setting Title
-        
+  
         
      // 1. Configurazione specifica per i Tags
     	settingTags(service);
@@ -99,8 +97,10 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
     	Tooltip.forComponent(rating).setText("Valuta");
     	
     	dataArchiviazione.setI18n(DynamicI18nProvider.getI18nForCurrentUser());
-    	lastUpdate.setI18n(DynamicI18nProvider.getI18nForCurrentUser());
     	lastView.setDatePickerI18n(DynamicI18nProvider.getI18nForCurrentUser());
+    	lastUpdate.setDatePickerI18n(DynamicI18nProvider.getI18nForCurrentUser());
+    	lastUpdate.setReadOnly(true); // Impedisce all'utente di modificarlo! Questo perchè il valore è deciso a tavolino dal metodo preUpdate() dentro l'entity che aggiorna il valore alla data corrente
+    	
     	
         path.setWidth("90%");
         estensione.setWidth("85px");
@@ -195,13 +195,10 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
 //    	.bind("lastUpdate");
     	
 			  binder.forField(lastUpdate)
-		      .withConverter(
-		          // Da UI (LocalDate) a DTO (Instant) -> fissa l'inizio giornata
-		          localDate -> localDate == null ? null : localDate.atStartOfDay(fusoOrario).toInstant(),
-		          
-		          // Da DTO (Instant) a UI (LocalDate)
-		          instant -> instant == null ? null : instant.atZone(fusoOrario).toLocalDate()
-		      ).bind("lastUpdate");
+			    .withConverter(
+			        localDateTime -> localDateTime == null ? null : localDateTime.atZone(fusoOrario).toInstant(),
+			        instant -> instant == null ? null : LocalDateTime.ofInstant(instant, fusoOrario)
+			    ).bind("lastUpdate");
 			  
 	
 //    	binder.forField(dataArchiviazione).withConverter(new InstantToLocalDate())
@@ -348,7 +345,7 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
          
          visualizzazioni.setWidth("90px");
      	// Spinge se stesso a destra occupando lo spazio vuoto a sinistra
-    	 rating.getStyle().set("margin-left", "auto"); 
+//    	 rating.getStyle().set("margin-left", "auto"); 
          rowLayout.add(lastView,visualizzazioni,rating,preferito);
          
          container.add(rowLayout);
@@ -366,8 +363,8 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
     	rowLayout.setWidth("90%");
     	
          path.setWidth("90%");
-         estensione.setWidth("85px");
-         dimensione.setWidth("120px");         
+         estensione.setWidth("90px");
+         dimensione.setWidth("150px");         
     	
     	rowLayout.add(path,estensione,dimensione);
     	
@@ -384,7 +381,7 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
         rowLayout.setSpacing(true);
         rowLayout.setWidth("70%");
         // Spinge se stesso a destra occupando lo spazio vuoto a sinistra
-        backup.getStyle().set("margin-left", "auto"); 
+//        backup.getStyle().set("margin-left", "auto"); 
         rowLayout.add(dataArchiviazione,lastUpdate,backup);
     	
     	container.add(rowLayout);
