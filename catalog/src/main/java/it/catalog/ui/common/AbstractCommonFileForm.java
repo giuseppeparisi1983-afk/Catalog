@@ -15,21 +15,22 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Result;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.converter.Converter;
 
 import it.catalog.service.dto.AudioDto;
+import it.catalog.service.dto.FilmDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.interfaces.SearchService;
 import it.catalog.ui.utility.AppConverters.DoubleToLong;
 import it.catalog.ui.utility.BooleanImageToggle;
 import it.catalog.ui.utility.RatingStarsField;
 import it.catalog.utility.DynamicI18nProvider;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Result;
-import com.vaadin.flow.data.binder.ValueContext;
-import com.vaadin.flow.data.converter.Converter;
 
 /** Classe dove dichiariamo tutti i campi comuni. 
  * Questa classe estende AbstractBaseForm<T,S> e "disegna" la parte di form che vedrai in ogni file (Documento, Video, Chitarra).
@@ -46,6 +47,12 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
     private TextField estensione = new TextField("Estensione");
     protected TextArea descrizione = new TextArea("Descrizione");
     protected TextField dimensione = new TextField("Dimensione (KB)");
+    
+	 private final TextField autore = new TextField("Regista");
+	 private final TextField duration = new TextField("Durata");
+	 private final IntegerField anno = new IntegerField("Anno");
+	 private final TextField genere = new TextField("Genere");
+	 private final TextField locandina = new TextField("Locandina");
 //    protected Checkbox preferito = new Checkbox("Preferito");
 //    protected Checkbox backup = new Checkbox("Backup effettuato");
 //    protected Checkbox cancelled = new Checkbox("Cancellato");
@@ -291,6 +298,63 @@ public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> e
     
     
     
+	protected void addFistInfoFileds (HasComponents container) {
+	       
+   	 HorizontalLayout rowLayout = new HorizontalLayout();
+        rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);  
+        rowLayout.setSpacing(true);
+        rowLayout.setWidth("70%");
+        
+         nome.setWidth("490px");
+	      autore.setWidth("280px");
+	      duration.setWidth("120px"); 
+
+        rowLayout.add(nome,autore,duration); 
+        
+        container.add(rowLayout);
+   }
+    
+    
+	protected void addSecondInfoFileds(HasComponents container, String dto) {
+
+		anno.setWidth("69px");
+		anno.setWidth("120px");
+		// Limiti anche lato componente (UI)
+		anno.setMin(1900);
+		anno.setMax(2080);
+		anno.setStep(1);
+		anno.setI18n(
+				new IntegerField.IntegerFieldI18n().setMinErrorMessage("L'anno deve essere maggiore o uguale a 1900")
+						.setMaxErrorMessage("L'anno non può superare il 2080"));
+
+		HorizontalLayout rowLayout = new HorizontalLayout();
+		rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+		rowLayout.setSpacing(true);
+
+		if (dto.equals("FilmDto"))
+			rowLayout.add(genere, anno);
+
+		else if (dto.equals("AudioDto"))
+			rowLayout.add(genere, album, anno);
+
+		container.add(rowLayout);
+	}
+	
+	
+	protected void  addlocandinaField(HasComponents container) {
+		
+		HorizontalLayout row3 = new HorizontalLayout(); // da inserire sulla classe astratta AbstractCommonFileForm
+        row3.setAlignItems(FlexComponent.Alignment.BASELINE);  
+        row3.setSpacing(true);
+        row3.setWidth("90%");
+        
+        //copertina.setWidth("90%");
+        row3.add(locandina);
+		
+		
+	}
+	
+	
     // --- METODI HELPER PER IL MIXING ---
 
     /**
