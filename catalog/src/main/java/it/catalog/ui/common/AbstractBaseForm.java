@@ -1,6 +1,7 @@
 package it.catalog.ui.common;
 
 import java.util.List;
+import java.util.Map;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasLabel;
@@ -17,6 +18,7 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 
 import it.catalog.service.interfaces.SearchService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,8 @@ public abstract class AbstractBaseForm<T, S extends SearchService<T, ?>> extends
     protected Button save = new Button("Salva");
     protected Button cancel = new Button();
     protected boolean isViewMode = false;
+    
+    protected int returnPage = 0; // Memorizziamo la pagina di ritorno
 
     public AbstractBaseForm(String title,S service, Class<T> beanType) {
         this.service = service;
@@ -64,12 +68,18 @@ public abstract class AbstractBaseForm<T, S extends SearchService<T, ?>> extends
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter Long id) {
        
-        // 1. L'ID viene catturato automaticamente da HasUrlParameter<Long>
+    	Map<String, List<String>> queryParams = event.getLocation().getQueryParameters().getParameters();
+    	
+    	// 1. L'ID viene catturato automaticamente da HasUrlParameter<Long>
         // se l'URL è documents-form/123, id sarà 123. Se è documents-form senza ID, id sarà null.
     	// Controllo se nell'URL c'è ?view=true
-        this.isViewMode = event.getLocation().getQueryParameters()
-                .getParameters().getOrDefault("view", List.of("false")).contains("true");
+        this.isViewMode = queryParams.getOrDefault("view", List.of("false")).contains("true");
 
+        // Leggiamo la pagina se presente
+        if (queryParams.containsKey("page")) {
+            this.returnPage = Integer.parseInt(queryParams.get("page").get(0));
+        }
+        
         if (id != null) {
             this.bean = loadBean(id);
         } else {
@@ -130,5 +140,17 @@ public abstract class AbstractBaseForm<T, S extends SearchService<T, ?>> extends
     protected abstract T loadBean(Long id);
     protected abstract void saveBean(T bean);
     protected abstract T createNewBean();
-    protected abstract void navigateBack();
+//    protected abstract void navigateBack();
+    
+    
+    protected void navigateBack() {
+        // Costruiamo i parametri di ritorno includendo la pagina
+        QueryParameters qp = QueryParameters.simple(Map.of("page", String.valueOf(returnPage)));
+        getUI().ifPresent(ui -> ui.navigate(getReturnRoute(), qp));
+    }
+    
+    protected abstract String getReturnRoute(); // Es: return "documents";
+    
+    
+    
 }
