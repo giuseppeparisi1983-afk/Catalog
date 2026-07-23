@@ -101,7 +101,7 @@ public class DocumentoServiceImpl implements SearchService<DocumentoDto, DtoFilt
 	        return new PageImpl<>(Collections.emptyList(), pageable, 0); // caso Not Found
 	    }
 	    
-	    return mapper.toDtoPage(result);
+	    return mapper.toDtoPage(result,prefixProvider);
  
     }
     
