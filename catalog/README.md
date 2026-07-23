@@ -13,15 +13,21 @@
 - **1.1.2-SNAPSHOT**  bugFix sul salvataggio dei tags sul Document.Form
 - **1.1.3-SNAPSHOT**  bugFix sul salvataggio degli audio e riordino dei campi per documenti e audio
 - **1.1.4-SNAPSHOT**  bugFix sul form degli audio
+- **1.2.0-SNAPSHOT**  Aggiunta del form per i Film
+- **2.0.0-SNAPSHOT**  Passaggio alla Struttura a Framework dove la classe AbstractCommonFileForm governa il layout dei Form
 ===================================================================================================================================
 
 ##TODO
 
-- [Bug]: sui form i campi con i path devono essre degli import con l'upload non dei semplici TextField
-- [Bug]: il footer si sposta se provo a ingrandire o ridurre la pagina
-- Audio.form: [Bug] Non funziona il salvataggio e ordine e obbligastorietà dei campi da rivedere
-Manca il titolo del formla gestione del campo cancelled e attenzione alla gestione del campo Formato che sulla view è duplicato con il campo estensione
-- Documenti.form:manca il titolo del form
+- [Bug]: Film.Index non funziona la ricerca ✅
+- [Bug]: Film.Form i link devono essere cliccabili nella modalità view
+- [Bug]: sui form il torna indietro (o l'annulla in modifica) deve tornare alla pagina dell'index che ho lasciato non alla prima pagina ✅
+- [Sviluppo]: Introduzione dell'autocompletamento dei campi sui form (vedi TMDB per i film e MusicBrainz o iTunes Search API per l'audio)
+- [Sviluppo]: da considerare se aggiungere anche una parte per l'upload dei file
+- [Bug]: il footer si sposta se provo a ingrandire o ridurre la pagina ✅
+- Audio.form: [Bug] Non funziona il salvataggio e ordine e obbligastorietà dei campi da rivedere ✅
+Manca il titolo del form la gestione del campo cancelled e attenzione alla gestione del campo Formato che sulla view è duplicato con il campo estensione ✅
+- Documenti.form:manca il titolo del form ✅
 - Immagini.form: ordine  e obbligatorietà da rivedere
 - Video.form e Chitarra.form: [Bug] errore sull'accesso alla pagina 
 - Film.form: da vedere comletamente
