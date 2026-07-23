@@ -3,7 +3,7 @@ package it.catalog.service.dto;
 import java.time.Instant;
 import java.util.Set;
 
-import it.catalog.common.enums.FormatoAudio;
+import it.catalog.common.enums.AudioFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,7 +16,7 @@ public class AudioDto {
     private String path; 
     private Double duration; 
     private Double dimensione;
-    private FormatoAudio estensione; // 'MP3','WAV','AAC','FLAC','OGG'
+    private AudioFormat estensione; // 'MP3','WAV','AAC','FLAC','OGG'
     private String coverPath; 
     private String genere; 
     private String autore; 

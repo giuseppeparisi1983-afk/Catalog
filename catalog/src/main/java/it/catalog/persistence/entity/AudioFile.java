@@ -7,7 +7,7 @@ import java.util.Set;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
-import it.catalog.common.enums.FormatoAudio;
+import it.catalog.common.enums.AudioFormat;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -41,7 +41,7 @@ public class AudioFile {
 	private Double dimensione; 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "formato", nullable = false)
-	private FormatoAudio formato; 
+	private AudioFormat formato; 
 	private String coverPath; 
 	private String genere; 
 	private String autore; private String album; 
