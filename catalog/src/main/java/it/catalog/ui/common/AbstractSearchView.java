@@ -23,6 +23,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DateRangeCriterion;
@@ -32,9 +34,10 @@ import it.catalog.ui.utility.BaseFilter;
 import it.catalog.ui.utility.Debouncer;
 import it.catalog.ui.utility.SearchEventBus;
 import it.catalog.ui.utility.SearchFieldOption;
+import it.catalog.utility.DynamicI18nProvider;
 
 /*Logica universale di ricerca, paginazione e UI*/
-public abstract class AbstractSearchView<T, F extends BaseFilter> extends VerticalLayout {
+public abstract class AbstractSearchView<T, F extends BaseFilter> extends VerticalLayout implements BeforeEnterObserver {
 
     protected final SearchService<T, F> service;
     protected final Class<T> dtoClass;
@@ -91,9 +94,27 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         this.initialLoadDone = true;
 
         // 2. Eseguiamo il PRIMO caricamento esplicito
-        refresh();
+//        refresh();
     }
 
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+    	  // 1. Recupera i parametri dalla query string (?page=X)
+        event.getLocation().getQueryParameters().getParameters()
+            .getOrDefault("page", List.of("0")) // Default alla pagina 0
+            .stream().findFirst().ifPresent(p -> {
+                try {
+                    this.pageNumber = Integer.parseInt(p);
+                } catch (NumberFormatException e) {
+                    this.pageNumber = 0;
+                }
+            });
+
+        // 2. IMPORTANTE: Ora che abbiamo settato la pagina, 
+        // diciamo alla Grid di aggiornarsi
+        refresh();
+    }
+    
     private void setupEventBus() {
         eventBus.subscribe(() -> {
             if (!initialLoadDone) return;
@@ -125,6 +146,10 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         });
 
         // --- DATE PICKERS ---
+       // Traduzione dei menù
+        dateFrom.setI18n(DynamicI18nProvider.getI18nForCurrentUser());
+        dateTo.setI18n(DynamicI18nProvider.getI18nForCurrentUser());
+        
         dateFrom.setPlaceholder("Da");
         dateFrom.addValueChangeListener(e -> {
             if (e.getValue() == null && e.isFromClient()) {
