@@ -1,7 +1,6 @@
 package it.catalog.persistence.entity;
 
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +8,7 @@ import java.util.Set;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
+import it.catalog.common.enums.FilmFormat;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -32,21 +32,20 @@ import lombok.Data;
 public class Film {
 
 	  // ENUM
-    public enum Formato {MP4, MKV, AVI, MOV, WMV, FLV, WEBM, MPG, MPEG, VOB}
+//    public enum Formato {MP4, MKV, AVI, MOV, WMV, FLV, WEBM, MPG, MPEG, VOB}
 	
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "titolo",length = 100, nullable = false)
-    private String nome;
+//    @Column(name = "titolo",length = 100, nullable = false)
+    private String titolo;
 
     @Column(length = 50)
     private String genere;
 
-    @Column(precision = 2, scale = 1)
-    private BigDecimal voto;
+    private Double rating;
 
     @Column(length = 100)
     private String regista;
@@ -54,11 +53,10 @@ public class Film {
     @Lob
     private String protagonisti;
 
-    @Column(name = "anno_uscita")
-    private Integer annoUscita;
+    private Integer anno;
 
-    @Column(length = 10)
-    private String durata;
+//    @Column(name = "durata")
+    private Double durata; 
 
     @Lob
     private String trama;
@@ -66,21 +64,19 @@ public class Film {
     @Column(length = 255)
     private String trailer;
 
-    @Column(name = "path_file", length = 255)
-    private String pathFile;
+    private String path;
 
     @Column(nullable = false)
     private boolean preferito = false;
 
     @Column(length = 255, nullable = false)
-    private String filename;
+    private String locandina;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Formato formato;
+    private FilmFormat estensione;
 
-    @Column(name = "size_bytes", nullable = false)
-    private Long sizeBytes;
+    private Double dimensione;
 
     @Column(nullable = false)
     private boolean cancelled = false;
@@ -88,10 +84,10 @@ public class Film {
     @Column(nullable = false)
     private Long visualizzazioni = 0L;
 
-    @Column(name = "data_archiviazione")
+//    @Column(name = "data_archiviazione")
     private Instant dataArchiviazione;
 
-    @Column(name = "last_view")
+//    @Column(name = "last_view")
     private Instant lastView;
 
     @Column(nullable = false)

@@ -1,8 +1,9 @@
 package it.catalog.service.dto;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
+import it.catalog.common.enums.FilmFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,21 +12,22 @@ import lombok.NoArgsConstructor;
 public class FilmDto {
 
 	private Long id;
-	private String nome;
+//	private String nome; // mapping con titolo
+	private String titolo; // mapping con titolo
 	private String genere;
-	private Double voto;
+	private Double rating;
 	private String regista;
 	private String protagonisti; // elenco dei protagonisti come stringa (es. "Attore1, Attore2")
-	private Integer annoUscita;
-	private String durata; // formato "hh:mm"
-	private String trama;
+	private Integer anno;
+	private Double duration; // formato "hh:mm" mapping con il campo durata
+	private String descrizione; // mapping con il campo trama
 	private String trailer; // URL del trailer
 	
-	private String pathFile;
+	private String path;
 	private boolean preferito;
-	private String filename;
-	private String formato; // rappresentato come stringa (es. "MP4")
-	private Long sizeBytes;
+	private String locandina;
+	private FilmFormat estensione; // rappresentato come enum FilmFormat
+	private Double dimensione;
 	private boolean cancelled;
 	private Long visualizzazioni;
 	private Instant dataArchiviazione; // formato "yyyy-MM-dd"
@@ -36,7 +38,7 @@ public class FilmDto {
 		
 		
 	// Tags associati private
-    private List<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
+	private Set<TagDto> tags; // nomi dei tag (solo lettura/scrittura applicativa)
     
     
     
