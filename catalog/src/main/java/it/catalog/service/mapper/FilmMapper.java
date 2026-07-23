@@ -18,15 +18,23 @@ import it.catalog.service.dto.TagDto;
 public interface FilmMapper {
 
 	
-	@Mapping(target = "tags", expression = "java(getTags(entity.getTags()))")
+//	@Mapping(target = "tags", expression = "java(getTags(entity.getTags()))")
+//	@Mapping(target = "nome", source = "titolo") 
+//	@Mapping(target = "autore", source = "regista") 
+	@Mapping(target = "duration", source = "durata") 
+	@Mapping(target = "descrizione", source = "trama") 
 	FilmDto toDto(Film entity); 
 	
 	
+//	@Mapping(target = "titolo", source = "nome") 
+//	@Mapping(target = "regista", source = "autore") 
+	@Mapping(target = "durata", source = "duration") 
+	@Mapping(target = "trama", source = "descrizione") 
 	Film toEntity(FilmDto dto); 
 	
 	
-	 @Mapping(target = "tipoOggetto", constant = "Film")
-	 Tag toTagEntity(TagDto dto);
+//	 @Mapping(target = "tipoOggetto", constant = "Film")
+//	 Tag toTagEntity(TagDto dto);
 	
 	 
 	 List<FilmDto> toDtoList(List<Film> entities);
