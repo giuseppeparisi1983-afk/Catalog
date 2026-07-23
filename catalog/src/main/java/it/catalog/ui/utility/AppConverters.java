@@ -18,6 +18,35 @@ public class AppConverters {
 	// Impedisce l'istanziazione della classe utility
 	private AppConverters() {}
 
+	
+	
+	 /**
+     * Converte una Stringa (UI) in Double (DTO).
+     * Gestisce la sostituzione della virgola con il punto per il parsing decimale.
+     */
+	public static class StringToDoubleConverter implements Converter<String, Double> {
+	    // Usiamo un DecimalFormat per la presentazione
+	    private static final java.text.DecimalFormat FORMAT = new java.text.DecimalFormat("0.##########");
+
+	    @Override
+	    public Result<Double> convertToModel(String value, ValueContext context) {
+	        if (value == null || value.trim().isEmpty()) return Result.ok(null);
+	        String normalized = value.replace(",", ".").trim();
+	        try {
+	            return Result.ok(Double.parseDouble(normalized));
+	        } catch (NumberFormatException e) {
+	            return Result.error("Inserisci un numero valido");
+	        }
+	    }
+
+	    @Override
+	    public String convertToPresentation(Double value, ValueContext context) {
+	        if (value == null) return "";
+	        // Rimuove la notazione scientifica 'E' e formatta in modo "pulito"
+	        return FORMAT.format(value).replace(",", "."); 
+	    }
+	}
+	
 	public static class InstantToLocalDate implements Converter<LocalDate, Instant> {
 		@Override
 		public Result<Instant> convertToModel(LocalDate v, ValueContext c) {
