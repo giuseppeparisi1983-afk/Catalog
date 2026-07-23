@@ -3,6 +3,7 @@ package it.catalog.service.dto;
 import java.time.Instant;
 import java.util.Set;
 
+import it.catalog.common.enums.DocFormat;
 import it.catalog.common.enums.StatiDocumento;
 import it.catalog.common.enums.TipoDocumento;
 import lombok.Data;
@@ -28,7 +29,7 @@ public class DocumentoDto {
 	private long visualizzazioni; 
 	private boolean backup;
 	private String note;
-	private String estensione;
+	private DocFormat formato;
 	private Instant lastView; 
 	private Instant dataArchiviazione; 
 	private Instant lastUpdate; 

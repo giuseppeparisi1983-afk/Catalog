@@ -7,12 +7,15 @@ import java.util.Set;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
+import it.catalog.common.enums.DocFormat;
 import it.catalog.common.enums.StatiDocumento;
 import it.catalog.common.enums.TipoDocumento;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,7 +40,9 @@ public class Documento {
     private Long id;
 
     private String nome;
-    private String estensione;
+    
+	@Enumerated(EnumType.STRING)
+	private DocFormat estensione; 
     
     @Column(name = "path_file")
     private String path;
