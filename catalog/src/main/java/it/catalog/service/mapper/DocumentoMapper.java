@@ -19,20 +19,22 @@ public interface DocumentoMapper {
   
 	@Mapping(target = "path", expression = "java(entity.getPath()!=null ? prefixProvider.getPrefix() + entity.getPath(): \"\")")
 	//@Mapping(target = "tags", expression = "java(getTags(entity.getTags()))")
+	@Mapping(target = "formato", source = "estensione") 
 	DocumentoDto toDto(Documento entity, @Context PathPrefixProvider prefixProvider);
 	
 	@Mapping(target = "path", expression = "java(prefixResolver.stripPrefix(dto.getPath()))")
+	@Mapping(target = "estensione", source = "formato") 
 	Documento toEntity(DocumentoDto dto, @Context PathPrefixProvider prefixResolver);
 	
 	// Questo metodo istruisce MapStruct su come mappare il singolo Tag
 //    @Mapping(target = "tipoOggetto", constant = "Documento") // Forza il tipo su 'Documento' per i nuovi tag
 //    Tag toTagEntity(TagDto dto);
     
-    List<DocumentoDto> toDtoList(List<Documento> entities);
+    List<DocumentoDto> toDtoList(List<Documento> entities, @Context PathPrefixProvider prefixProvider);
 
  // Conversione Page<Entity> → Page<Dto>
-    default Page<DocumentoDto> toDtoPage(Page<Documento> entityPage) {
-        List<DocumentoDto> dtoList = toDtoList(entityPage.getContent());
+    default Page<DocumentoDto> toDtoPage(Page<Documento> entityPage, @Context PathPrefixProvider prefixProvider) {
+        List<DocumentoDto> dtoList = toDtoList(entityPage.getContent(), prefixProvider);
         return new PageImpl<>(
                 dtoList,
                 entityPage.getPageable(),
