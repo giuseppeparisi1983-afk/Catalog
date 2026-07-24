@@ -2,6 +2,7 @@ package it.catalog.ui.audio;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.impl.AudioFileServiceImpl;
 import it.catalog.ui.common.AbstractSearchView;
 import it.catalog.ui.common.MainLayout;
+import it.catalog.ui.audio.Form;
 
 @Route(value = "audio", layout = MainLayout.class)
 @PageTitle("Audio")
@@ -91,7 +93,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setHeader("Path File").setSortable(true).setKey("path");
 
          grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getEstensione().getEstensione());
+        	 Span span = new Span(audio.getEstensione().getLabel());
         	 if (audio.isCancelled()) {
         		 span.addClassName("riga-cancellata");
         	 }
@@ -100,7 +102,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Formato").setSortable(true).setKey("estensione");
+         .setHeader("Estensione").setSortable(true).setKey("estensione");
 
          grid.addColumn(new ComponentRenderer<>(audio -> {
         	 Span span = new Span(audio.getAutore());
@@ -329,7 +331,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          
 
          grid.addComponentColumn(item -> {
-        	 Anchor edit = new Anchor("audio-form/" + item.getId()+"?view=false", "modifica");
+        	 Anchor edit = new Anchor("audio-form/" + item.getId()+"?view=false&page=" +String.valueOf(this.pageNumber), "modifica");
              Anchor del = new Anchor("audio", "cancella");
              del.getElement().addEventListener("click", ev -> {
             	 conferma(item.getId(),"Sei sicuro di voler cancellare questo elemento ?");
@@ -361,8 +363,11 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
      	// rendi la tabella interattiva
  		grid.addItemClickListener(event -> {
  		    Long id = event.getItem().getId();
- 		    // Prepariamo il parametro ?view=true o ?view=false
- 		    QueryParameters qp = QueryParameters.simple(Map.of("view", "true"));
+ 		   Map<String, String> params = new HashMap<>();
+ 		    params.put("view", "true");
+ 		    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
+ 		    
+ 		    QueryParameters qp = QueryParameters.simple(params);
  		    
  		    // Navigazione: target, parametro ID, query parameters
  		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
@@ -395,11 +400,16 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
 //    
     
     @Override
-    protected void navigateToForm(Long id) {
-        // Gestisci la navigazione al form (nuovo o modifica)
-        String route = "audio-form" + (id != null ? "?id=" + id : "");
-        getUI().ifPresent(ui -> ui.navigate(route));
-    }
+	protected void navigateToForm(Long id) {
+		// Gestisci la navigazione al form (nuovo o modifica)
+	    Map<String, String> params = new HashMap<>();
+	    params.put("view", "false");
+	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale per il ritorno alla pagina corrente
+	    
+	    QueryParameters qp = QueryParameters.simple(params);
+	    // Navigazione: target, parametro ID, query parameters
+	    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
+	}
     
 }
 
