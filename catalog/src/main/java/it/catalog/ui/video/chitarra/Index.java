@@ -44,6 +44,8 @@ public class Index extends AbstractVideoIndex<GuitarDto> {
 			cb.setReadOnly(true);
 			return cb;
 		})).setHeader("Visto").setKey("visto").setSortable(true);
+		
+//      addExtensionColumn(grid); // Fatto!
 	}
 
 	@Override
