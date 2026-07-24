@@ -2,11 +2,11 @@ package it.catalog.persistence.converter.base;
 
 import java.util.stream.Stream;
 
-import it.catalog.common.interfaces.HasLabel;
+import it.catalog.common.enums.FileExtension;
 import jakarta.persistence.AttributeConverter;
 
 // 2. Classe base generica (nessuna logica ripetuta!)
-public abstract class AbstractLabelConverter<E extends Enum<E> & HasLabel> 
+public abstract class AbstractLabelConverter<E extends Enum<E> & FileExtension> 
         implements AttributeConverter<E, String> {
 
     private final Class<E> enumClass;
