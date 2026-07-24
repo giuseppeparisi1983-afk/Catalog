@@ -2,6 +2,7 @@ package it.catalog.ui.documenti;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -131,7 +132,7 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		.setHeader("Stato").setSortable(true).setKey("stato");
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getEstensione());
+			Span span = new Span(doc.getFormato().getLabel());
 			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
 				span.addClassName("riga-cancellata");
 			}
@@ -139,7 +140,7 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		})).setResizable(true) // L'utente può allargarla
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Estensione").setSortable(true).setKey("estensione");
+		.setHeader("Estensione").setSortable(true).setKey("formato");
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
 			Span span = new Span(doc.getOrigine());
@@ -304,7 +305,7 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		grid.addComponentColumn(document -> {
 			HorizontalLayout actions = new HorizontalLayout();
 
-			Anchor edit = new Anchor("documents-form/" + document.getId() + "?view=false", "Modifica");
+			Anchor edit = new Anchor("documents-form/" + document.getId() + "?view=false&page=" +String.valueOf(this.pageNumber), "Modifica");
 			Anchor delete = new Anchor("documents", "cancella");
 			delete.getElement().addEventListener("click", ev -> {
 				conferma(document.getId(), "Sei sicuro di voler cancellare questo elemento ?");
@@ -334,8 +335,11 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		// rendi la tabella interattiva
 		grid.addItemClickListener(event -> {
 		    Long id = event.getItem().getId();
-		    // Prepariamo il parametro ?view=true o ?view=false
-		    QueryParameters qp = QueryParameters.simple(Map.of("view", "true"));
+		    Map<String, String> params = new HashMap<>();
+		    params.put("view", "true");
+		    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
+		    
+		    QueryParameters qp = QueryParameters.simple(params);
 		    
 		    // Navigazione: target, parametro ID, query parameters
 		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
@@ -360,11 +364,11 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 	@Override
 	protected void navigateToForm(Long id) {
 		// Gestisci la navigazione al form (nuovo o modifica)
-//		String route = "documents-form/" + (id != null ? id : "0") + "/false";
-//		getUI().ifPresent(ui -> ui.navigate(route));
-		// Prepariamo il parametro ?view=true o ?view=false
-	    QueryParameters qp = QueryParameters.simple(Map.of("view", "false"));
+	    Map<String, String> params = new HashMap<>();
+	    params.put("view", "false");
+	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale per il ritorno alla pagina corrente
 	    
+	    QueryParameters qp = QueryParameters.simple(params);
 	    // Navigazione: target, parametro ID, query parameters
 	    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
 	}
