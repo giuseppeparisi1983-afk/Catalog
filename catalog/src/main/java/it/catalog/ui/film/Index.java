@@ -3,7 +3,9 @@ package it.catalog.ui.film;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.button.Button;
@@ -21,6 +23,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
@@ -112,7 +115,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
             .setKey("rowNumber"); // Chiave opzionale
         
         grid.addColumn(new ComponentRenderer<>(film -> {
-      	    Span span = new Span(film.getNome());
+      	    Span span = new Span(film.getTitolo());
       	    if (film.isCancelled())
       	        span.addClassName("riga-cancellata");
 
@@ -121,7 +124,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
-         .setHeader("Titolo").setSortable(true).setKey("nome");
+         .setHeader("Titolo").setSortable(true).setKey("titolo");
 
         grid.addColumn(new ComponentRenderer<>(film -> {
         	Span span = new Span(film.getGenere());
@@ -136,7 +139,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setHeader("Genere").setSortable(true).setKey("genere");
 
         grid.addColumn(new ComponentRenderer<>(film -> {
-        	Span span = new Span(String.valueOf(film.getAnnoUscita()));
+        	Span span = new Span(String.valueOf(film.getAnno()));
         	if (film.isCancelled())
         		span.addClassName("riga-cancellata");
         	
@@ -145,11 +148,11 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setResizable(true) // L'utente può allargarla
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
-        .setHeader("Anno").setSortable(true).setKey("annoUscita");
+        .setHeader("Anno").setSortable(true).setKey("anno");
 		 
 		 
 		  grid.addColumn(new ComponentRenderer<>(film -> {
-       	 Span span = new Span(film.getFilename());
+       	 Span span = new Span(film.getPath());
        	 if (film.isCancelled())
        		 span.addClassName("riga-cancellata");
        	 return span;
@@ -157,10 +160,10 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setResizable(true) // L'utente può allargarla
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Nome File").setSortable(true).setKey("filename");
+        .setHeader("Path File").setSortable(true).setKey("path");
 
 		  grid.addColumn(new ComponentRenderer<>(film -> {
-			  Span span = new Span(film.getPathFile());
+			  Span span = new Span(film.getLocandina());
 			  if (film.isCancelled())
 				  span.addClassName("riga-cancellata");
 			  return span;
@@ -168,11 +171,11 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
 		  .setResizable(true) // L'utente può allargarla
 		  .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
 		  .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-		  .setHeader("Path").setSortable(true).setKey("pathFile");
+		  .setHeader("Locandina").setSortable(true).setKey("locandina");
 		
 		
 		 grid.addColumn(new ComponentRenderer<>(film -> {
-       	 Span span = new Span(film.getFormato());
+       	 Span span = new Span(film.getEstensione().getLabel());
        	 if (film.isCancelled())
        		 span.addClassName("riga-cancellata");
        	 return span;
@@ -180,10 +183,10 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setResizable(true) // L'utente può allargarla
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Formato").setSortable(true).setKey("formato");
+        .setHeader("Formato").setSortable(true).setKey("estensione");
 
         grid.addColumn(new ComponentRenderer<>(film -> {
-        	Span span = new Span(Long.toString(film.getSizeBytes()));   	
+        	Span span = new Span(String.valueOf(film.getDimensione()));   	
         	if (film.isCancelled())
         		span.addClassName("riga-cancellata");
         	return span;
@@ -191,7 +194,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setResizable(true) // L'utente può allargarla
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Dimensione (byte)").setSortable(true).setKey("sizeBytes");
+        .setHeader("Dimensione (byte)").setSortable(true).setKey("dimensione");
  
         // caselle checkbox
         grid.addColumn(new ComponentRenderer<>(film -> {
@@ -208,7 +211,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         
         
         grid.addColumn(new ComponentRenderer<>(film -> {
-     		Span span = new Span(film.getVoto() != null ? film.getVoto().toString() :"0");
+     		Span span = new Span(film.getRating() != null ? film.getRating().toString() :"0");
      		if (film.isCancelled())
      			span.addClassName("riga-cancellata");
      		return span;
@@ -216,7 +219,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setResizable(true) // L'utente può allargarla
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Valutazione").setSortable(true).setKey("voto");
+        .setHeader("Valutazione").setSortable(true).setKey("rating");
         
         
         grid.addColumn(new ComponentRenderer<>(film -> {
@@ -244,7 +247,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
            .setHeader("Protagonisti").setSortable(true).setKey("protagonisti");
         
         grid.addColumn(new ComponentRenderer<>(film -> {
-         	 Span span = new Span(film.getTrama());
+         	 Span span = new Span(film.getDescrizione());
          	 if (film.isCancelled()) {
          		 span.addClassName("riga-cancellata");
          	 }
@@ -253,11 +256,11 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
           .setResizable(true) // L'utente può allargarla
           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-          .setHeader("Trama").setSortable(true).setKey("trama");
+          .setHeader("Trama").setSortable(true).setKey("descrizione");
         
         
         grid.addColumn(new ComponentRenderer<>(film -> {
-          	 Span span = new Span(film.getDurata());
+          	 Span span = new Span(film.getDuration().toString());
           	 if (film.isCancelled()) {
           		 span.addClassName("riga-cancellata");
           	 }
@@ -266,7 +269,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
            .setResizable(true) // L'utente può allargarla
            .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
            .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-           .setHeader("Durata").setSortable(true).setKey("durata");
+           .setHeader("Durata").setSortable(true).setKey("duration");
         
 		  grid.addColumn(new ComponentRenderer<>(film -> {
 	          	 Span span = new Span(film.getTrailer());
@@ -392,7 +395,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setHeader("Cancelled").setSortable(true).setKey("cancelled");
         
          grid.addComponentColumn(item -> {
-             Anchor edit = new Anchor("film-form/" + item.getId() + "/false", "modifica");
+             Anchor edit = new Anchor("film-form/" + item.getId() + "?view=false&page=" +String.valueOf(this.pageNumber), "modifica");
              
              Anchor del = new Anchor("film", "cancella");
              del.getElement().addEventListener("click", ev -> {
@@ -423,8 +426,15 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          grid.getColumns().forEach(col -> col.setAutoWidth(true)); // adatta alla pagina
 
       // rendi la tabella interattiva
- 		grid.addItemClickListener(e -> getUI()
- 				.ifPresent(ui -> ui.navigate("film-form/" + e.getItem().getId() + "/true")));
+     	grid.addItemClickListener(event -> {
+     		 Long id = event.getItem().getId();
+     	    Map<String, String> params = new HashMap<>();
+     	    params.put("view", "true");
+     	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
+     	    
+     	    QueryParameters qp = QueryParameters.simple(params);
+     	    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
+ 		});
 		 
 	}
 
@@ -450,7 +460,14 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
     @Override
 	protected void navigateToForm(Long id) {
 		// Gestisci la navigazione al form (nuovo o modifica)
-		String route = "film-form/" + (id != null ? id : "0") + "/false";
-		getUI().ifPresent(ui -> ui.navigate(route));
+	    Map<String, String> params = new HashMap<>();
+	    params.put("view", "false");
+	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale per il ritorno alla pagina corrente
+	    
+	    QueryParameters qp = QueryParameters.simple(params);
+	    // Navigazione: target, parametro ID, query parameters
+	    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
 	}
+    
+    
 }
