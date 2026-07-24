@@ -2,9 +2,7 @@ package it.catalog.common.enums;
 
 import java.util.Arrays;
 
-import it.catalog.common.interfaces.HasLabel;
-
-public enum TipoDocumento implements HasLabel{
+public enum TipoDocumento implements FileExtension{
 
 	FATTURA ("fattura"),REPORT("report"),CONTRATTO("contratto"),
 	CV("Curriculum"),CERTIFICATI("certificati"),

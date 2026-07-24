@@ -2,9 +2,7 @@ package it.catalog.common.enums;
 
 import java.util.Arrays;
 
-import it.catalog.common.interfaces.HasLabel;
-
-public enum Difficolta implements HasLabel {
+public enum Difficolta implements FileExtension {
 
 	BASE("base"), INTERMEDIO("intermedio"), AVANZATO("avanzato");
 

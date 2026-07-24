@@ -2,9 +2,7 @@ package it.catalog.common.enums;
 
 import java.util.Arrays;
 
-import it.catalog.common.interfaces.HasLabel;
-
-public enum CategorieVideo implements HasLabel {
+public enum CategorieVideo implements FileExtension {
 
 	spezzoni ("Spezzoni Film"),	guitar ("Chitarra"),documentario ("Documentario"),	musica ("Musica"),sport ("Sport"),guida ("Tutorial");
 

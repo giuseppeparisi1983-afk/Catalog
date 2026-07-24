@@ -2,9 +2,7 @@ package it.catalog.common.enums;
 
 import java.util.Arrays;
 
-import it.catalog.common.interfaces.HasLabel;
-
-public enum StatiDocumento implements HasLabel{
+public enum StatiDocumento implements FileExtension{
 
 	ATTIVO ("attivo"), ARCHIVIATO ("archiviato"), ELIMINATO ("eliminato");
 	
