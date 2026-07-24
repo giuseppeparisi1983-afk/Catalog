@@ -44,6 +44,7 @@ public class Form extends AbstractCommonFileForm<FilmDto, SearchService<FilmDto,
 		setupFilmLogic();
 
 		// 3. BINDING
+		binder.forField(nome).asRequired("Obbligatorio").bind("titolo");
 		binder.forField(anno).asRequired("Campo obbligatorio").bind("anno");
 		binder.forField(estensione).asRequired("Campo obbligatorio").bind("estensione");
 		binder.forField(duration).asRequired("Campo obbligatorio")
@@ -175,8 +176,10 @@ public class Form extends AbstractCommonFileForm<FilmDto, SearchService<FilmDto,
 
 		copertina.setAlt("Cover preview");
 		
-		estensione.setItems(FilmFormat.values());
-        estensione.setItemLabelGenerator(FilmFormat::getLabel);
+//		estensione.setItems(FilmFormat.values());
+//        estensione.setItemLabelGenerator(FilmFormat::getLabel);
+        
+        setupExtensionCombo(estensione, FilmFormat.values());
 		
 	}
 
