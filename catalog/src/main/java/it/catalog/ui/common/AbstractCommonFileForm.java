@@ -1,33 +1,28 @@
 package it.catalog.ui.common;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
-import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Result;
-import com.vaadin.flow.data.binder.ValueContext;
-import com.vaadin.flow.data.converter.Converter;
 
-import it.catalog.service.dto.AudioDto;
+import it.catalog.common.enums.FileExtension;
 import it.catalog.service.dto.FilmDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.interfaces.SearchService;
-import it.catalog.ui.utility.AppConverters.DoubleToLong;
+import it.catalog.ui.utility.AppConverters;
 import it.catalog.ui.utility.BooleanImageToggle;
 import it.catalog.ui.utility.RatingStarsField;
 import it.catalog.utility.DynamicI18nProvider;
@@ -41,414 +36,149 @@ import it.catalog.utility.DynamicI18nProvider;
 
 public abstract class AbstractCommonFileForm<T, S extends SearchService<T, ?>> extends AbstractBaseForm<T, S> {
 
-    // Campi comuni definiti da te
+    // Campi comuni
     protected TextField nome = new TextField("Nome");
     protected TextField path = new TextField("Percorso File");
-    private TextField estensione = new TextField("Estensione");
+//    protected TextField estensione = new TextField("Estensione");
     protected TextArea descrizione = new TextArea("Descrizione");
     protected TextField dimensione = new TextField("Dimensione (KB)");
-    
-	 private final TextField autore = new TextField("Regista");
-	 private final TextField duration = new TextField("Durata");
-	 private final IntegerField anno = new IntegerField("Anno");
-	 private final TextField genere = new TextField("Genere");
-	 private final TextField locandina = new TextField("Locandina");
-//    protected Checkbox preferito = new Checkbox("Preferito");
-//    protected Checkbox backup = new Checkbox("Backup effettuato");
-//    protected Checkbox cancelled = new Checkbox("Cancellato");
-//    protected IntegerField rating = new IntegerField("Rating (1-5)");
-    
-    protected BooleanImageToggle backup = new BooleanImageToggle(
-    	    "images/backup-colored.png",
-    	    "images/backup-gray.png"
-    	);
-
-    protected BooleanImageToggle preferito = new BooleanImageToggle(
-    		"images/like-colored.png",
-    		"images/like-gray.png"
-    		);
+    protected BooleanImageToggle backup = new BooleanImageToggle("images/backup-colored.png", "images/backup-gray.png");
+    protected BooleanImageToggle preferito = new BooleanImageToggle("images/like-colored.png", "images/like-gray.png");
     protected RatingStarsField rating = new RatingStarsField();
-
     protected NumberField visualizzazioni = new NumberField("Visual");
     protected TextArea note = new TextArea("Note");
-    
-    
- // Aggiungiamo i TAGS
     protected MultiSelectComboBox<TagDto> tags = new MultiSelectComboBox<>("Tags");
-    
-    /**
-     * Nota: Affinché la MultiSelectComboBox funzioni correttamente (ovvero sappia riconoscere che il Tag "Lavoro" 
-     * nel database è lo stesso Tag "Lavoro" già presente nel DTO), è fondamentale che la tua classe TagDto abbia i metodi equals() e hashCode() 
-     * implementati correttamente, preferibilmente basandosi sull'ID del tag.
-     * */
-    
-    
-    // Date (usiamo DatePicker per semplicità, ma lastUpdate spesso è sola lettura)
     protected DateTimePicker lastView = new DateTimePicker("Ultima visualizzazione");
     protected DatePicker dataArchiviazione = new DatePicker("Data Archiviazione");
     protected DateTimePicker lastUpdate = new DateTimePicker("Ultimo Aggiornamento");
-    
-    
- // 2. Definisci la zona di riferimento (es. fuso orario del server o dell'utente)
-    ZoneId fusoOrario = ZoneId.systemDefault(); // o ZoneId.of("Europe/Rome")
 
-    public AbstractCommonFileForm(String title,S service, Class<T> beanType) {
-        super(title,service, beanType);
-  
-        
-     // 1. Configurazione specifica per i Tags
-    	settingTags(service);
-    	
-    	Tooltip.forComponent(preferito).setText("Like");
-    	Tooltip.forComponent(backup).setText("Backup");
-    	Tooltip.forComponent(rating).setText("Valuta");
-    	
-    	dataArchiviazione.setI18n(DynamicI18nProvider.getI18nForCurrentUser());
-    	lastView.setDatePickerI18n(DynamicI18nProvider.getI18nForCurrentUser());
-    	lastUpdate.setDatePickerI18n(DynamicI18nProvider.getI18nForCurrentUser());
-    	lastUpdate.setReadOnly(true); // Impedisce all'utente di modificarlo! Questo perchè il valore è deciso a tavolino dal metodo preUpdate() dentro l'entity che aggiorna il valore alla data corrente
-    	
-    	
-        path.setWidth("90%");
-        estensione.setWidth("85px");
-        dimensione.setWidth("120px");
-        
-    	// Imposta l'attributo HTML 'title' sul tag <div> generato
-//    	backup.getElement().setAttribute("title", "BackUp");       
-        
-        // 3. BINDER MANUALE GENERICO (Valido per tutti i DTO)
-        // Usiamo le stringhe per i nomi dei campi così non dipendiamo dal tipo specifico di DTO
-        
-		/**
-		 * i campi NumberField lavorano con i tipi Double, mentre su DocumentoDto
-		 * visualizzazioni è di tipo long. Per questo serve una conversione manuale tramite
-		 * Converter
-		 */
-//        binder.forField(visualizzazioni)
-//		.withConverter(doubleVal -> doubleVal == null ? null : doubleVal.longValue(),
-//				longVal -> longVal == null ? null : longVal.doubleValue(), "Valore non valido")
-//		.bind("visualizzazioni");  
+    protected ZoneId fusoOrario = ZoneId.systemDefault();
+    protected VerticalLayout mainFormLayout = new VerticalLayout();
 
-    	binder.forField(nome).asRequired("Campo obbligatorio").bind("nome");
-//    	binder.forField(path).asRequired("Campo obbligatorio").bind("path");
-    	binder.forField(path).withValidator(
-    	        value -> value != null && value.matches(".*\\\\.*"),
-    	        "Il percorso del file deve contenere almeno un carattere '\\'"
-    	    ).asRequired("Campo obbligatorio").bind("path");
-//    	binder.forField(dimensione).asRequired("Campo obbligatorio").bind("dimensione");
-    	
-    	if (!AudioDto.class.isAssignableFrom(beanType)) 
-    	/** Se il tipo del bean NON è un tipo compatibile con AudioDto, allora il campo estensione 
-    	 * viene gestito in modo centralizzato su questa classe, viceversa se ho a che fare con un AudioDto
-    	 * estensione viene gestito direttamente sul suo form perchè non è un TextField ma una ComboBox*/
-    	    binder.forField(estensione).asRequired("Campo obbligatorio").bind("estensione");
-    	
-    	
-    	binder.forField(dimensione)
-        .withConverter(new Converter<String, Double>() {
-            @Override
-            public Result<Double> convertToModel(String value, ValueContext context) {
-                // Se il campo è vuoto, restituiamo null (o 0.0 a seconda delle tue esigenze)
-                if (value == null || value.trim().isEmpty()) {
-                    return Result.ok(null); 
-                }
-                
-                // Sostituiamo la virgola con il punto per rendere il parsing universale
-                String normalizedValue = value.replace(",", ".").trim();
-                
-                try {
-                    double parsed = Double.parseDouble(normalizedValue);
-                    return Result.ok(parsed);
-                } catch (NumberFormatException e) {
-                    // Messaggio chiaro se l'utente scrive lettere o simboli strani
-                    return Result.error("Inserisci un numero decimale valido (es. 1.5 o 1,5)");
-                }
-            }
-
-            @Override
-            public String convertToPresentation(Double value, ValueContext context) {
-                // Come mostrare il Double nel campo di testo quando carichi il DTO
-                if (value == null) {
-                    return "";
-                }
-                // Mostriamo il valore formattato con il punto (o puoi usare la virgola se preferisci)
-                return String.valueOf(value);
-            }
-        }).asRequired("Campo obbligatorio").bind("dimensione");
-    	
-    	
-    	
-    	
-    	binder.forField(visualizzazioni)
-        .withConverter(new DoubleToLong())
-        .bind("visualizzazioni");
+    public AbstractCommonFileForm(String title, S service, Class<T> beanType) {
+        super(title, service, beanType);
         
-    	
-	       // alternative with image
-			
-			  binder.forField(preferito) .withConverter( checked -> checked != null &&
-			  checked, value -> value != null && value ) .bind("preferito");
-			  
-			  binder.forField(rating) //.withNullRepresentation(0.0) // Se il valore è null, usa 0.0 
-			  .withConverter( value -> value, // da NumberField → DTO value
-					  value -> value == null ? null : value // da DTO → NumberField 
-					  ) .bind("rating");
-			  
-			  binder.forField(backup) .withConverter( checked -> checked != null &&
-			  checked, value -> value != null && value ) .bind("backup");
+        setupCommonComponents(service);
+        setupCommonBindings(beanType);
 
-        // Gestione DateTimePicker con conversione tra LocalDateTime e Instant, accettando null
-//    	binder.forField(lastUpdate).withConverter(new InstantToLocalDate())
-//    	.bind("lastUpdate");
-    	
-			  binder.forField(lastUpdate)
-			    .withConverter(
-			        localDateTime -> localDateTime == null ? null : localDateTime.atZone(fusoOrario).toInstant(),
-			        instant -> instant == null ? null : LocalDateTime.ofInstant(instant, fusoOrario)
-			    ).bind("lastUpdate");
-			  
-	
-//    	binder.forField(dataArchiviazione).withConverter(new InstantToLocalDate())
-//    	.asRequired("Campo obbligatorio").bind("dataArchiviazione");
-    	
-    	
-  	  binder.forField(dataArchiviazione)
-      .withConverter(
-          // Da UI (LocalDate) a DTO (Instant) -> fissa l'inizio giornata
-          localDate -> localDate == null ? null : localDate.atStartOfDay(fusoOrario).toInstant(),
-          
-          // Da DTO (Instant) a UI (LocalDate)
-          instant -> instant == null ? null : instant.atZone(fusoOrario).toLocalDate()
-      ).asRequired("Campo obbligatorio").bind("dataArchiviazione");
-    	
-//    	binder.forField(lastView).withConverter(new InstantToLocalDateTime())
-//    	.bind("lastView");
-    	
-    	binder.forField(lastView)
-    	.withConverter(
-    			// Da UI (LocalDateTime) a DTO (Instant)
-    			localDateTime -> localDateTime == null ? null : localDateTime.atZone(fusoOrario).toInstant(),
-    					
-    					// Da DTO (Instant) a UI (LocalDateTime)
-    					instant -> instant == null ? null : LocalDateTime.ofInstant(instant, fusoOrario)
-    			).bind("lastView");  
-    	
-    	
-    	
+    }
 
-    	   // 2. BINDING MANUALE FORZATO (nella classe Padre)
-        // Usiamo il nome della proprietà come stringa "tags".
-        // Questo "prenota" il campo: bindInstanceFields() lo ignorerà perché già associato.
-        binder.forField(tags).bind("tags"); 
+ // Questo metodo verrà chiamato dai figli quando i loro campi sono pronti
+    protected void buildLayout() {
+        mainFormLayout.setSpacing(true);
+        mainFormLayout.setPadding(false);
+        mainFormLayout.getStyle().set("gap", "8px");
+
+        // 1. Gancio per i campi specifici del figlio (che ora non saranno più null!)
+        addSpecificTopLayout(mainFormLayout);
         
-        // Effettuiamo il binding automatico per i nomi che coincidono
-        // Binder assocerà automaticamente 'nome' UI al campo 'nome' del DTO
-        //binder.bindInstanceFields(this);
+        // 2. Altro gancio
+        addSpecificMiddleLayout(mainFormLayout);
+
+        // 3. Blocchi comuni
+        addDateFields(mainFormLayout);
+        addStatusFields(mainFormLayout);
+        addClassificationFields(mainFormLayout);
+
+        add(mainFormLayout);
     }
     
     
-    private void settingTags(S service) {
-        // 1. Recuperiamo i tag esistenti
-        List<TagDto> allTags = new ArrayList<>(service.getAllTags());
-        
-        // 2. Configurazione semplice
-        tags.setItems(allTags);
+    private void setupCommonComponents(S service) {
+        tags.setItems(new ArrayList<>(service.getAllTags()));
         tags.setItemLabelGenerator(TagDto::getNomeTag);
-        tags.setPlaceholder("Seleziona o scrivi nuovi tag...");;
-        tags.setWidth("62%");
-        // 3. Abilitiamo l'inserimento manuale
         tags.setAllowCustomValue(true);
-        
         tags.addCustomValueSetListener(e -> {
             String nomeTag = e.getDetail().trim();
             if (nomeTag.isEmpty()) return;
-
-            // Controlliamo se esiste già un tag con questo nome (case-insensitive) nella lista attuale
-            Optional<TagDto> esistente = allTags.stream()
-                    .filter(t -> t.getNomeTag().equalsIgnoreCase(nomeTag))
-                    .findFirst();
-
-            TagDto tagDaSelezionare;
-
-            if (esistente.isPresent()) {
-                tagDaSelezionare = esistente.get();
-            } else {
-                // Creiamo un nuovo DTO. L'ID sarà null, verrà generato dal DB al salvataggio.
-                // Uso "Generico" invece di "Audio" per renderlo davvero Abstract
-                tagDaSelezionare = new TagDto();
-                tagDaSelezionare.setNomeTag(nomeTag);
-                
-                allTags.add(tagDaSelezionare);
-                // 3. RECUPERO DINAMICO DEL DATAVIEW
-                // Invece di dichiarare il tipo fuori, lo chiamiamo direttamente qui.
-                // getListDataView() è il metodo standard di Vaadin 24 per i componenti in memoria.
-                tags.getListDataView().refreshAll();
-            }
-
-            // Aggiorniamo la selezione della UI
-            Set<TagDto> currentSelection = new HashSet<>(tags.getValue());
-            currentSelection.add(tagDaSelezionare);
-            tags.setValue(currentSelection);
+            TagDto newTag = new TagDto();
+            newTag.setNomeTag(nomeTag);
+            Set<TagDto> current = new HashSet<>(tags.getValue());
+            current.add(newTag);
+            tags.setValue(current);
+            tags.getListDataView().refreshAll();
         });
-        
-        tags.addClassName("auto-width-combo");
 
-    	
+        lastUpdate.setReadOnly(true);
+        dataArchiviazione.setI18n(DynamicI18nProvider.getI18nForCurrentUser());
+        lastView.setDatePickerI18n(DynamicI18nProvider.getI18nForCurrentUser());
+        lastUpdate.setDatePickerI18n(DynamicI18nProvider.getI18nForCurrentUser());
+        
+        nome.setWidth("490px");
+//        path.setWidth("90%");
+        path.setWidth("850px");
+//        estensione.setWidth("90px");
+        dimensione.setWidth("150px");
+        tags.setWidth("62%");
+        descrizione.setWidth("62%");
+        note.setWidth("62%");
     }
-    
-    
-    
-	protected void addFistInfoFileds (HasComponents container) {
-	       
-   	 HorizontalLayout rowLayout = new HorizontalLayout();
-        rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);  
-        rowLayout.setSpacing(true);
-        rowLayout.setWidth("70%");
+
+    private void setupCommonBindings(Class<T> beanType) {
         
-         nome.setWidth("490px");
-	      autore.setWidth("280px");
-	      duration.setWidth("120px"); 
-
-        rowLayout.add(nome,autore,duration); 
+    	if (!FilmDto.class.isAssignableFrom(beanType))
+    	binder.forField(nome).asRequired("Campo obbligatorio").bind("nome");
         
-        container.add(rowLayout);
-   }
-    
-    
-	protected void addSecondInfoFileds(HasComponents container, String dto) {
-
-		anno.setWidth("69px");
-		anno.setWidth("120px");
-		// Limiti anche lato componente (UI)
-		anno.setMin(1900);
-		anno.setMax(2080);
-		anno.setStep(1);
-		anno.setI18n(
-				new IntegerField.IntegerFieldI18n().setMinErrorMessage("L'anno deve essere maggiore o uguale a 1900")
-						.setMaxErrorMessage("L'anno non può superare il 2080"));
-
-		HorizontalLayout rowLayout = new HorizontalLayout();
-		rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-		rowLayout.setSpacing(true);
-
-		if (dto.equals("FilmDto"))
-			rowLayout.add(genere, anno);
-
-		else if (dto.equals("AudioDto"))
-			rowLayout.add(genere, album, anno);
-
-		container.add(rowLayout);
-	}
-	
-	
-	protected void  addlocandinaField(HasComponents container) {
-		
-		HorizontalLayout row3 = new HorizontalLayout(); // da inserire sulla classe astratta AbstractCommonFileForm
-        row3.setAlignItems(FlexComponent.Alignment.BASELINE);  
-        row3.setSpacing(true);
-        row3.setWidth("90%");
+    	binder.forField(path).withValidator(v -> v != null && (v.contains("\\") || v.contains("/")), "Percorso non valido").asRequired().bind("path");
         
-        //copertina.setWidth("90%");
-        row3.add(locandina);
-		
-		
-	}
-	
-	
-    // --- METODI HELPER PER IL MIXING ---
-
-    /**
-     * Aggiunge i campi di identità (Nome e Path)
-     */
-//    protected void addIdentityFields(HasComponents container) {
-////    	dimensione.getStyle().set("width", "120px");
-//    	dimensione.setWidth("120px");
-//    	container.add(path,dimensione);
-//    }
-
-    /**
-     * Aggiunge i campi di classificazione (Tags e Descrizione)
-     */
-    protected void addClassificationFields(HasComponents container) {
-        
-//    	VerticalLayout rowLayout=new VerticalLayout();
-//		rowLayout.setSpacing(true);
-//		rowLayout.getStyle().set("padding", "0").set("margin", "0");
-//		rowLayout.setPadding(false);
-//		rowLayout.getStyle().set("gap", "8px"); // Riduce lo spazio tra righe
-//		    	
-//         rowLayout.add(tags, descrizione, note);
-//    	container.add(rowLayout);
-//    	note.setWidthFull();
-//    	descrizione.setWidthFull();
-
-    	descrizione.setWidth("62%");
-    	note.setWidth("62%");
-    	
-    	container.add( descrizione,note,tags);
-
-    	
-        // Resizing: diciamo al layout che questi devono occupare 2 colonne
-//        if (container instanceof FormLayout) {
-//            ((FormLayout) container).setColspan(tags, 2);
-//            ((FormLayout) container).setColspan(descrizione, 2);
-//            ((FormLayout) container).setColspan(note, 2);
+        // Se non è Audio, l'estensione è un TextField comune
+//        if (!AudioDto.class.isAssignableFrom(beanType)) {
+//            binder.forField(estensione).asRequired().bind("estensione");
 //        }
+
+        binder.forField(dimensione).withConverter(new AppConverters.StringToDoubleConverter()).asRequired().bind("dimensione");
+        binder.forField(visualizzazioni).withConverter(new AppConverters.DoubleToLong()).bind("visualizzazioni");
+        binder.forField(tags).bind("tags");
+        binder.forField(preferito).bind("preferito");
+        binder.forField(backup).bind("backup");
+        binder.forField(rating).bind("rating");
+
+        // Date Converters
+        binder.forField(dataArchiviazione).withConverter(new AppConverters.InstantToLocalDate()).asRequired().bind("dataArchiviazione");
+        binder.forField(lastView).withConverter(new AppConverters.InstantToLocalDateTime()).bind("lastView");
+        binder.forField(lastUpdate).withConverter(new AppConverters.InstantToLocalDateTime()).bind("lastUpdate");
     }
 
     /**
-     * Aggiunge i campi di stato (visualizzazioni,Rating, Preferito)
+     * IL METODO CENTRALIZZATO:
+     * Configura qualsiasi ComboBox che usi un Enum di tipo FileExtension
      */
+    protected <E extends Enum<E> & FileExtension> void setupExtensionCombo(ComboBox<E> combo, E[] values) {
+        combo.setItems(values);
+        combo.setItemLabelGenerator(FileExtension::getLabel);
+        combo.setPlaceholder("Seleziona formato...");
+        combo.setClearButtonVisible(true);
+        combo.setWidth("120px"); // Misura standard per tutti
+    }
+    
+    // Gestisce la riga "Path | Estensione | Dimensione"
+    protected void addInfoFileLayout(HasComponents container, Component extension) {
+    	HorizontalLayout row = new HorizontalLayout(path, extension, dimensione);
+        row.setAlignItems(FlexComponent.Alignment.BASELINE);
+        row.setWidth("90%");
+        container.add(row);
+    }
+    
+    // Metodi di blocco comuni
     protected void addStatusFields(HasComponents container) {
-       
-    	 HorizontalLayout rowLayout = new HorizontalLayout();
-         rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);  
-         rowLayout.setSpacing(true);
-         rowLayout.setWidth("70%");
-//         rowLayout.setWidthFull();
-         
-         visualizzazioni.setWidth("90px");
-     	// Spinge se stesso a destra occupando lo spazio vuoto a sinistra
-//    	 rating.getStyle().set("margin-left", "auto"); 
-         rowLayout.add(lastView,visualizzazioni,rating,preferito);
-         
-         container.add(rowLayout);
+        HorizontalLayout row = new HorizontalLayout(lastView, visualizzazioni, rating, preferito);
+        row.setAlignItems(FlexComponent.Alignment.BASELINE);
+        row.setWidth("70%");
+        container.add(row);
     }
 
-    
-    /**
-     * Aggiunge il blocco dei campi che danno le informazioni sul file di riferimento
-     */
-    protected void addInfoFile(HasComponents container) {
-    	
-    	HorizontalLayout rowLayout = new HorizontalLayout();
-    	rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);  
-    	rowLayout.setSpacing(true);
-    	rowLayout.setWidth("90%");
-    	
-         path.setWidth("90%");
-         estensione.setWidth("90px");
-         dimensione.setWidth("150px");         
-    	
-    	rowLayout.add(path,estensione,dimensione);
-    	
-    	container.add(rowLayout);
-    }
-
-    /**
-     * Aggiunge i campi di tipo date (dataArchiviazione,lastUpdate, backup)
-     */
     protected void addDateFields(HasComponents container) {
-        
-        HorizontalLayout rowLayout = new HorizontalLayout();
-        rowLayout.setAlignItems(FlexComponent.Alignment.BASELINE);  
-        rowLayout.setSpacing(true);
-        rowLayout.setWidth("70%");
-        // Spinge se stesso a destra occupando lo spazio vuoto a sinistra
-//        backup.getStyle().set("margin-left", "auto"); 
-        rowLayout.add(dataArchiviazione,lastUpdate,backup);
-    	
-    	container.add(rowLayout);
+        HorizontalLayout row = new HorizontalLayout(dataArchiviazione, lastUpdate, backup);
+        row.setAlignItems(FlexComponent.Alignment.BASELINE);
+        row.setWidth("70%");
+        container.add(row);
     }
-    
+
+    protected void addClassificationFields(HasComponents container) {
+        container.add(descrizione, note, tags);
+    }
+
+    // GANCI PER I FIGLI
+    protected abstract void addSpecificTopLayout(VerticalLayout mainLayout);
+    protected abstract void addSpecificMiddleLayout(VerticalLayout mainLayout);
 }
