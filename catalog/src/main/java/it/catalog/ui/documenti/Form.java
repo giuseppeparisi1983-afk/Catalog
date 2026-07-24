@@ -8,6 +8,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import it.catalog.common.enums.AudioFormat;
 import it.catalog.common.enums.DocFormat;
 import it.catalog.common.enums.StatiDocumento;
 import it.catalog.common.enums.TipoDocumento;
@@ -32,10 +33,13 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
     public Form(SearchService<DocumentoDto, DtoFilter>  service) {
         super("Modulo Documento", service, DocumentoDto.class);
         
+        // 1. CONFIGURAZIONE ComboBox (Chiamiamo il padre)
+        setupExtensionCombo(estensione, DocFormat.values());
+        setupExtensionCombo(stato, StatiDocumento.values());
+        setupExtensionCombo(categoria, TipoDocumento.values());
+        
         // COSTRUIAMO IL LAYOUT
         buildLayout();
-        
-        setupComboBox();
         
         // Binding specifici
 //        binder.forField(categoria).asRequired().bind("categoria");
@@ -44,19 +48,7 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
         binder.forField(versione).asRequired("Campo obbligatorio").bind("versione");
         
         binder.bindInstanceFields(this);
-    }
-
-    
-    private void setupComboBox() {
-    	
-    	categoria.setItems(TipoDocumento.values());
-        categoria.setItemLabelGenerator(TipoDocumento::getLabel);
-        stato.setItems(StatiDocumento.values());
-        stato.setItemLabelGenerator(StatiDocumento::getLabel);
-        estensione.setItems(DocFormat.values());
-        estensione.setItemLabelGenerator(DocFormat::getLabel);   	
-    }
-    
+    }   
     
     
     @Override
