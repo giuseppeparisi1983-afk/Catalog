@@ -1,18 +1,25 @@
 package it.catalog.service.interfaces;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import it.catalog.service.dto.TagDto;
 
 //Interfaccia generica per i Service
 public interface SearchService<T, F> {
 
-//	long count(F filter);
+	   // Restituisce il conteggio totale per sapere quando disabilitare le freccette
+    long count(F filter);
 	
-	long count();
+    // Restituisce l'ID dell'oggetto alla posizione 'index' (0-based)
+    // considerando il filtro e l'ordinamento correnti
+    Optional<Long> findIdAtPosition(F filter, Sort sort, int index);
+	
+//	long count();
 
 	Page<T> findPage(Pageable pageable,F filter);
 
@@ -26,5 +33,5 @@ public interface SearchService<T, F> {
 
 	T findById(Long id);
 
-	T save(T dto);
+	T save(T dto) throws RuntimeException;
 }
