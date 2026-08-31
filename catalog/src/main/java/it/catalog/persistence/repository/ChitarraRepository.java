@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 import it.catalog.persistence.entity.Chitarra;
 
 @Repository
-public interface ChitarraRepository extends JpaRepository<Chitarra, Integer>, JpaSpecificationExecutor<Chitarra> {
+public interface ChitarraRepository extends JpaRepository<Chitarra, Long>, JpaSpecificationExecutor<Chitarra> {
 
 	List<Chitarra> findByVideoCancelledFalse();
 	List<Chitarra> findByAutoreContainingIgnoreCaseAndVideoCancelledFalse(String autore);
@@ -22,9 +22,9 @@ public interface ChitarraRepository extends JpaRepository<Chitarra, Integer>, Jp
 	@EntityGraph(attributePaths = {"video.tags"}) 
 	Optional<Chitarra> findByVideoId(Long videoId);
 	
-	@Override
-	@EntityGraph(attributePaths = {"video.tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
-	Page<Chitarra> findAll(Specification<Chitarra> spec, Pageable pageable);
+//	@Override
+//	@EntityGraph(attributePaths = {"video.tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
+//	Page<Chitarra> findAll(Specification<Chitarra> spec, Pageable pageable);
 	
 	Page<Chitarra> findByDifficoltaContainingIgnoreCase(String difficolta, Pageable pageable);
 	Page<Chitarra> findByVideoTitoloContainingIgnoreCase(String titolo, Pageable pageable);
