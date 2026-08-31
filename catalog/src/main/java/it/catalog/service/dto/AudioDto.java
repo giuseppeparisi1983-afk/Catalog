@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class AudioDto {
+public class AudioDto  implements HasId{
     private Long id;
     private String nome;
     private String descrizione;

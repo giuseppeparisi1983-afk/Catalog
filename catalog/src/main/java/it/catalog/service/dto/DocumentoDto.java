@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class DocumentoDto {
+public class DocumentoDto  implements HasId{
 
 	private Long id;
 	private String nome;
