@@ -1,20 +1,22 @@
 package it.catalog.service.dto;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 import it.catalog.common.enums.CategorieVideo;
+import it.catalog.common.enums.FileExtension;
+import it.catalog.common.enums.VideoFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 public class VideoDto implements VideoRecord{
-    private Integer id;
-    private String titolo;
+    private Long id;
+    private String nome; // mapping con il campo titolo;
 //    @Enumerated(EnumType.STRING)
     // Anche qui usiamo l'Enum! come sull'entity
-    private CategorieVideo categoria;
+    private CategorieVideo categoria; // SPEZZONI,GUITAR,DOCUMENTARIO,SPORT,GUIDA
     private Double rating;
     private Boolean backup;
     private Integer visualizzazioni;
@@ -23,12 +25,20 @@ public class VideoDto implements VideoRecord{
     private Instant dataArchiviazione;
     private Instant lastView;
     private Instant lastUpdate;
-    private Integer durataMin;
+    private Double durataMin;
     private Boolean preferito;
     private String note;
-    private String percorsoFile;
+    private String path; // mapping con il campo percorsoFile
     private boolean cancelled;   
+    private VideoFormat estensione; 
+    private Double dimensione;
+    private String descrizione;
     
-    private List<TagDto> tags; 
+    private Set<TagDto> tags; 
+    
+    @Override
+    public FileExtension getEstensione() {
+        return this.estensione; // Restituisce l'Enum specifico (es. FormatoVideo)
+    }
     
 }

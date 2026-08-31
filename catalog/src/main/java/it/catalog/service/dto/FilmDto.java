@@ -3,17 +3,17 @@ package it.catalog.service.dto;
 import java.time.Instant;
 import java.util.Set;
 
-import it.catalog.common.enums.FilmFormat;
+import it.catalog.common.enums.VideoFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class FilmDto {
+public class FilmDto implements HasId{
 
 	private Long id;
-//	private String nome; // mapping con titolo
-	private String titolo; // mapping con titolo
+	private String nome; // mapping con titolo
+//	private String titolo; // mapping con titolo
 	private String genere;
 	private Double rating;
 	private String regista;
@@ -26,10 +26,10 @@ public class FilmDto {
 	private String path;
 	private boolean preferito;
 	private String locandina;
-	private FilmFormat estensione; // rappresentato come enum FilmFormat
+	private VideoFormat estensione; // rappresentato come enum VideoFormat
 	private Double dimensione;
 	private boolean cancelled;
-	private Long visualizzazioni;
+	private Long visualizzazioni= 0L; // numero di visualizzazioni
 	private Instant dataArchiviazione; // formato "yyyy-MM-dd"
 	private Instant lastView; // formato "yyyy-MM-dd HH:mm:ss"
 	private boolean backup;
