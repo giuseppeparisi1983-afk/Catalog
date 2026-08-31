@@ -5,13 +5,13 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import it.catalog.common.enums.CategorieVideo;
 import it.catalog.persistence.entity.Video;
 
 @Repository
@@ -20,9 +20,9 @@ public interface VideoRepository extends JpaRepository<Video, Integer>, JpaSpeci
 //	List<Video> findAll();
 	
 	
-	@Override
-	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
-	Page<Video> findAll(Specification<Video> spec, Pageable pageable);
+//	@Override
+//	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
+//	Page<Video> findAll(Specification<Video> spec, Pageable pageable);
 	
 	 @EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
 	Optional<Video> findById(Long id);
@@ -39,5 +39,5 @@ public interface VideoRepository extends JpaRepository<Video, Integer>, JpaSpeci
     Page<Video> findByCategoriaContainingIgnoreCase(String categoria, Pageable pageable);
     Page<Video> findByNoteContainingIgnoreCase(String note, Pageable pageable);
 
-    
+    Optional<Video> findByTitoloAndCategoriaAndDurataMin(String titolo, CategorieVideo categoria, Double durataMin);
 }

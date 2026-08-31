@@ -2,15 +2,13 @@ package it.catalog.persistence.repository;
 
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import it.catalog.persistence.entity.Documento;
+import it.catalog.common.enums.ImageFormat;
+import it.catalog.common.enums.ImageType;
 import it.catalog.persistence.entity.ImageFile;
 
 @Repository
@@ -29,13 +27,16 @@ JpaSpecificationExecutor<ImageFile>{
 	
 	
 	
-	@Override
-	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
-	Page<ImageFile> findAll(Specification<ImageFile> spec, Pageable pageable);
+//	@Override
+//	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
+//	Page<ImageFile> findAll(Specification<ImageFile> spec, Pageable pageable);
 	
 	
 	@Override
 	@EntityGraph(attributePaths = {"tags"})
 	Optional<ImageFile> findById(Long id);
 	
+	
+	Optional<ImageFile> findByNomeAndFormatoAndTipoFile(String nome, ImageFormat formato, ImageType tipoFile);
+	 
 }

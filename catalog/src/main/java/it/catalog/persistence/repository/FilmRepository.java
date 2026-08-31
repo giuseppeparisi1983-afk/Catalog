@@ -15,14 +15,17 @@ public interface FilmRepository extends JpaRepository<Film, Long>,JpaSpecificati
 
 	
 	
-	@Override
-	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
-	Page<Film> findAll(Specification<Film> spec, Pageable pageable);
+//	@Override
+//	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
+//	Page<Film> findAll(Specification<Film> spec, Pageable pageable);
 	
 	
 	@Override
 	@EntityGraph(attributePaths = {"tags"})
 	Optional<Film> findById(Long id);
+
+	
+	Optional<Film> findByNomeAndRegistaAndAnno(String titolo,String regista,Integer anno);
 	
 	
 }

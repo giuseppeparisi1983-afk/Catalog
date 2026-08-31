@@ -26,13 +26,13 @@ public interface AudioRepository extends JpaRepository<AudioFile, Long>,JpaSpeci
 //	        """)
 //	Page<AudioFile> search(@Param("text") String text, Pageable pageable);
 	
-	@Override
+//	@Override
 //	@EntityGraph(attributePaths = {
 //		    "tags",
 //		    "tags.tag"
 //		})
-	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
-	Page<AudioFile> findAll(Specification<AudioFile> spec, Pageable pageable);
+//	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
+//	Page<AudioFile> findAll(Specification<AudioFile> spec, Pageable pageable);
 	
 	
 	
@@ -40,6 +40,9 @@ public interface AudioRepository extends JpaRepository<AudioFile, Long>,JpaSpeci
 	Optional<AudioFile> findById(Long id);
 
 	
+	 Optional<AudioFile> findByNomeAndDurationAndAutoreAndAnno(String nome, Double duration, String autore,Integer anno);
+	 
+	 
 //	@Query("SELECT DISTINCT a FROM AudioFile a ")
 //	 Page<AudioFile> findAllAudio(Pageable pageable);
 	
