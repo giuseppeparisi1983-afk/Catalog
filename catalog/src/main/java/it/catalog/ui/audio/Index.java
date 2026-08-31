@@ -22,9 +22,9 @@ import it.catalog.service.dto.AudioDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.impl.AudioFileServiceImpl;
+import it.catalog.ui.common.AbstractBaseForm;
 import it.catalog.ui.common.AbstractSearchView;
 import it.catalog.ui.common.MainLayout;
-import it.catalog.ui.audio.Form;
 
 @Route(value = "audio", layout = MainLayout.class)
 @PageTitle("Audio")
@@ -68,42 +68,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
          .setHeader("Titolo").setSortable(true).setKey("nome");
          
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getGenere());
-        	 if (audio.isCancelled()) {
-        		 span.addClassName("riga-cancellata");
-        	 }
-        	 return span;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Genere").setSortable(true).setKey("genere");
-
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getPath());
-        	 if (audio.isCancelled()) {
-        		 span.addClassName("riga-cancellata");
-        	 }
-        	 return span;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Path File").setSortable(true).setKey("path");
-
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getEstensione().getLabel());
-        	 if (audio.isCancelled()) {
-        		 span.addClassName("riga-cancellata");
-        	 }
-        	 return span;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Estensione").setSortable(true).setKey("estensione");
-
+         
          grid.addColumn(new ComponentRenderer<>(audio -> {
         	 Span span = new Span(audio.getAutore());
         	 if (audio.isCancelled()) {
@@ -115,6 +80,30 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
          .setHeader("Autore").setSortable(true).setKey("autore");
+         
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+       		Span span = new Span(audio.getDuration().toString());
+       		if (audio.isCancelled()) {
+       			span.addClassName("riga-cancellata");
+       		}
+       		return span;
+       	}))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Durata (min)").setSortable(true).setKey("duration");
+         
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+        	 Span span = new Span(audio.getGenere());
+        	 if (audio.isCancelled()) {
+        		 span.addClassName("riga-cancellata");
+        	 }
+        	 return span;
+         }))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Genere").setSortable(true).setKey("genere");
 
          grid.addColumn(new ComponentRenderer<>(audio -> {
         	 Span span = new Span(audio.getAlbum());
@@ -141,58 +130,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
-             Checkbox checkbox = new Checkbox(audio.isCancelled());
-             checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
-             if (audio.isCancelled()) {
-             	checkbox.addClassName("riga-cancellata");
-     		}
-             return checkbox;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Cancelled").setSortable(true).setKey("cancelled");
-         
-         
-         // caselle checkbox
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-             Checkbox checkbox = new Checkbox(audio.isPreferito());
-             checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
-             if (audio.isCancelled()) 
-             	checkbox.addClassName("riga-cancellata");
-             return checkbox;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Preferito").setSortable(true).setKey("preferito");
-         
-         
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-      		Span span = new Span(audio.getRating() != null ? audio.getRating().toString() :"0");
-      		if (audio.isCancelled())
-      			span.addClassName("riga-cancellata");
-      		return span;
-      	}))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Valutazione").setSortable(true).setKey("rating");
-         
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-      		Span span = new Span(audio.getDataArchiviazione() != null ? FORMAT_DATE.format(audio.getDataArchiviazione()) : "");
-      		if (audio.isCancelled()) {
-      			span.addClassName("riga-cancellata");
-      		}
-      		return span;
-      	}))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Archiviazione").setSortable(true).setKey("dataArchiviazione");
-         
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getDescrizione());
+        	 Span span = new Span(audio.getCoverPath());
         	 if (audio.isCancelled()) {
         		 span.addClassName("riga-cancellata");
         	 }
@@ -201,7 +139,70 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Descrizione").setSortable(true).setKey("descrizione");
+         .setHeader("Cover Path").setSortable(true).setKey("coverPath");
+         
+         
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+        	 Span span = new Span(audio.getPath());
+        	 if (audio.isCancelled()) {
+        		 span.addClassName("riga-cancellata");
+        	 }
+        	 return span;
+         }))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Path File").setSortable(true).setKey("path");
+
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+        	 Span span = new Span(audio.getEstensione().getLabel());
+        	 if (audio.isCancelled()) {
+        		 span.addClassName("riga-cancellata");
+        	 }
+        	 return span;
+         }))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Estensione").setSortable(true).setKey("estensione");
+
+
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+       		Span span = new Span(String.valueOf(audio.getDimensione()));
+       		if (audio.isCancelled()) {
+       			span.addClassName("riga-cancellata");
+       		}
+       		return span;
+       	}))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Dimensione (byte)").setSortable(true).setKey("dimensione");
+
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+       		Span span = new Span(audio.getDataArchiviazione() != null ? FORMAT_DATE.format(audio.getDataArchiviazione()) : "");
+       		if (audio.isCancelled()) {
+       			span.addClassName("riga-cancellata");
+       		}
+       		return span;
+       	}))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Data Archiviazione").setSortable(true).setKey("dataArchiviazione");
+         
+         
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+        	 Span span = new Span(audio.getLastUpdate() != null ? FORMAT_DATETIME.format(audio.getLastUpdate().atZone(ZoneId.systemDefault())) : "");
+        	 if (audio.isCancelled()) {
+        		 span.addClassName("riga-cancellata");
+        	 }
+        	 return span;
+         }))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Data Aggiornamento").setSortable(true).setKey("lastUpdate");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
              Checkbox checkbox = new Checkbox(audio.isBackup());
@@ -216,19 +217,6 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
          .setHeader("Backup").setSortable(true).setKey("backup");
          
-         
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-      		Span span = new Span(audio.getDuration().toString());
-      		if (audio.isCancelled()) {
-      			span.addClassName("riga-cancellata");
-      		}
-      		return span;
-      	}))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Durata (min)").setSortable(true).setKey("duration");
-         
          grid.addColumn(new ComponentRenderer<>(audio -> {
       		Span span = new Span(audio.getLastView() != null ? FORMAT_DATETIME.format(audio.getLastView().atZone(ZoneId.systemDefault())) : "");
       		if (audio.isCancelled()) {
@@ -239,59 +227,7 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Ultima Visual").setSortable(true).setKey("lastView");
-
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getLastUpdate() != null ? FORMAT_DATETIME.format(audio.getLastUpdate().atZone(ZoneId.systemDefault())) : "");
-        	 if (audio.isCancelled()) {
-        		 span.addClassName("riga-cancellata");
-        	 }
-        	 return span;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Aggiornamento").setSortable(true).setKey("lastUpdate");
-         
-//         grid.addColumn(AudioDto::getSizeBytes).setHeader("Dimensione (byte)").setSortable(true).setAutoWidth(true).setKey("sizeBytes");
-         
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-       		Span span = new Span(String.valueOf(audio.getDimensione()));
-       		if (audio.isCancelled()) {
-       			span.addClassName("riga-cancellata");
-       		}
-       		return span;
-       	}))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Dimensione (byte)").setSortable(true).setKey("dimensione");
-         
-         
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getNote());
-        	 if (audio.isCancelled()) {
-        		 span.addClassName("riga-cancellata");
-        	 }
-        	 return span;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Note").setSortable(true).setKey("note");
-         
-         
-         grid.addColumn(new ComponentRenderer<>(audio -> {
-        	 Span span = new Span(audio.getCoverPath());
-        	 if (audio.isCancelled()) {
-        		 span.addClassName("riga-cancellata");
-        	 }
-        	 return span;
-         }))
-         .setResizable(true) // L'utente può allargarla
-         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Path").setSortable(true).setKey("coverPath");
+         .setHeader("Ultima Visualizzazione").setSortable(true).setKey("lastView");
          
          grid.addColumn(new ComponentRenderer<>(audio -> {
       		Span span = new Span(String.valueOf(audio.getVisualizzazioni()));
@@ -304,6 +240,56 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
          .setHeader("Visual").setSortable(true).setKey("visualizzazioni");
+         
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+       		Span span = new Span(audio.getRating() != null ? audio.getRating().toString() :"0");
+       		if (audio.isCancelled())
+       			span.addClassName("riga-cancellata");
+       		return span;
+       	}))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Valutazione").setSortable(true).setKey("rating");
+          
+          // caselle checkbox
+          grid.addColumn(new ComponentRenderer<>(audio -> {
+              Checkbox checkbox = new Checkbox(audio.isPreferito());
+              checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+              if (audio.isCancelled()) 
+              	checkbox.addClassName("riga-cancellata");
+              return checkbox;
+          }))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Preferito").setSortable(true).setKey("preferito");
+          
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+        	 Span span = new Span(audio.getDescrizione());
+        	 if (audio.isCancelled()) {
+        		 span.addClassName("riga-cancellata");
+        	 }
+        	 return span;
+         }))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Descrizione").setSortable(true).setKey("descrizione");
+         
+//         grid.addColumn(AudioDto::getSizeBytes).setHeader("Dimensione (byte)").setSortable(true).setAutoWidth(true).setKey("sizeBytes");
+
+         grid.addColumn(new ComponentRenderer<>(audio -> {
+        	 Span span = new Span(audio.getNote());
+        	 if (audio.isCancelled()) {
+        		 span.addClassName("riga-cancellata");
+        	 }
+        	 return span;
+         }))
+         .setResizable(true) // L'utente può allargarla
+         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+         .setHeader("Note").setSortable(true).setKey("note");
          
       // colonna custom per i tag
      	grid.addColumn(p -> {
@@ -329,6 +315,18 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
      	    return div;
      	})).setSortable(true).setKey("tags");
          
+        grid.addColumn(new ComponentRenderer<>(audio -> {
+            Checkbox checkbox = new Checkbox(audio.isCancelled());
+            checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+            if (audio.isCancelled()) {
+            	checkbox.addClassName("riga-cancellata");
+    		}
+            return checkbox;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Cancelled").setSortable(true).setKey("cancelled");
 
          grid.addComponentColumn(item -> {
         	 Anchor edit = new Anchor("audio-form/" + item.getId()+"?view=false&page=" +String.valueOf(this.pageNumber), "modifica");
@@ -361,17 +359,17 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
 //        		 ifPresent(ui -> ui.navigate("audio-form?id=" + e.getItem().getId()+"&view=true")));
          
      	// rendi la tabella interattiva
- 		grid.addItemClickListener(event -> {
- 		    Long id = event.getItem().getId();
- 		   Map<String, String> params = new HashMap<>();
- 		    params.put("view", "true");
- 		    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
- 		    
- 		    QueryParameters qp = QueryParameters.simple(params);
- 		    
- 		    // Navigazione: target, parametro ID, query parameters
- 		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
- 		});
+// 		grid.addItemClickListener(event -> {
+// 		    Long id = event.getItem().getId();
+// 		   Map<String, String> params = new HashMap<>();
+// 		    params.put("view", "true");
+// 		    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
+// 		    
+// 		    QueryParameters qp = QueryParameters.simple(params);
+// 		    
+// 		    // Navigazione: target, parametro ID, query parameters
+// 		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
+// 		});
  		
 //         grid.setHeight("60vh");
 
@@ -400,11 +398,23 @@ public class Index extends AbstractSearchView<AudioDto, DtoFilter> {
 //    
     
     @Override
-	protected void navigateToForm(Long id) {
+	protected void navigateToForm(Long id, Integer position) {
 		// Gestisci la navigazione al form (nuovo o modifica)
 	    Map<String, String> params = new HashMap<>();
-	    params.put("view", "false");
-	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale per il ritorno alla pagina corrente
+	    // Se l'ID c'è, siamo in visualizzazione/modifica, altrimenti inserimento
+	    params.put(AbstractBaseForm.P_VIEW, id != null ? "true" : "false");
+	    params.put(AbstractBaseForm.P_PAGE, String.valueOf(this.pageNumber));
+	 // Se abbiamo la posizione (non è un nuovo inserimento), la passiamo
+	    if (position != null) {
+	        params.put(AbstractBaseForm.P_POS, String.valueOf(position));
+	    }
+	    
+	    // Aggiungiamo i filtri correnti per permettere alle freccette di funzionare
+	    String filterText = searchField.getValue();
+	    if (filterText != null && !filterText.isBlank()) {
+	        params.put(AbstractBaseForm.P_F_VAL, filterText);
+	        params.put(AbstractBaseForm.P_F_FIELD, searchFieldSelector.getValue().getFieldName());
+	    }
 	    
 	    QueryParameters qp = QueryParameters.simple(params);
 	    // Navigazione: target, parametro ID, query parameters
