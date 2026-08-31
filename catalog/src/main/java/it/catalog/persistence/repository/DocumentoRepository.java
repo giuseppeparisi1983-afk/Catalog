@@ -23,9 +23,6 @@ public interface DocumentoRepository extends JpaRepository<Documento, Long>, Jpa
 //	@EntityGraph(attributePaths = {"tags"}) // <--- Istruisce Hibernate a fare la JOIN solo per questo metodo
 //	Page<Documento> findAll(Specification<Documento> spec, Pageable pageable);
 //
-//	// Usato solo per trovare l'ID alla posizione X senza caricare collezioni
-//	// Usiamo una proiezione o una query che ignora i fetch per evitare il warning HHH90003004
-//	Page<Documento> findAllBy(Specification<Documento> spec, Pageable pageable);
 
 	//Sovrascriviamo il findById standard per assicurarci che carichi i tags
 	@EntityGraph(attributePaths = {"tags"})
