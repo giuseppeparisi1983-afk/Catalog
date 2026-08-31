@@ -7,6 +7,8 @@ import java.util.Set;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
+import it.catalog.common.enums.ImageFormat;
+import it.catalog.common.enums.ImageType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -28,8 +30,8 @@ import lombok.Data;
 @Data
 @Table(name = "image_file")
 public class ImageFile {
-    public enum Formato { JPEG, RAW, TIFF, PNG }
-    public enum TipoFile { Fotografia, Sfondo, Illustrazione }
+//    public enum Formato { JPEG, RAW, TIFF, PNG }
+//    public enum TipoFile { Fotografia, Sfondo, Illustrazione }
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,23 +39,22 @@ public class ImageFile {
     @Column(name = "title")
     private String nome;
     
-    private String description;
-    private String filename;
-    private String mimeType;
-    private long sizeBytes;
+    private String descrizione;
+    private String locandina;
+    private Double dimensione;
 
     @Enumerated(EnumType.STRING)
-    private Formato formato;
+    private ImageFormat formato;
 
     @Enumerated(EnumType.STRING)
-    private TipoFile tipoFile;
+    private ImageType tipoFile;
 
     @Column(name = "path_file")
     private String path;
     
     private boolean cancelled;
     private boolean preferito;
-    private Integer rating;
+    private Double rating;
     private long visualizzazioni;
     private Instant dataArchiviazione;
     private Instant lastUpdate;
@@ -70,7 +71,7 @@ public class ImageFile {
     	        foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)),
         inverseJoinColumns = @JoinColumn(name = "id_tag")
     )
- // 1. Applica il filtro 'Audio' automaticamente ogni volta che Hibernate carica questa collezione
+ // 1. Applica il filtro 'Image' automaticamente ogni volta che Hibernate carica questa collezione
  	  @SQLJoinTableRestriction("id_tag IN (SELECT t.id_tag FROM tag t WHERE t.tipo_oggetto = 'Image')")
  	  // 2. Evita il problema N+1 durante la paginazione caricando i tag a blocchi
  	  @BatchSize(size = 25) // "passo" di caricamento dei tag, da regolare in base alla dimensione media delle pagine
