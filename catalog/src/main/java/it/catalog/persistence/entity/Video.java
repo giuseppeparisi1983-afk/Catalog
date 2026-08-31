@@ -8,9 +8,13 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
 import it.catalog.common.enums.CategorieVideo;
+import it.catalog.common.enums.VideoFormat;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,9 +33,9 @@ public class Video {
    
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String titolo;
-//    @Enumerated(EnumType.STRING) // Persistenza come stringa
+    @Enumerated(EnumType.STRING) // Persistenza come stringa
     // JPA converte automaticamente questo in stringa ("Spezzoni Film") sul DB
     // grazie al @Converter(autoApply = true) definito nel package converter
     private CategorieVideo categoria;
@@ -39,14 +43,19 @@ public class Video {
     private Boolean preferito;
     private Double rating;
     private Integer visualizzazioni;
-    private Integer durataMin;
+    private Double durataMin;
     private Instant dataArchiviazione;
     private Instant lastView;
     private Instant lastUpdate;
     private Boolean backup;
     private String note;
     private Boolean cancelled;
-    
+    private String descrizione; 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VideoFormat estensione;
+	
+    private Double dimensione; 
     
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}) 
     @JoinTable(
