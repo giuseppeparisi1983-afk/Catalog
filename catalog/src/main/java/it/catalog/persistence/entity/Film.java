@@ -8,7 +8,7 @@ import java.util.Set;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLJoinTableRestriction;
 
-import it.catalog.common.enums.FilmFormat;
+import it.catalog.common.enums.VideoFormat;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -39,8 +39,11 @@ public class Film {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(name = "titolo",length = 100, nullable = false)
-    private String titolo;
+////    @Column(name = "titolo",length = 100, nullable = false)
+//    private String titolo;
+    
+	@Column(name = "titolo")
+	private String nome; 
 
     @Column(length = 50)
     private String genere;
@@ -74,14 +77,14 @@ public class Film {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FilmFormat estensione;
+    private VideoFormat estensione;
 
     private Double dimensione;
 
     @Column(nullable = false)
     private boolean cancelled = false;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private Long visualizzazioni = 0L;
 
 //    @Column(name = "data_archiviazione")
@@ -108,15 +111,9 @@ public class Film {
         inverseJoinColumns = @JoinColumn(name = "id_tag")
     )
  // 1. Applica il filtro 'Audio' automaticamente ogni volta che Hibernate carica questa collezione
- 	  @SQLJoinTableRestriction("id_tag IN (SELECT t.id_tag FROM tag t WHERE t.tipo_oggetto = 'film')")
+ 	  @SQLJoinTableRestriction("id_tag IN (SELECT t.id_tag FROM tag t WHERE t.tipo_oggetto = 'Film')")
  	  // 2. Evita il problema N+1 durante la paginazione caricando i tag a blocchi
  	  @BatchSize(size = 25) // "passo" di caricamento dei tag, da regolare in base alla dimensione media delle pagine
     private Set<Tag> tags = new HashSet<>();
-    
-    
-    
-    
-    
-    
     
 }
