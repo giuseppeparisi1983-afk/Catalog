@@ -1,11 +1,12 @@
 package it.catalog.service.dto;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import it.catalog.common.enums.CategorieVideo;
-import it.catalog.common.enums.Difficolta;
+import it.catalog.common.enums.FileExtension;
+import it.catalog.common.enums.Livello;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,26 +14,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GuitarDto implements VideoRecord{   
 
-    private Integer idGuitar;
+    private Long idGuitar;
 //    private Integer videoId;     // id della tabella video (null se nuovo)
     private Boolean visto;
     private Boolean todo;
 //    @Enumerated(EnumType.STRING) // Persistenza come stringa
  // Anche qui usiamo l'Enum! come sull'entity
-    private Difficolta difficolta;
+    private Livello difficolta;
     private String autore;
     
     private VideoDto video; // COMPOSIZIONE
     
     // IMPLEMENTAZIONE INTERFACCIA (Delega al video interno)
 	@Override
-	public Integer getId() {
+	public Long getId() {
 		return idGuitar;
 	}
 
 	@Override
-	public String getTitolo() {
-		return video != null ? video.getTitolo() : "";
+	public String getNome() {
+		return video != null ? video.getNome() : "";
 	}
 
 	@Override
@@ -54,9 +55,6 @@ public class GuitarDto implements VideoRecord{
 	public Boolean getBackup() {
 		return video != null ? video.getBackup() : false;
 	}
-
-	
-	
 	
 	@Override
 	public boolean isCancelled() {
@@ -69,7 +67,7 @@ public class GuitarDto implements VideoRecord{
 	}
 
 	@Override
-	public Integer getDurataMin() {
+	public Double getDurataMin() {
 		return video != null ? video.getDurataMin(): 0;
 	}
 
@@ -97,15 +95,45 @@ public class GuitarDto implements VideoRecord{
 	}
 
 	@Override
-	public String getPercorsoFile() {
+	public String getPath() {
 		// TODO Auto-generated method stub
-		return video != null ? video.getPercorsoFile(): "";
+		return video != null ? video.getPath(): "";
 	}
 
 	@Override
-	public List<TagDto> getTags() {
+	public Set<TagDto> getTags() {
 		// TODO Auto-generated method stub
-		return video != null ? video.getTags(): new ArrayList<>();
+		return video != null ? video.getTags(): new LinkedHashSet<>();
+	}
+
+	@Override
+	public void setVisualizzazioni(Integer visualizzazioni) {
+		// TODO Auto-generated method stub
+		this.video.setVisualizzazioni(visualizzazioni);
+	}
+
+	@Override
+	public void setLastView(Instant lastView) {
+		// TODO Auto-generated method stub
+		this.video.setLastView(lastView);
+		
+	}
+	
+	@Override
+	public FileExtension getEstensione() {
+	    return (video != null) ? video.getEstensione() : null;
+	}
+
+	@Override
+	public String getDescrizione() {
+		
+		return video != null ? video.getDescrizione(): "";
+	}
+
+	@Override
+	public Double getDimensione() {
+		
+		return video != null ? video.getDimensione() : 0.0;
 	}
     
     
