@@ -1,20 +1,29 @@
 package it.catalog.common.enums;
 
+/**
+ * Enumerazione per i principali formati audio.
+ */
 public enum AudioFormat implements FileExtension {
-    MP3("mp3", "audio/mpeg"),
-    WAV("wav", "audio/wav"),
-    AAC("aac", "audio/aac"),
-    FLAC("flac", "audio/flac"),
-    OGG("ogg", "audio/ogg");
+    
+	MP3("mp3", "Formato audio compresso con perdita (lossy) universale, bilancia un'ottima qualità con dimensioni ridotte."),
+    WAV("wav", "Formato audio non compresso ad alta fedeltà (PCM), standard per la registrazione e produzione musicale professionale."),
+    AAC("aac", "Formato lossy ad alta efficienza e qualità superiore all'MP3 a parità di bitrate, standard per dispositivi Apple e streaming."),
+    FLAC("flac", "Formato compresso senza perdita di qualità (lossless), ideale per l'archiviazione di musica in qualità CD/studio."),
+    OGG("ogg", "Formato contenitore open source e privo di royalty, ottimizzato per lo streaming web e i videogiochi.");
+    
+	private final String label;
+	private final String description;
 
-    private final String label;
-    private final String mimeType;
-
-    AudioFormat(String estensione, String mimeType) {
+    AudioFormat(String estensione, String descrizione) {
         this.label = estensione;
-        this.mimeType = mimeType;
+        this.description = descrizione;
     }
 
     @Override public String getLabel() { return label; }
-    public String getMimeType() { return mimeType; }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
 }

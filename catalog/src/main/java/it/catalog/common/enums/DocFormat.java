@@ -1,28 +1,31 @@
 package it.catalog.common.enums;
 
+/**
+ * Enumerazione per i principali formati di documenti, fogli di calcolo e presentazioni.
+ */
 public enum DocFormat implements FileExtension {
 
 	
 	 // Documenti di testo
-    TXT("txt"),
-    DOC("doc"),
-    DOCX("docx"),
-    ODT("odt"),
-    RTF("rtf"),
+    TXT("txt", "File di testo semplice privo di formattazione avanzata, leggero e compatibile con qualsiasi sistema."),
+    DOC("doc", "Formato legacy Microsoft Word (versioni fino a 2003) per documenti con testo formattato e immagini."),
+    DOCX("docx", "Formato standard Microsoft Word basato su XML, altamente efficiente e ampiamente diffuso."),
+    ODT("odt", "Formato open source OpenDocument Text, standard aperto per la videoscrittura usato da LibreOffice e OpenOffice."),
+    RTF("rtf", "Rich Text Format, formato di testo formattato universale leggibile da quasi tutti i word processor."),
 
     // Fogli di calcolo
-    XLS("xls"),
-    XLSX("xlsx"),
-    ODS("ods"),
-    CSV("csv"),
+    XLS("xls", "Formato legacy Microsoft Excel per fogli di calcolo ed elaborazione dati numerici."),
+    XLSX("xlsx", "Formato moderno Microsoft Excel basato su XML, supporta formule complesse, grafici e grandi moli di dati."),
+    ODS("ods", "Formato open source OpenDocument Spreadsheet per la gestione di fogli elettronici calcolati."),
+    CSV("csv", "Valori separati da virgola, formato di testo puro universale per lo scambio e l'importazione/esportazione dati."),
 
     // Presentazioni
-    PPT("ppt"),
-    PPTX("pptx"),
-    ODP("odp"),
+    PPT("ppt", "Formato legacy Microsoft PowerPoint per diapositive e presentazioni multimediali."),
+    PPTX("pptx", "Formato standard Microsoft PowerPoint basato su XML per presentazioni dinamiche ad alta risoluzione."),
+    ODP("odp", "Formato open source OpenDocument Presentation per diapositive e proiezioni."),
 
     // Documenti portabili
-    PDF("pdf");
+    PDF("pdf", "Portable Document Format di Adobe, garantisce che il layout visivo rimanga identico su qualsiasi dispositivo e stampante.");
 
     // Immagini
 //    JPG("jpg"),
@@ -49,11 +52,18 @@ public enum DocFormat implements FileExtension {
 //    AVI("avi"),
 //    MOV("mov");
 
-	private String label;
+	private final String label;
+	 private final String description;
 
-    DocFormat(String extension) {
+    DocFormat(String extension, String descrizione) {
         this.label = extension;
+        this.description = descrizione;
     }
 
     @Override public String getLabel() { return label; }
+    
+    @Override
+    public String getDescription() {
+        return description;
+    }
 }
