@@ -7,7 +7,7 @@
 
 `**Comando per l'export del db da lanciare da C:\xampp\mysql\bin **` `mysqldump -u root -p --single-transaction --quick --default-character-set=utf8mb4 catalog > "C:\Users\giuse\git\repository\catalog\src\main\resources\db\gestionale_dump.sql"`
 
-
+Nota: l'applicativo nasce come catalogazione dei File non per fare Upload
 
 ### 1. Aggiunta logo  
 
@@ -78,7 +78,74 @@ l'istruzione nomeBinder.bindInstanceFields(this); funziona solo se i campi sono 
 5. definizione del listener per il salvataggio  addButton.addClickListener(e -> addNew());
 addNew() è un metodo privato che mette un id=0 in modo che la findById non restituisca nulla e che ritrovi il form vuoto
 
+############## Controlli sui Form
 
+1) Audio
+
+	- scorrimento dal form [OK]
+
+	- controllo duplicati:-> duplicato se inserisco un audio con lo stesso titolo, durata,  autore e anno [OK]
+
+	- Ricerca [OK] 
+
+2) Documenti
+
+	- scorrimento dal form [OK]
+
+	- controllo duplicati: -> duplicato se inserisco un documento con lo stesso nome, autore, categoria e versione  [OK]
+
+	- Ricerca [OK] 
+
+3) Film
+
+	- scorrimento dal form
+	
+	- controllo duplicati: -> duplicato se inserisco un film con lo stesso titolo, regista e anno
+	
+	- Ricerca KO 
+
+4) Imagini
+
+	- scorrimento dal form [OK]
+
+	- controllo duplicati: -> duplicato se inserisco un imagine con lo stesso nome, formato e tipo di file  [OK] 
+
+5) Video
+
+	- scorrimento dal form
+
+	- controllo duplicati: -> duplicato se inserisco un video con lo stesso titolo, categoria e durata
+
+6) Chitarra
+
+	- scorrimento dal form
+
+	- controllo duplicati: -> duplicato se inserisco una chitarra con  Null
+
+############## Film.Form
+
+
+Autocompletamento dei campi
+
+##################################Dettagli chiamata a TMDB
+
+
+TMDB (Archivio Film) 
+
+URL: https://www.themoviedb.org/
+
+nome giuseppe.83
+password pi}PO\1
+email: tigrelaboriosa@yahoo.it
+
+Access Token
+
+eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxNWIyMmYwNmJiY2Q2YWFlZjA1YjYwOTVjMDQ3NzlmOSIsIm5iZiI6MTc4NDkwNDIwOC43Niwic3ViIjoiNmE2MzdhMTBmOGIwNTQ0ZmU0NTNiNWQ2Iiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.jFSpQcH55q-Tt9KsFRYXRTiQrbQ9LM698MakgyQYSAY
+
+
+Chiave API
+
+15b22f06bbcd6aaef05b6095c04779f9
 
 
 
