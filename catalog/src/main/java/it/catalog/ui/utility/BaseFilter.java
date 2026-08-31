@@ -8,5 +8,7 @@ import it.catalog.service.dto.search.SearchCriterion;
 //Interfaccia per i filtri DTO
 public interface BaseFilter {
     void setCriterion(SearchCriterion criterion);
+    SearchCriterion getCriterion(); 
     void setTags(List<TagDto> tags);
+    List<TagDto> getTags();
 }
