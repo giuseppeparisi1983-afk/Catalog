@@ -8,7 +8,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import it.catalog.persistence.entity.Chitarra;
-import it.catalog.persistence.entity.Tag;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DateRangeCriterion;
 import it.catalog.service.dto.search.DtoFilter;
@@ -16,6 +15,7 @@ import it.catalog.service.dto.search.SearchCriterion;
 import it.catalog.service.dto.search.StringCriterion;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 
@@ -119,76 +119,6 @@ public class SpecificationFactory<T> {
             return cb.conjunction(); // fallback - nessun filtro
         };
     }
-    
-    // da rimuovere
-//    public Specification<T> withTag(String tipoOggetto, List<String> tagNames) {
-//        return (root, query, cb) -> {
-//            Join<T, OggettoTag> join = root.join("tags", JoinType.INNER); 
-//            /**
-//            l'istanza join serve per costruire una join tra entità all'interno di una query dinamica 
-//            T è il tipo dell'entità di partenza (quella da cui stai facendo la join)
-//            OggettoTag è il tipo dell'entità di destinazione (quella che stai collegando)
-//            
-//            join è l'oggetto che ti permette di accedere ai campi di OggettoTag 
-//            per costruire condizioni (Predicate) nella query
-//            */
-//            
-//            Predicate tipoMatch = cb.equal(join.get("tag").get("tipoOggetto"), tipoOggetto);
-//            Predicate tagMatch = join.get("tag").get("nomeTag").in(tagNames);
-//            
-//            /**
-//             * Si sta eseguendo unaINNER JOIN, che includere solo i record che hanno corrispondenze nella tabella collegata
-//             * E' possibile fare una query simile anche sul repository
-//             * SELECT t FROM Tag t JOIN OggettoTag ot ON ot.idTag = t.idTag WHERE ot.tipoOggetto = 'documento' AND ot.idOggetto = :idDocumento
-//             * come si intuisce la query seleziona tutti i documenti che hanno almeno un OggettoTag associato Il tipoOggetto è "documento" Il nomeTag è uno tra quelli della lista tagNames
-//             * */
-//            return cb.and(tipoMatch, tagMatch);
-//        };
-//    }
-//
-//    public Specification<T> withTag_(List<TagDto> tags) {
-//        return (root, query, cb) -> {
-////            Join<T, OggettoTag> join = root.join("tags", JoinType.INNER); 
-//        	
-//        	 // LEFT JOIN oggetto_tag
-//            Join<T, OggettoTag> joinOggettoTag = root.join("tags", JoinType.LEFT);
-//
-//            // LEFT JOIN tag
-//            Join<OggettoTag, Tag> joinTag = joinOggettoTag.join("tag", JoinType.LEFT);
-//            /**
-//            l'istanza join serve per costruire una join tra entità all'interno di una query dinamica 
-//            T è il tipo dell'entità di partenza (quella da cui stai facendo la join)
-//            OggettoTag è il tipo dell'entità di destinazione (quella che stai collegando)
-//            
-//            join è l'oggetto che ti permette di accedere ai campi di OggettoTag 
-//            per costruire condizioni (Predicate) nella query
-//            */
-//            
-//         //  converto la lista di TagDto in una lista di stringhe
-//	        List<String> tagNames = (tags != null && !tags.isEmpty()) ? 
-//	        		tags.stream().map(TagDto::getNomeTag).collect(Collectors.toList()): 
-//		    			Collections.EMPTY_LIST;
-//            
-////            Predicate tagMatch = join.get("tag").get("nomeTag").in(tagNames);
-//            
-//            /**
-//             * Si sta eseguendo unaINNER JOIN, che includere solo i record che hanno corrispondenze nella tabella collegata
-//             * E' possibile fare una query simile anche sul repository
-//             * SELECT t FROM Tag t JOIN OggettoTag ot ON ot.idTag = t.idTag WHERE ot.tipoOggetto = 'documento' AND ot.idOggetto = :idDocumento
-//             * come si intuisce la query seleziona tutti i documenti che hanno almeno un OggettoTag associato Il tipoOggetto è "documento" Il nomeTag è uno tra quelli della lista tagNames
-//             * */
-////            return cb.and(tipoMatch, tagMatch);
-////            return cb.and(tagMatch);
-//	        
-//	        // Condizione nella ON-clause
-//	        joinTag.on(joinTag.get("nomeTag").in(tagNames));
-//
-//	        // NON aggiungere nulla al WHERE
-//	        return cb.conjunction();
-//        };
-//    }
-    
-    
     
     private Object convertToNumber(String value, Class<?> type) {
         if (type == Integer.class || type == int.class) return Integer.parseInt(value);
