@@ -2,12 +2,15 @@ package it.catalog.service.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,45 +61,59 @@ public class DocumentoServiceImpl implements SearchService<DocumentoDto, DtoFilt
     @Override
     public DocumentoDto findById(Long id) {
          	
-    	var dtoOpt = repository.findById(id).map(entity -> mapper.toDto(entity,prefixProvider));   
-        return dtoOpt.orElse(new DocumentoDto());
+    	
+        return repository.findById(id).map(entity -> mapper.toDto(entity,prefixProvider))
+        		.orElse(new DocumentoDto());
     }
     
     @Override
     @Transactional
     public DocumentoDto save(DocumentoDto dto) {
 
+		/*
+		 * 
+		 * 
+		 * Set<Tag> managedTags = dto.getTags().stream().map(tagDto -> { // Se il DTO ha
+		 * già l'ID, lo carichiamo (o lo usiamo direttamente) if (tagDto.getIdTag() !=
+		 * null) { return tagService.findById(tagDto.getIdTag());
+		 * 
+		 * } // Se l'ID è null, cerchiamo per nome per evitare duplicati return
+		 * tagService.findByNomeTag(tagDto.getNomeTag()) .orElseGet(() -> { Tag newTag =
+		 * new Tag(); newTag.setNomeTag(tagDto.getNomeTag());
+		 * newTag.setTipoOggetto("Documento"); // Associa il tipo 'Documento' ai nuovi
+		 * tag"); return tagService.create(newTag); }); }).collect(Collectors.toSet());
+		 * 
+		 * entity.setTags(managedTags);
+		 */
+    	
+    	  Optional<Documento> esistente = repository.findByNomeAndAutoreAndCategoriaAndVersione(
+    			  dto.getNome(), dto.getAutore(),dto.getCategoria(), dto.getVersione());
+    	
+    	// Controllo per evitare di salvare un duplicato: se esiste già un documento con lo stesso nome, autore, categoria e versione 
+  	    // e l'ID del DTO è null (nuovo) o diverso da quello trovato (modifica), lanciamo un'eccezione 
+  	    if (esistente.isPresent()) {
+  	        // Se l'ID del DTO è null (Nuovo) o se l'ID è diverso da quello trovato (Modifica con dati di un altro)
+  	        if (dto.getId() == null || !esistente.get().getId().equals(dto.getId())) {
+  	          log.error("Attenzione: il documento '{}' è già presente in archivio con ID {}", dto.getNome(), esistente.get().getId());
+  	        	throw new RuntimeException ("Attenzione: il documento '" + dto.getNome() + "' è già presente in archivio.");
+  	        }
+  	    }
+    	
     	Documento entity =mapper.toEntity(dto,prefixProvider);
-
-    			Set<Tag> managedTags = dto.getTags().stream().map(tagDto -> {
-    				// Se il DTO ha già l'ID, lo carichiamo (o lo usiamo direttamente)
-    				if (tagDto.getIdTag() != null) {
-    					return tagService.findById(tagDto.getIdTag());
-
-    				}
-    				// Se l'ID è null, cerchiamo per nome per evitare duplicati
-    				return tagService.findByNomeTag(tagDto.getNomeTag())
-    						.orElseGet(() -> {
-    							Tag newTag = new Tag();
-    							newTag.setNomeTag(tagDto.getNomeTag());
-    							newTag.setTipoOggetto("Documento"); // Associa il tipo 'Documento' ai nuovi tag");
-    							return tagService.create(newTag);
-    						});
-    			}).collect(Collectors.toSet());
-
-    	entity.setTags(managedTags);
     	entity = repository.save(entity);
     	log.info("Save New Document file. Id {}",entity.getId());
     	return dto;
     }
     
+    // Usato per la paginazione della grid nella Index. Servono i tag per le colonne della tabella
     @Override
     @Transactional(readOnly = true)
     public Page<DocumentoDto> findPage(Pageable pageable,DtoFilter filter) {
         
-    	Specification<Documento> spec = specificationFactory.build(filter);     
+    	// Uniamo la specifica del filtro CON quella del fetch
+    	Specification<Documento> spec = specificationFactory.build(filter);    
     
-	    Page<Documento> result =repository.findAll(spec, pageable);
+	    Page<Documento> result =repository.findAll(spec, pageable); // useremo il findAll(Spec, Pageable) standard del repository
 	    if (result.isEmpty()) {
 	        return new PageImpl<>(Collections.emptyList(), pageable, 0); // caso Not Found
 	    }
@@ -105,11 +122,46 @@ public class DocumentoServiceImpl implements SearchService<DocumentoDto, DtoFilt
  
     }
     
-	@Override
-	public long count() {
+    // Utilizzato per la navigazione rapida nella grid sulla pagina del Form. Non serve caricare i tags, poichè siamo in modalità view basta sapere l'ID alla posizione X
+    @Override
+	@Transactional(readOnly = true)
+	public Optional<Long> findIdAtPosition(DtoFilter filter, Sort sort, int index) {
+	    if (index < 0) return Optional.empty();
 
-		return repository.count();		 
+	    // 1. Usiamo la tua specFactory per costruire il filtro (Senza fetchTags!)
+	    Specification<Documento> spec = specificationFactory.build(filter);
+
+	    // 2. Creiamo una richiesta di pagina per un singolo elemento all'indice specificato
+	    // PageRequest.of(index, 1, sort) -> Pagina numero 'index', dimensione 1
+	    PageRequest pageable = PageRequest.of(index, 1, 
+	    	    (sort != null && sort.isSorted()) ? sort : Sort.by(Sort.Direction.DESC, "id"));
+
+	    // 3. Eseguiamo la query
+	    // Usiamo SEMPRE la versione leggera qui. Ci serve sapere che l'ID alla posizione 7 è il numero 27!
+	    // Usiamo il findAll standard. Poiché NON abbiamo messo fetchTags(), 
+	    // Hibernate NON caricherà le collezioni e il database farà un OFFSET velocissimo.
+	    Page<Documento> result = repository.findAll(spec, pageable);
+
+	    
+	    log.debug("Navigazione: cerco indice {}, trovato ID {}", index, 
+	             result.hasContent() ? result.getContent().get(0).getId() : "NULL");
+	    
+	    // 4. Restituiamo l'ID se trovato
+	    return result.getContent().stream()
+	                 .map(Documento::getId)
+	                 .findFirst();
 	}
+
+	@Override
+	public long count(DtoFilter filter) {
+	    return repository.count(specificationFactory.build(filter));
+	}
+	
+	/*
+	 * @Override public long count() {
+	 * 
+	 * return repository.count(); }
+	 */
 	
     @Override
     public void delete(Long id) {       
