@@ -26,6 +26,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
+import it.catalog.service.dto.HasId;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DateRangeCriterion;
 import it.catalog.service.dto.search.StringCriterion;
@@ -37,7 +38,8 @@ import it.catalog.ui.utility.SearchFieldOption;
 import it.catalog.utility.DynamicI18nProvider;
 
 /*Logica universale di ricerca, paginazione e UI*/
-public abstract class AbstractSearchView<T, F extends BaseFilter> extends VerticalLayout implements BeforeEnterObserver {
+public abstract class AbstractSearchView<T extends HasId, F extends BaseFilter> 
+extends VerticalLayout implements BeforeEnterObserver {
 
     protected final SearchService<T, F> service;
     protected final Class<T> dtoClass;
@@ -84,7 +86,41 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         
         // Abilita il drag & drop delle colonne
         grid.setColumnReorderingAllowed(true);
+        
+        grid.getColumns().forEach(col -> col.setAutoWidth(true)); // adatta alla pagina
 
+        // rendi la tabella interattiva
+		/*
+		 * grid.addItemClickListener(event -> { Long id = event.getItem().getId(); T
+		 * item = event.getItem(); int indexInGrid =
+		 * grid.getListDataView().getItemIndex(item); // Calcoliamo la posizione
+		 * assoluta nel database int absoluteIndex = (this.pageNumber * this.pageSize) +
+		 * indexInGrid; Map<String, String> params = new HashMap<>(); params.put("view",
+		 * "true"); params.put("page", String.valueOf(this.pageNumber)); // Passiamo la
+		 * pagina attuale params.put("pos", String.valueOf(absoluteIndex)); // Passiamo
+		 * la posizione // Dobbiamo passare anche i filtri per ricostruire la query!
+		 * params.put("search", searchField.getValue());
+		 * 
+		 * QueryParameters qp = QueryParameters.simple(params); getUI().ifPresent(ui ->
+		 * ui.navigate(Form.class, id, qp)); });
+		 */
+
+       	
+       	grid.addItemClickListener(event -> {
+       	    T item = event.getItem();
+       	    
+       	    // 1. Calcoliamo l'indice nella pagina attuale (0, 1, 2...)
+       	    int indexInPage = grid.getListDataView().getItemIndex(item).orElse(0);
+       	    
+       	    // 2. Calcoliamo la posizione assoluta nel database
+       	    // (pageNumber * pageSize) è l'offset delle pagine precedenti
+       	    int absoluteIndex = (this.pageNumber * this.pageSize) + indexInPage;
+       	    
+       	    // 3. Passiamo l'ID e la posizione calcolata
+       	    navigateToForm(item.getId(), absoluteIndex);
+       	});
+       	
+       	
         
         initLayout();
 //        setupDataProvider();
@@ -238,7 +274,7 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
         dateFrom.setVisible(false);
         dateTo.setVisible(false);
 
-        Button addButton = new Button("Nuovo", e -> navigateToForm(null));
+        Button addButton = new Button("Nuovo", e -> navigateToForm(null,null));
         addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         
         HorizontalLayout top = new HorizontalLayout(filters, addButton);
@@ -399,5 +435,5 @@ public abstract class AbstractSearchView<T, F extends BaseFilter> extends Vertic
 
     // Metodi da implementare nelle View specifiche
     protected abstract void configureGrid(Grid<T> grid);
-    protected abstract void navigateToForm(Long id);
+    protected abstract void navigateToForm(Long id, Integer position);
 }
