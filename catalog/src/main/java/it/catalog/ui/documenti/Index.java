@@ -26,6 +26,7 @@ import it.catalog.service.dto.DocumentoDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.impl.DocumentoServiceImpl;
+import it.catalog.ui.common.AbstractBaseForm;
 import it.catalog.ui.common.AbstractSearchView;
 import it.catalog.ui.common.MainLayout;
 
@@ -48,27 +49,6 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 
 	}
 
-	/*
-	 * private void setComboBoxSampleData(ComboBox<String> comboBox) {
-	 * 
-	 * List<SampleItem> sampleItems = new ArrayList<>(); sampleItems.add(new
-	 * SampleItem("first", "First", null)); sampleItems.add(new SampleItem("second",
-	 * "Second", null)); sampleItems.add(new SampleItem("third", "Third",
-	 * Boolean.TRUE)); sampleItems.add(new SampleItem("fourth", "Fourth", null));
-	 * 
-	 * List<String> sampleItems =
-	 * Arrays.stream(DocumentoDto.class.getDeclaredFields()) .map(Field::getName)
-	 * .filter(nome -> !nome.equalsIgnoreCase("idDocumento")) // esclude il campo
-	 * "idDocumento" .collect(Collectors.toList()); comboBox.setItems(sampleItems);
-	 * // comboBox.setItemLabelGenerator(Item::label);
-	 * comboBox.setPlaceholder("Cerca per..."); comboBox.setWidth("min-content");
-	 * comboBox.setClearButtonVisible(true);
-	 * 
-	 * // comboBox.setRenderer(new ComponentRenderer<>(item -> { // ComboBox<Item>
-	 * inner = new ComboBox<>(); // inner.setEnabled(!item.disabled()); // return
-	 * new Text(item.label()); // })); }
-	 */
-
 	@Override
 	protected void configureGrid(Grid<DocumentoDto> grid) {
 
@@ -88,70 +68,14 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		.setHeader("Nome").setSortable(true).setKey("nome");
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(String.valueOf(doc.getDimensione()));
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
+			Span span = new Span(doc.getAutore());
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
 				span.addClassName("riga-cancellata");
-			}
 			return span;
 		})).setResizable(true) // L'utente può allargarla
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Dimensione").setSortable(true).setKey("dimensione");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getDescrizione());
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
-				span.addClassName("riga-cancellata");
-			}
-			return span;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Descrizione").setSortable(true).setKey("descrizione");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(String.valueOf(doc.getVersione()));
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
-				span.addClassName("riga-cancellata");
-			}
-			return span;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Versione").setSortable(true).setKey("versione");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getStato().getLabel());
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
-				span.addClassName("riga-cancellata");
-			}
-			return span;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Stato").setSortable(true).setKey("stato");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getFormato().getLabel());
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
-				span.addClassName("riga-cancellata");
-			}
-			return span;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Estensione").setSortable(true).setKey("formato");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getOrigine());
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
-				span.addClassName("riga-cancellata");
-			}
-			return span;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Origine").setSortable(true).setKey("origine");
+		.setHeader("Autore").setSortable(true).setKey("autore");
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
 			Span span = new Span(doc.getCategoria().getLabel());
@@ -163,16 +87,82 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
 		.setHeader("Categorie").setSortable(true).setKey("categoria");
-
+		
 		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getAutore());
+			Span span = new Span(String.valueOf(doc.getVersione()));
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
+				span.addClassName("riga-cancellata");
+			}
+			return span;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Versione").setSortable(true).setKey("versione");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(doc.getLingua());
 			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
 				span.addClassName("riga-cancellata");
 			return span;
 		})).setResizable(true) // L'utente può allargarla
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Autore").setSortable(true).setKey("autore");
+		.setHeader("Lingua").setSortable(true).setKey("lingua");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(doc.getOrigine());
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
+				span.addClassName("riga-cancellata");
+			}
+			return span;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Origine").setSortable(true).setKey("origine");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(doc.getStato().getLabel());
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
+				span.addClassName("riga-cancellata");
+			}
+			return span;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Stato").setSortable(true).setKey("stato");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(doc.getPath());
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
+				span.addClassName("riga-cancellata");
+			return span;
+		}))
+		.setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Path File").setSortable(true).setKey("path");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(doc.getFormato().getLabel());
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
+				span.addClassName("riga-cancellata");
+			}
+			return span;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Estensione").setSortable(true).setKey("formato");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(String.valueOf(doc.getDimensione()));
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
+				span.addClassName("riga-cancellata");
+			}
+			return span;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Dimensione (byte)").setSortable(true).setKey("dimensione");
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
 			Span span = new Span(
@@ -195,8 +185,19 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		})).setResizable(true) // L'utente può allargarla
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Aggiornamento").setSortable(true).setKey("lastUpdate");
+		.setHeader("Data Aggiornamento").setSortable(true).setKey("lastUpdate");
 
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Checkbox checkbox = new Checkbox(doc.isBackup());
+			checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
+				checkbox.addClassName("riga-cancellata");
+			return checkbox;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Backup").setSortable(true).setKey("backup");
+		
 		grid.addColumn(new ComponentRenderer<>(doc -> {
 			Span span = new Span(doc.getLastView() != null ? FORMAT_DATETIME.format(doc.getLastView().atZone(ZoneId.systemDefault())) : "");
 			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
@@ -207,16 +208,48 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
 		.setHeader("Ultima Visualizzazione").setSortable(true).setKey("lastView");
-
+		
 		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getLingua());
+			Span span = new Span(String.valueOf(doc.getVisualizzazioni()));
 			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
 				span.addClassName("riga-cancellata");
 			return span;
 		})).setResizable(true) // L'utente può allargarla
 		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
 		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Lingua").setSortable(true).setKey("lingua");
+		.setHeader("Visual").setSortable(true).setKey("visualizzazioni");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(doc.getRating() != null ? doc.getRating().toString() : "0");
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
+				span.addClassName("riga-cancellata");
+			return span;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Valutazione").setSortable(true).setKey("rating");
+		
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Checkbox checkbox = new Checkbox(doc.isPreferito());
+			checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
+				checkbox.addClassName("riga-cancellata");
+			return checkbox;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Preferito").setSortable(true).setKey("preferito");
+
+		grid.addColumn(new ComponentRenderer<>(doc -> {
+			Span span = new Span(doc.getDescrizione());
+			if (doc.getStato().equals(StatiDocumento.ELIMINATO)) {
+				span.addClassName("riga-cancellata");
+			}
+			return span;
+		})).setResizable(true) // L'utente può allargarla
+		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
+		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
+		.setHeader("Descrizione").setSortable(true).setKey("descrizione");
 
 		grid.addColumn(new ComponentRenderer<>(doc -> {
 			Span span = new Span(doc.getNote());
@@ -248,60 +281,6 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 			return div;
 		})).setSortable(true).setKey("tags");
 
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getPath());
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
-				span.addClassName("riga-cancellata");
-			return span;
-		}))
-		.setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Path").setSortable(true).setKey("path");
-
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Checkbox checkbox = new Checkbox(doc.isPreferito());
-			checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
-				checkbox.addClassName("riga-cancellata");
-			return checkbox;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Preferito").setSortable(true).setKey("preferito");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(doc.getRating() != null ? doc.getRating().toString() : "0");
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
-				span.addClassName("riga-cancellata");
-			return span;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Valutazione").setSortable(true).setKey("rating");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Span span = new Span(String.valueOf(doc.getVisualizzazioni()));
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
-				span.addClassName("riga-cancellata");
-			return span;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Visual").setSortable(true).setKey("visualizzazioni");
-
-		grid.addColumn(new ComponentRenderer<>(doc -> {
-			Checkbox checkbox = new Checkbox(doc.isBackup());
-			checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
-			if (doc.getStato().equals(StatiDocumento.ELIMINATO))
-				checkbox.addClassName("riga-cancellata");
-			return checkbox;
-		})).setResizable(true) // L'utente può allargarla
-		.setFlexGrow(0) // evita che venga ridimensionata automaticamente
-		.setAutoWidth(true) // la colonna si adatti automaticamente al contenuto
-		.setHeader("Backup").setSortable(true).setKey("backup");
-
 		grid.addComponentColumn(document -> {
 			HorizontalLayout actions = new HorizontalLayout();
 
@@ -328,22 +307,22 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 
 		// riordina le colonne manualmente
 		//        grid.setColumnReorderingAllowed(true);
-		grid.getColumns().forEach(col -> col.setAutoWidth(true)); // adatta alla pagina
+//		grid.getColumns().forEach(col -> col.setAutoWidth(true)); // adatta alla pagina
 		// Abilita il ridimensionamento per tutte le colonne
 		//        grid.getColumns().forEach(column -> column.setResizable(true));
 
 		// rendi la tabella interattiva
-		grid.addItemClickListener(event -> {
-		    Long id = event.getItem().getId();
-		    Map<String, String> params = new HashMap<>();
-		    params.put("view", "true");
-		    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
-		    
-		    QueryParameters qp = QueryParameters.simple(params);
-		    
-		    // Navigazione: target, parametro ID, query parameters
-		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
-		});
+//		grid.addItemClickListener(event -> {
+//		    Long id = event.getItem().getId();
+//		    Map<String, String> params = new HashMap<>();
+//		    params.put("view", "true");
+//		    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
+//		    
+//		    QueryParameters qp = QueryParameters.simple(params);
+//		    
+//		    // Navigazione: target, parametro ID, query parameters
+//		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
+//		});
 
 	}
 
@@ -361,12 +340,45 @@ public class Index extends AbstractSearchView<DocumentoDto, DtoFilter> {
 	 * pagination; }
 	 */
 
+	/*
+	 * @Override protected void navigateToForm(Long id) { // Gestisci la navigazione
+	 * al form (nuovo o modifica) Map<String, String> params = new HashMap<>();
+	 * params.put("view", "false"); params.put("page",
+	 * String.valueOf(this.pageNumber)); // Passiamo la pagina attuale per il
+	 * ritorno alla pagina corrente
+	 * 
+	 * QueryParameters qp = QueryParameters.simple(params); // Navigazione: target,
+	 * parametro ID, query parameters getUI().ifPresent(ui ->
+	 * ui.navigate(Form.class, id, qp)); }
+	 */
+	
 	@Override
-	protected void navigateToForm(Long id) {
+	protected void navigateToForm(Long id, Integer position) {
 		// Gestisci la navigazione al form (nuovo o modifica)
 	    Map<String, String> params = new HashMap<>();
-	    params.put("view", "false");
-	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale per il ritorno alla pagina corrente
+	    // Se l'ID c'è, siamo in visualizzazione/modifica, altrimenti inserimento
+	    params.put(AbstractBaseForm.P_VIEW, id != null ? "true" : "false");
+	    params.put(AbstractBaseForm.P_PAGE, String.valueOf(this.pageNumber));
+	 // Se abbiamo la posizione (non è un nuovo inserimento), la passiamo
+	    if (position != null) {
+	        params.put(AbstractBaseForm.P_POS, String.valueOf(position));
+	    }
+	    
+	    // Aggiungiamo i filtri correnti per permettere alle freccette di funzionare
+	    String filterText = searchField.getValue();
+	    if (filterText != null && !filterText.isBlank()) {
+	        params.put(AbstractBaseForm.P_F_VAL, filterText);
+	        params.put(AbstractBaseForm.P_F_FIELD, searchFieldSelector.getValue().getFieldName());
+	    }
+	    
+	 // Prendiamo il sort dalla Grid o dalla variabile currentSort
+	    if (currentSort != null && currentSort.isSorted()) {
+	        currentSort.forEach(order -> {
+	            params.put(AbstractBaseForm.P_S_PROP, order.getProperty());
+	            params.put(AbstractBaseForm.P_S_DIR, order.getDirection().name());
+	        });
+	    }
+	    
 	    
 	    QueryParameters qp = QueryParameters.simple(params);
 	    // Navigazione: target, parametro ID, query parameters
