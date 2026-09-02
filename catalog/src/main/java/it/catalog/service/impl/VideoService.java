@@ -66,41 +66,78 @@ public class VideoService implements SearchService<VideoDto, DtoFilter>{
 		return tagService.findByTipoOggetto("Video");
 	}
 	
+	// Usato per la paginazione della grid nella Index. Servono i tag per le colonne della tabella
 	@Override
 	 @Transactional(readOnly = true)
 	public Page<VideoDto> findPage(Pageable pageable,DtoFilter filter) {
 		
 	    // 1. Creiamo la specifica basata sul filtro ricevuto dalla UI
-	    Specification<Video> spec = specificationFactory.build(filter);
+		// Uniamo la specifica del filtro CON quella del fetch
+	    Specification<Video> spec = specificationFactory.build(filter); 
 
 	 // 2. Eseguiamo la query filtrata e paginata
-	    Page<Video> entityPage = repository.findAll(spec, pageable);
+	    Page<Video> entityPage = repository.findAll(spec, pageable); // useremo il findAll(Spec, Pageable) standard del repository
 	    
 		if (entityPage.isEmpty()) { // caso Not Found
 			return new PageImpl<>(Collections.emptyList(), pageable, 0); 
 		}
 
-		return mapper.toDtoPage(entityPage);
+		return mapper.toDtoPage(entityPage,prefixProvider);
 
 	}
 	
+	// Utilizzato per la navigazione rapida nella grid sulla pagina del Form. Non serve caricare i tags, poichè siamo in modalità view basta sapere l'ID alla posizione X
 	@Override
-	public long count() {
+	@Transactional(readOnly = true)
+	public Optional<Long> findIdAtPosition(DtoFilter filter, Sort sort, int index) {
+	    if (index < 0) return Optional.empty();
 
-		return repository.count();		 
+	    // 1. Usiamo la tua specFactory per costruire il filtro
+	    Specification<Video> spec = specificationFactory.build(filter);
 
+	    // 2. Creiamo una richiesta di pagina per un singolo elemento all'indice specificato
+	    // PageRequest.of(index, 1, sort) -> Pagina numero 'index', dimensione 1
+	    PageRequest pageable = PageRequest.of(index, 1, 
+	    		 (sort != null && sort.isSorted()) ? sort : Sort.by(Sort.Direction.DESC, "id"));
+
+	    // 3. Eseguiamo la query
+	 // Usiamo SEMPRE la versione leggera qui. Ci serve sapere che l'ID alla posizione 7 è il numero 27!
+	    // Usiamo il findAll standard. Poiché NON abbiamo messo fetchTags(), 
+	    // Hibernate NON caricherà le collezioni e il database farà un OFFSET velocissimo.
+	    Page<Video> result = repository.findAll(spec, pageable);
+
+	    log.debug("Navigazione: cerco indice {}, trovato ID {}", index, 
+	             result.hasContent() ? result.getContent().get(0).getId() : "NULL");
+	    
+	    // 4. Restituiamo l'ID se trovato
+	    return result.getContent().stream()
+	                 .map(Video::getId)
+	                 .findFirst();
 	}
+
+	@Override
+	public long count(DtoFilter filter) {
+	    return repository.count(specificationFactory.build(filter));
+	}
+	/*
+	 * @Override public long count() {
+	 * 
+	 * return repository.count();
+	 * 
+	 * }
+	 */
 
 //    @Override
 //    public List<String> getCategorie() {
 //    	return repository.findDistinctCategoria();
 //    }
 
+//	 richiamato dalla pagina del form per aggiunta o modifica di un nuovo item*
     @Override
     public VideoDto findById(Long id) {
-		var dtoOpt = repository.findById(id).map(entity -> mapper.toDto(entity, prefixProvider));
+//		var dtoOpt = repository.findById(id).map(entity -> mapper.toDto(entity, prefixProvider));
 		
-		return dtoOpt.orElse(new VideoDto());
+		return repository.findById(id).map(entity -> mapper.toDto(entity, prefixProvider)).orElse(new VideoDto());
 	}
     
     
@@ -115,10 +152,22 @@ public class VideoService implements SearchService<VideoDto, DtoFilter>{
     @Override
     @Transactional
     public VideoDto save(VideoDto video) {
+	
+   	 // Cerchiamo un eventuale record già presente con gli stessi criteri
+	    Optional<Video> esistente = repository.findByTitoloAndCategoriaAndDurataMin(
+	    		video.getNome(), video.getCategoria(), video.getDurataMin());
+		
+	    // Controllo per evitare di salvare un duplicato: se esiste già un video con lo stesso titolo, categoria e durata 
+	    // e l'ID del DTO è null (nuovo) o diverso da quello trovato (modifica), lanciamo un'eccezione 
+	    if (esistente.isPresent()) {
+	        // Se l'ID del DTO è null (Nuovo) o se l'ID è diverso da quello trovato (Modifica con dati di un altro)
+	        if (video.getId() == null || !esistente.get().getId().equals(video.getId())) {
+	          log.error("Attenzione: il video '{}' è già presente in archivio con ID {}", video.getNome(), esistente.get().getId());
+	        	throw new RuntimeException ("Attenzione: il video '" + video.getNome() + "' è già presente in archivio.");
+	        }
+	    }
     	
-		/*
-		 * if (video.getRating() == null) { video.setRating(0.0); }
-		 */
+    	
     	
     	Video saved = repository.save(mapper.toEntity(video,prefixProvider));
     	log.info("Saved Video file {} with success.", saved.getId());
