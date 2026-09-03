@@ -33,6 +33,7 @@ import it.catalog.service.dto.FilmDto;
 import it.catalog.service.dto.TagDto;
 import it.catalog.service.dto.search.DtoFilter;
 import it.catalog.service.impl.FilmServiceImpl;
+import it.catalog.ui.common.AbstractBaseForm;
 import it.catalog.ui.common.AbstractSearchView;
 import it.catalog.ui.common.MainLayout;
 
@@ -50,53 +51,53 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         
 		super(service, FilmDto.class, "Archivio Film", DtoFilter::new);
 		
-		VerticalLayout layoutColumn2 = new VerticalLayout();
-        H1 h1 = new H1();
-        HorizontalLayout layoutRow = new HorizontalLayout();
-        ComboBox comboBox = new ComboBox();
-        TextField textField = new TextField();
-        ComboBox comboBox2 = new ComboBox();
-        Button buttonPrimary = new Button();
-//        Grid multiSelectGrid = new Grid(SamplePerson.class);
-//        getContent().setWidth("100%");
-//        getContent().getStyle().set("flex-grow", "1");
-        layoutColumn2.setWidthFull();
-//        getContent().setFlexGrow(1.0, layoutColumn2);
-        layoutColumn2.setWidth("100%");
-        layoutColumn2.getStyle().set("flex-grow", "1");
-        h1.setText("Archivio Film");
-        h1.setWidth("max-content");
-        layoutRow.setWidthFull();
-        layoutColumn2.setFlexGrow(1.0, layoutRow);
-        layoutRow.addClassName(Gap.MEDIUM);
-        layoutRow.addClassName(Padding.SMALL);
-        layoutRow.setWidth("100%");
-        layoutRow.getStyle().set("flex-grow", "1");
-        layoutRow.setAlignItems(Alignment.CENTER);
-        layoutRow.setJustifyContentMode(JustifyContentMode.START);
-        comboBox.setLabel("Criterio");
-        comboBox.setWidth("min-content");
-        setComboBoxSampleData(comboBox);
-        textField.setLabel("Text field");
-        textField.setWidth("min-content");
-        comboBox2.setLabel("Tags");
-        comboBox2.setWidth("min-content");
-        setComboBoxSampleData(comboBox2);
-        buttonPrimary.setText("Nuovo");
-        buttonPrimary.setWidth("min-content");
-        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//        multiSelectGrid.setSelectionMode(Grid.SelectionMode.MULTI);
-//        multiSelectGrid.setWidth("100%");
-//        multiSelectGrid.getStyle().set("flex-grow", "0");
-//        setGridSampleData(multiSelectGrid);
-//        getContent().add(layoutColumn2);
-        layoutColumn2.add(h1);
-        layoutColumn2.add(layoutRow);
-        layoutRow.add(comboBox);
-        layoutRow.add(textField);
-        layoutRow.add(comboBox2);
-        layoutRow.add(buttonPrimary);
-//        layoutColumn2.add(multiSelectGrid);
+//		VerticalLayout layoutColumn2 = new VerticalLayout();
+//        H1 h1 = new H1();
+//        HorizontalLayout layoutRow = new HorizontalLayout();
+//        ComboBox comboBox = new ComboBox();
+//        TextField textField = new TextField();
+//        ComboBox comboBox2 = new ComboBox();
+//        Button buttonPrimary = new Button();
+////        Grid multiSelectGrid = new Grid(SamplePerson.class);
+////        getContent().setWidth("100%");
+////        getContent().getStyle().set("flex-grow", "1");
+//        layoutColumn2.setWidthFull();
+////        getContent().setFlexGrow(1.0, layoutColumn2);
+//        layoutColumn2.setWidth("100%");
+//        layoutColumn2.getStyle().set("flex-grow", "1");
+//        h1.setText("Archivio Film");
+//        h1.setWidth("max-content");
+//        layoutRow.setWidthFull();
+//        layoutColumn2.setFlexGrow(1.0, layoutRow);
+//        layoutRow.addClassName(Gap.MEDIUM);
+//        layoutRow.addClassName(Padding.SMALL);
+//        layoutRow.setWidth("100%");
+//        layoutRow.getStyle().set("flex-grow", "1");
+//        layoutRow.setAlignItems(Alignment.CENTER);
+//        layoutRow.setJustifyContentMode(JustifyContentMode.START);
+//        comboBox.setLabel("Criterio");
+//        comboBox.setWidth("min-content");
+//        setComboBoxSampleData(comboBox);
+//        textField.setLabel("Text field");
+//        textField.setWidth("min-content");
+//        comboBox2.setLabel("Tags");
+//        comboBox2.setWidth("min-content");
+//        setComboBoxSampleData(comboBox2);
+//        buttonPrimary.setText("Nuovo");
+//        buttonPrimary.setWidth("min-content");
+//        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+////        multiSelectGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+////        multiSelectGrid.setWidth("100%");
+////        multiSelectGrid.getStyle().set("flex-grow", "0");
+////        setGridSampleData(multiSelectGrid);
+////        getContent().add(layoutColumn2);
+//        layoutColumn2.add(h1);
+//        layoutColumn2.add(layoutRow);
+//        layoutRow.add(comboBox);
+//        layoutRow.add(textField);
+//        layoutRow.add(comboBox2);
+//        layoutRow.add(buttonPrimary);
+////        layoutColumn2.add(multiSelectGrid);
 		
 		// Inizializza i criteri di ricerca basandosi sulle chiavi delle colonne
 		initSearchOptionsByGrid();
@@ -115,7 +116,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
             .setKey("rowNumber"); // Chiave opzionale
         
         grid.addColumn(new ComponentRenderer<>(film -> {
-      	    Span span = new Span(film.getTitolo());
+      	    Span span = new Span(film.getNome());
       	    if (film.isCancelled())
       	        span.addClassName("riga-cancellata");
 
@@ -124,8 +125,32 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
-         .setHeader("Titolo").setSortable(true).setKey("titolo");
-
+         .setHeader("Titolo").setSortable(true).setKey("nome");
+        
+        grid.addColumn(new ComponentRenderer<>(film -> {
+         	 Span span = new Span(film.getRegista());
+         	 if (film.isCancelled()) {
+         		 span.addClassName("riga-cancellata");
+         	 }
+         	 return span;
+          }))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Regista").setSortable(true).setKey("regista");
+        
+        grid.addColumn(new ComponentRenderer<>(film -> {
+         	 Span span = new Span(film.getDuration().toString());
+         	 if (film.isCancelled()) {
+         		 span.addClassName("riga-cancellata");
+         	 }
+         	 return span;
+          }))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Durata").setSortable(true).setKey("duration");
+        
         grid.addColumn(new ComponentRenderer<>(film -> {
         	Span span = new Span(film.getGenere());
         	if (film.isCancelled())
@@ -150,7 +175,29 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto 
         .setHeader("Anno").setSortable(true).setKey("anno");
 		 
+        grid.addColumn(new ComponentRenderer<>(film -> {
+			  Span span = new Span(film.getLocandina());
+			  if (film.isCancelled())
+				  span.addClassName("riga-cancellata");
+			  return span;
+		  }))
+		  .setResizable(true) // L'utente può allargarla
+		  .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+		  .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+		  .setHeader("Locandina").setSortable(true).setKey("locandina");
 		 
+        
+        grid.addColumn(new ComponentRenderer<>(film -> {
+         	 Span span = new Span(film.getTrailer());
+         	 if (film.isCancelled())
+         		 span.addClassName("riga-cancellata");
+         	 return span;
+          }))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Trailer").setSortable(true).setKey("trailer");
+        
 		  grid.addColumn(new ComponentRenderer<>(film -> {
        	 Span span = new Span(film.getPath());
        	 if (film.isCancelled())
@@ -161,18 +208,6 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
         .setHeader("Path File").setSortable(true).setKey("path");
-
-		  grid.addColumn(new ComponentRenderer<>(film -> {
-			  Span span = new Span(film.getLocandina());
-			  if (film.isCancelled())
-				  span.addClassName("riga-cancellata");
-			  return span;
-		  }))
-		  .setResizable(true) // L'utente può allargarla
-		  .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-		  .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-		  .setHeader("Locandina").setSortable(true).setKey("locandina");
-		
 		
 		 grid.addColumn(new ComponentRenderer<>(film -> {
        	 Span span = new Span(film.getEstensione().getLabel());
@@ -183,7 +218,7 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setResizable(true) // L'utente può allargarla
         .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Formato").setSortable(true).setKey("estensione");
+        .setHeader("Estensione").setSortable(true).setKey("estensione");
 
         grid.addColumn(new ComponentRenderer<>(film -> {
         	Span span = new Span(String.valueOf(film.getDimensione()));   	
@@ -196,92 +231,6 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
         .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
         .setHeader("Dimensione (byte)").setSortable(true).setKey("dimensione");
  
-        // caselle checkbox
-        grid.addColumn(new ComponentRenderer<>(film -> {
-            Checkbox checkbox = new Checkbox(film.isPreferito());
-            checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
-            if (film.isCancelled()) 
-            	checkbox.addClassName("riga-cancellata");
-            return checkbox;
-        }))
-        .setResizable(true) // L'utente può allargarla
-        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Preferito").setSortable(true).setKey("preferito");
-        
-        
-        grid.addColumn(new ComponentRenderer<>(film -> {
-     		Span span = new Span(film.getRating() != null ? film.getRating().toString() :"0");
-     		if (film.isCancelled())
-     			span.addClassName("riga-cancellata");
-     		return span;
-     	}))
-        .setResizable(true) // L'utente può allargarla
-        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Valutazione").setSortable(true).setKey("rating");
-        
-        
-        grid.addColumn(new ComponentRenderer<>(film -> {
-          	 Span span = new Span(film.getRegista());
-          	 if (film.isCancelled()) {
-          		 span.addClassName("riga-cancellata");
-          	 }
-          	 return span;
-           }))
-           .setResizable(true) // L'utente può allargarla
-           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-           .setHeader("Regista").setSortable(true).setKey("regista");
-        
-        grid.addColumn(new ComponentRenderer<>(film -> {
-          	 Span span = new Span(film.getProtagonisti());
-          	 if (film.isCancelled()) {
-          		 span.addClassName("riga-cancellata");
-          	 }
-          	 return span;
-           }))
-           .setResizable(true) // L'utente può allargarla
-           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-           .setHeader("Protagonisti").setSortable(true).setKey("protagonisti");
-        
-        grid.addColumn(new ComponentRenderer<>(film -> {
-         	 Span span = new Span(film.getDescrizione());
-         	 if (film.isCancelled()) {
-         		 span.addClassName("riga-cancellata");
-         	 }
-         	 return span;
-          }))
-          .setResizable(true) // L'utente può allargarla
-          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-          .setHeader("Trama").setSortable(true).setKey("descrizione");
-        
-        
-        grid.addColumn(new ComponentRenderer<>(film -> {
-          	 Span span = new Span(film.getDuration().toString());
-          	 if (film.isCancelled()) {
-          		 span.addClassName("riga-cancellata");
-          	 }
-          	 return span;
-           }))
-           .setResizable(true) // L'utente può allargarla
-           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-           .setHeader("Durata").setSortable(true).setKey("duration");
-        
-		  grid.addColumn(new ComponentRenderer<>(film -> {
-	          	 Span span = new Span(film.getTrailer());
-	          	 if (film.isCancelled())
-	          		 span.addClassName("riga-cancellata");
-	          	 return span;
-	           }))
-	           .setResizable(true) // L'utente può allargarla
-	           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-	           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-	           .setHeader("Trailer").setSortable(true).setKey("trailer");
-		  
         grid.addColumn(new ComponentRenderer<>(film -> {
       		Span span = new Span(film.getDataArchiviazione() != null ? FORMAT_DATE.format(film.getDataArchiviazione()) : "");
       		if (film.isCancelled()) {
@@ -292,7 +241,19 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Archiviazione").setSortable(true).setKey("dataArchiviazione");
+         .setHeader("Data Archiviazione").setSortable(true).setKey("dataArchiviazione");
+        
+        grid.addColumn(new ComponentRenderer<>(film -> {
+        	Span span = new Span(film.getLastView() != null ? FORMAT_DATETIME.format(film.getLastUpdate().atZone(ZoneId.systemDefault())) : "");
+        	if (film.isCancelled()) {
+        		span.addClassName("riga-cancellata");
+        	}
+        	return span;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Data Aggiornamento").setSortable(true).setKey("lastUpdate");
 		 
 		  grid.addColumn(new ComponentRenderer<>(film -> {
             Checkbox checkbox = new Checkbox(film.isBackup());
@@ -318,21 +279,8 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setResizable(true) // L'utente può allargarla
          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-         .setHeader("Ultima Visual").setSortable(true).setKey("lastView");
+         .setHeader("Ultima Visualizzazione").setSortable(true).setKey("lastView");
 
-        grid.addColumn(new ComponentRenderer<>(film -> {
-        	Span span = new Span(film.getLastView() != null ? FORMAT_DATETIME.format(film.getLastUpdate().atZone(ZoneId.systemDefault())) : "");
-        	if (film.isCancelled()) {
-        		span.addClassName("riga-cancellata");
-        	}
-        	return span;
-        }))
-        .setResizable(true) // L'utente può allargarla
-        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Aggiornamento").setSortable(true).setKey("lastUpdate");
-        
-        
         grid.addColumn(new ComponentRenderer<>(film -> {
       		Span span = new Span(String.valueOf(film.getVisualizzazioni()));
       		if (film.isCancelled()) {
@@ -345,6 +293,68 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
          .setHeader("Visual").setSortable(true).setKey("visualizzazioni");
         
+        grid.addColumn(new ComponentRenderer<>(film -> {
+     		Span span = new Span(film.getRating() != null ? film.getRating().toString() :"0");
+     		if (film.isCancelled())
+     			span.addClassName("riga-cancellata");
+     		return span;
+     	}))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Valutazione").setSortable(true).setKey("rating");
+        
+        // caselle checkbox
+        grid.addColumn(new ComponentRenderer<>(film -> {
+            Checkbox checkbox = new Checkbox(film.isPreferito());
+            checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
+            if (film.isCancelled()) 
+            	checkbox.addClassName("riga-cancellata");
+            return checkbox;
+        }))
+        .setResizable(true) // L'utente può allargarla
+        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+        .setHeader("Preferito").setSortable(true).setKey("preferito");
+        
+        grid.addColumn(new ComponentRenderer<>(film -> {
+         	 Span span = new Span(film.getDescrizione());
+         	 if (film.isCancelled()) {
+         		 span.addClassName("riga-cancellata");
+         	 }
+         	 return span;
+          }))
+          .setResizable(true) // L'utente può allargarla
+          .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+          .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+          .setHeader("Trama").setSortable(true).setKey("descrizione");
+        
+        
+         grid.addColumn(new ComponentRenderer<>(film -> {
+          	 Span span = new Span(film.getProtagonisti());
+          	 if (film.isCancelled()) {
+          		 span.addClassName("riga-cancellata");
+          	 }
+          	 return span;
+           }))
+           .setResizable(true) // L'utente può allargarla
+           .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+           .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+           .setHeader("Protagonisti").setSortable(true).setKey("protagonisti");
+        
+		 
+         grid.addColumn(new ComponentRenderer<>(film -> {
+           	 Span span = new Span(film.getNote());
+           	 if (film.isCancelled()) {
+           		 span.addClassName("riga-cancellata");
+           	 }
+           	 return span;
+            }))
+            .setResizable(true) // L'utente può allargarla
+            .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
+            .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
+            .setHeader("Note").setSortable(true).setKey("note");
+
         // colonna custom per i tag
      	grid.addColumn(p -> {
      	    if (p.getTags() == null) return "";
@@ -369,18 +379,6 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
      	    return div;
      	})).setSortable(true).setKey("tags");
 
-        grid.addColumn(new ComponentRenderer<>(film -> {
-       	 Span span = new Span(film.getNote());
-       	 if (film.isCancelled()) {
-       		 span.addClassName("riga-cancellata");
-       	 }
-       	 return span;
-        }))
-        .setResizable(true) // L'utente può allargarla
-        .setFlexGrow(0)     // evita che venga ridimensionata automaticamente
-        .setAutoWidth(true)   // la colonna si adatti automaticamente al contenuto
-        .setHeader("Note").setSortable(true).setKey("note");
-        
         grid.addColumn(new ComponentRenderer<>(film -> {
             Checkbox checkbox = new Checkbox(film.isCancelled());
             checkbox.setReadOnly(true); // evita modifiche da parte dell'utente
@@ -423,46 +421,45 @@ public class Index  extends AbstractSearchView<FilmDto, DtoFilter> {
          .setHeader("Azioni");
 
          
-         grid.getColumns().forEach(col -> col.setAutoWidth(true)); // adatta alla pagina
-
-      // rendi la tabella interattiva
-     	grid.addItemClickListener(event -> {
-     		 Long id = event.getItem().getId();
-     	    Map<String, String> params = new HashMap<>();
-     	    params.put("view", "true");
-     	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale
-     	    
-     	    QueryParameters qp = QueryParameters.simple(params);
-     	    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
- 		});
-		 
 	}
 
 
 
-    record SampleItem(String value, String label, Boolean disabled) {
-    }
+//    record SampleItem(String value, String label, Boolean disabled) {
+//    }
 
-    private void setComboBoxSampleData(ComboBox comboBox) {
-        List<SampleItem> sampleItems = new ArrayList<>();
-        sampleItems.add(new SampleItem("first", "First", null));
-        sampleItems.add(new SampleItem("second", "Second", null));
-        sampleItems.add(new SampleItem("third", "Third", Boolean.TRUE));
-        sampleItems.add(new SampleItem("fourth", "Fourth", null));
-        comboBox.setItems(sampleItems);
-        comboBox.setItemLabelGenerator(item -> ((SampleItem) item).label());
-    }
+//    private void setComboBoxSampleData(ComboBox comboBox) {
+//        List<SampleItem> sampleItems = new ArrayList<>();
+//        sampleItems.add(new SampleItem("first", "First", null));
+//        sampleItems.add(new SampleItem("second", "Second", null));
+//        sampleItems.add(new SampleItem("third", "Third", Boolean.TRUE));
+//        sampleItems.add(new SampleItem("fourth", "Fourth", null));
+//        comboBox.setItems(sampleItems);
+//        comboBox.setItemLabelGenerator(item -> ((SampleItem) item).label());
+//    }
 
 //    private void setGridSampleData(Grid grid) {
 //        grid.setItems(query -> samplePersonService.list(VaadinSpringDataHelpers.toSpringPageRequest(query)).stream());
 //    }
 
     @Override
-	protected void navigateToForm(Long id) {
+	protected void navigateToForm(Long id, Integer position) {
 		// Gestisci la navigazione al form (nuovo o modifica)
 	    Map<String, String> params = new HashMap<>();
-	    params.put("view", "false");
-	    params.put("page", String.valueOf(this.pageNumber)); // Passiamo la pagina attuale per il ritorno alla pagina corrente
+	    // Se l'ID c'è, siamo in visualizzazione/modifica, altrimenti inserimento
+	    params.put(AbstractBaseForm.P_VIEW, id != null ? "true" : "false");
+	    params.put(AbstractBaseForm.P_PAGE, String.valueOf(this.pageNumber));
+	 // Se abbiamo la posizione (non è un nuovo inserimento), la passiamo
+	    if (position != null) {
+	        params.put(AbstractBaseForm.P_POS, String.valueOf(position));
+	    }
+	    
+	    // Aggiungiamo i filtri correnti per permettere alle freccette di funzionare
+	    String filterText = searchField.getValue();
+	    if (filterText != null && !filterText.isBlank()) {
+	        params.put(AbstractBaseForm.P_F_VAL, filterText);
+	        params.put(AbstractBaseForm.P_F_FIELD, searchFieldSelector.getValue().getFieldName());
+	    }
 	    
 	    QueryParameters qp = QueryParameters.simple(params);
 	    // Navigazione: target, parametro ID, query parameters
