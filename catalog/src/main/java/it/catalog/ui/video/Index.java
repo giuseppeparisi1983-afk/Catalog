@@ -1,45 +1,46 @@
 package it.catalog.ui.video;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import it.catalog.service.dto.VideoDto;
-import it.catalog.service.impl.VideoService;
+import it.catalog.service.dto.search.DtoFilter;
+import it.catalog.service.interfaces.SearchService;
+import it.catalog.ui.common.AbstractBaseForm;
 import it.catalog.ui.common.MainLayout;
 import it.catalog.ui.video.base.AbstractVideoIndex;
 
-@Route(value="video", layout = MainLayout.class)
-@PageTitle("Video")
-//@CssImport("./styles/styles.css")
+@Route(value = "video", layout = MainLayout.class)
+@PageTitle("Archivio Video")
 public class Index extends AbstractVideoIndex<VideoDto> {
 
-    public Index(VideoService videoService) {
-        super(videoService, VideoDto.class, "Archivio Video");
-        
-        Anchor guitarLink = new Anchor("chitarra", "🎸 Vai a Video Chitarra");
-        addComponentAsFirst(guitarLink);
-    }
+	public Index(SearchService<VideoDto, DtoFilter> service) {
+		super(service, VideoDto.class, "Archivio Video");
+	}
 
-    @Override
-    protected void addExtraColumns(Grid<VideoDto> grid) {
-        // Nessuna colonna extra per i video comuni
-    }
+	@Override
+	protected void addExtraColumns(Grid<VideoDto> grid) {
+		// I video base non hanno colonne extra oltre a quelle comuni
+	}
 
-    @Override
-    protected void navigateToForm(Integer id, boolean viewMode) {
-        QueryParameters qp = QueryParameters.simple(Map.of("view", String.valueOf(viewMode)));
-        String path = (id == null) ? "video-form" : "video-form/" + id;
-        getUI().ifPresent(ui -> ui.navigate(path, qp));
-    }
+	/**
+	 * restituisce il percorso della route a cui tornare quando si chiude il form. 
+	 * Il metodo è richiamato da navigateBack() dentro la classe padre AbstractBaseForm
+	 * */
+	@Override
+	protected String getReturnRoute() {
+		return "video";
+	}
 
-    @Override
-    protected void navigateToForm(Long id) {
-        // Implementazione obbligatoria per il bottone "Nuovo" di AbstractSearchView
-        navigateToForm(id != null ? id.intValue() : null, false);
-    }
+	// Specifichiamo quale form aprire
+	@Override
+	protected Class<? extends Component> getFormClass() {
+		return Form.class;
+	}
+
 }
