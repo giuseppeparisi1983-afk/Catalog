@@ -30,7 +30,7 @@ public class Index extends AbstractVideoIndex<VideoDto> {
 
 	/**
 	 * restituisce il percorso della route a cui tornare quando si chiude il form. 
-	 * Il metodo è richiamato da navigateBack() dentro la classe padre AbstractBaseForm
+	 * Questo viene richiamato dal metodo navigateBack() della classe padre AbstractBaseForm
 	 * */
 	@Override
 	protected String getReturnRoute() {

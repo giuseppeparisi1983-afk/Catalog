@@ -143,6 +143,10 @@ public class Form extends AbstractCommonFileForm<AudioDto, SearchService<AudioDt
 		return new AudioDto();
 	}
 
+	/**
+	 * restituisce il percorso della route a cui tornare quando si chiude il form. 
+	 * Questo viene richiamato dal metodo navigateBack() della classe padre AbstractBaseForm
+	 * */
 	@Override
 	protected String getReturnRoute() {
 		return "audio";

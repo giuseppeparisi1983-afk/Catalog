@@ -112,6 +112,10 @@ public class Form extends AbstractCommonFileForm<DocumentoDto, SearchService<Doc
 		return new DocumentoDto();
 	}
 
+	/**
+	 * restituisce il percorso della route a cui tornare quando si chiude il form. 
+	 * Questo viene richiamato dal metodo navigateBack() della classe padre AbstractBaseForm
+	 * */
 	@Override
 	protected String getReturnRoute() {
 		return "documents";
