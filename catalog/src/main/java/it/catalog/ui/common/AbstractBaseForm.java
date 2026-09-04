@@ -322,6 +322,7 @@ extends VerticalLayout implements HasUrlParameter<Long> {
     protected abstract T createNewBean();
     protected abstract String getReturnRoute();
  
+    // questo serve per la navigazione dal Form alla Index  
     protected void navigateBack() {
         // Costruiamo i parametri di ritorno includendo la pagina
         QueryParameters qp = QueryParameters.simple(Map.of(P_PAGE, String.valueOf(returnPage)));
