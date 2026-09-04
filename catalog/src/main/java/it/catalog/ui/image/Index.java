@@ -313,6 +313,14 @@ public class Index extends AbstractSearchView<ImageDto, DtoFilter> {
 		        params.put(AbstractBaseForm.P_F_FIELD, searchFieldSelector.getValue().getFieldName());
 		    }
 		    
+		    // Prendiamo il sort dalla Grid o dalla variabile currentSort
+		    if (currentSort != null && currentSort.isSorted()) {
+		        currentSort.forEach(order -> {
+		            params.put(AbstractBaseForm.P_S_PROP, order.getProperty());
+		            params.put(AbstractBaseForm.P_S_DIR, order.getDirection().name());
+		        });
+		    }
+		    
 		    QueryParameters qp = QueryParameters.simple(params);
 		    // Navigazione: target, parametro ID, query parameters
 		    getUI().ifPresent(ui -> ui.navigate(Form.class, id, qp));
